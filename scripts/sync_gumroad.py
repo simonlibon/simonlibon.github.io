@@ -51,7 +51,7 @@ def main():
             "published": True,
             "releaseDate": str(p.get("created_at") or "")[:10],
         })
-    catalogue = {"shopName": "Simon Libon — Tabs & Tracks", "products": products}
+    catalogue = {"shopName": "Simon Libon — Tabs & Backing Tracks", "products": products}
     content = "/* Auto-generated from published Gumroad products. Do not edit manually. */\n"
     content += "window.SIMON_SHOP_CATALOG = " + json.dumps(catalogue, ensure_ascii=False, indent=2) + ";\n"
     CATALOG.write_text(content, encoding="utf-8")
