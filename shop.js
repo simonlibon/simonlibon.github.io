@@ -2,7 +2,7 @@
 "use strict";
 const list=Array.isArray(window.SIMON_SHOP_CATALOG?.products)?window.SIMON_SHOP_CATALOG.products:[];
 const names={tabs:"Guitar tabs",backing:"Backing tracks",bundle:"Bundles"};
-const titles={tabs:"GUITAR\nTABS",backing:"BACKING\nTRACK",bundle:"TAB +\nTRACK"};
+const titles={tabs:"GUITAR\nTABS",backing:"BACKING\nTRACK",bundle:"TABS +\nBACKING TRACKS"};
 const arrow='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
 const euro=n=>Number(n||0).toLocaleString("en-IE",{style:"currency",currency:"EUR"});
