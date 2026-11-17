@@ -1,4 +1,4 @@
-/* Simon Libon — digital store catalogue. Demo products appear on the website without checkout. */
+/* Product templates only. Unpublished templates never appear in the public shop. Gumroad synchronization will replace this catalogue when configured. */
 window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Backing Tracks",
   "products": [
@@ -6,59 +6,53 @@ window.SIMON_SHOP_CATALOG = {
       "id": "tabs-template",
       "title": "Guitar Tabs — template",
       "type": "tabs",
-      "description": "Official guitar transcription in PDF format.",
+      "description": "Official guitar tablature for one song (PDF).",
       "includes": [
         "Guitar tablature (PDF)"
       ],
       "price": 0,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ppuchi",
+      "gumroadUrl": "",
       "image": "",
-      "published": false,
-      "releaseDate": "2026-11-17"
+      "published": false
     },
     {
       "id": "backing-template",
-      "title": "Backing Tracks — template",
+      "title": "Backing Track — template",
       "type": "backing",
-      "description": "The official backing track to play along with.",
+      "description": "Official backing track for one song (audio).",
       "includes": [
         "Backing track (audio)"
       ],
-      "price": 5,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/svmxa",
+      "price": 0,
+      "gumroadUrl": "",
       "image": "",
-      "published": false,
-      "releaseDate": "2026-11-17"
+      "published": false
     },
     {
-      "id": "tab-track-template",
-      "title": "Tabs + Backing Tracks — template",
+      "id": "ep-tabs-template",
+      "title": "Complete EP / Album — Guitar Tabs",
       "type": "bundle",
-      "description": "Learn the part and play along with the official backing track.",
+      "description": "All guitar tablatures from the EP or album.",
       "includes": [
-        "Guitar tablature (PDF)",
-        "Backing track (audio)"
+        "Complete EP / album guitar tablatures (PDF)"
       ],
-      "price": 10,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ieyysn",
+      "price": 0,
+      "gumroadUrl": "",
       "image": "",
-      "published": false,
-      "releaseDate": "2026-11-17"
+      "published": false
     },
     {
-      "id": "ep-bundle-template",
-      "title": "Complete EP Bundle — Tabs + Backing Tracks",
+      "id": "ep-backing-template",
+      "title": "Complete EP / Album — Backing Tracks",
       "type": "bundle",
-      "description": "A complete collection of tabs and backing tracks for the EP.",
+      "description": "All backing tracks from the EP or album.",
       "includes": [
-        "Full EP guitar tablatures (PDF)",
-        "EP backing tracks (audio)"
+        "Complete EP / album backing tracks (audio)"
       ],
-      "price": 30,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/jghmyd",
+      "price": 0,
+      "gumroadUrl": "",
       "image": "",
-      "published": false,
-      "releaseDate": "2026-11-17"
+      "published": false
     }
   ]
 };
