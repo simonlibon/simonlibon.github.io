@@ -113,3 +113,6 @@
 body[data-page="tabs"] .shop-hero{padding-bottom:36px}
 body[data-page="tabs"] .shop-catalog-section{padding-top:42px}
 @media(max-width:650px){body[data-page="tabs"] .shop-hero{padding-bottom:24px}body[data-page="tabs"] .shop-catalog-section{padding-top:30px}}
+
+/* Standalone shop page: no hero or category chooser; start with catalogue */
+body[data-page="tabs"] .shop-catalog-section{border-top:0;padding-top:clamp(32px,5vw,72px)}
