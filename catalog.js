@@ -59,19 +59,6 @@ window.SIMON_SHOP_CATALOG = {
       "image": "",
       "published": false,
       "releaseDate": "2026-11-17"
-    },
-    {
-      "id": "release-1794942487929",
-      "title": "New release",
-      "type": "tabs",
-      "description": "",
-      "includes": [],
-      "price": 0,
-      "gumroadUrl": "",
-      "image": "",
-      "published": true,
-      "releaseDate": "2026-11-17",
-      "demo": true
     }
   ]
 };
