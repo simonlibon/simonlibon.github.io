@@ -1,3 +1,7 @@
+## Boutique GitHub + Gumroad
+
+La boutique est maintenant dans `tabs.html`. Lis `LIRE-EN-PREMIER.txt` et utilise `EDITEUR-BOUTIQUE.html` pour ajouter les morceaux.
+
 # Simon Libon — Site officiel (GitHub Pages)
 
 Site statique (HTML/CSS/JS) prêt pour GitHub Pages.
