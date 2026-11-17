@@ -102,3 +102,9 @@
  .sl-product-page .sl-product-copy h1{font-size:clamp(31px,9vw,44px)}
  .sl-product-page .sl-product-price{margin:22px 0 17px;font-size:21px}
 }
+
+/* Bulletproof back navigation: text arrow, never an unbounded SVG */
+.sl-product-page .product-topline{display:block;max-width:1100px;margin:0 auto 28px;padding:0 0 16px;border-bottom:1px solid #ddd9d4}
+.sl-product-page .back-to-shop{display:inline-flex;align-items:center;justify-content:flex-start;gap:11px;font-size:11px;line-height:1.4;font-weight:700;letter-spacing:.09em;white-space:normal;text-decoration:none}
+.sl-product-page .back-to-shop .back-arrow{display:inline-block;flex:0 0 auto;width:20px;height:22px;line-height:22px;font-size:23px;font-weight:400;letter-spacing:0;text-align:center}
+@media(max-width:659px){.sl-product-page .product-topline{margin-bottom:22px}}
