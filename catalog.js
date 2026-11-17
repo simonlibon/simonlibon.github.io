@@ -1,6 +1,6 @@
 /* Simon Libon — digital store catalogue. Demo products appear on the website without checkout. */
 window.SIMON_SHOP_CATALOG = {
-  "shopName": "Simon Libon — Tabs & Tracks",
+  "shopName": "Simon Libon — Tabs & Backing Tracks",
   "products": [
     {
       "id": "tabs-template",
@@ -32,7 +32,7 @@ window.SIMON_SHOP_CATALOG = {
     },
     {
       "id": "tab-track-template",
-      "title": "Tab + Backing Track — template",
+      "title": "Tabs + Backing Track — template",
       "type": "bundle",
       "description": "Learn the part and play along with the official backing track.",
       "includes": [
