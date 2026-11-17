@@ -18,7 +18,7 @@ window.SIMON_SHOP_CATALOG = {
     },
     {
       "id": "backing-template",
-      "title": "Backing Track — template",
+      "title": "Backing Tracks — template",
       "type": "backing",
       "description": "The official backing track to play along with.",
       "includes": [
@@ -32,7 +32,7 @@ window.SIMON_SHOP_CATALOG = {
     },
     {
       "id": "tab-track-template",
-      "title": "Tabs + Backing Track — template",
+      "title": "Tabs + Backing Tracks — template",
       "type": "bundle",
       "description": "Learn the part and play along with the official backing track.",
       "includes": [
