@@ -1,0 +1,8 @@
+SIMON LIBON — MISE À JOUR DU SITE GITHUB PAGES
+Corrections : Privacy Policy utilise maintenant GitHub Pages ; liens vers la boutique conservés.
+
+Pour mettre ton site en ligne :
+1. Ouvre https://github.com/simonlibon/simonlibon.github.io
+2. Remplace les fichiers du dépôt par le contenu extrait de cette archive (pas le ZIP lui-même).
+3. Vérifie les pages https://simonlibon.github.io/ et https://simonlibon.github.io/privacy.html
+IMPORTANT : le site doit être publié depuis ce dépôt GitHub Pages ; sinon ces adresses ne fonctionneront pas.
