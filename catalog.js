@@ -1,4 +1,4 @@
-/* Simon Libon catalogue */
+/* Simon Libon — digital store catalogue. Demo products appear on the website without checkout. */
 window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Tracks",
   "products": [
@@ -69,8 +69,9 @@ window.SIMON_SHOP_CATALOG = {
       "price": 0,
       "gumroadUrl": "",
       "image": "",
-      "published": false,
-      "releaseDate": "2026-11-17"
+      "published": true,
+      "releaseDate": "2026-11-17",
+      "demo": true
     }
   ]
 };
