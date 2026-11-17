@@ -108,3 +108,8 @@
 .sl-product-page .back-to-shop{display:inline-flex;align-items:center;justify-content:flex-start;gap:11px;font-size:11px;line-height:1.4;font-weight:700;letter-spacing:.09em;white-space:normal;text-decoration:none}
 .sl-product-page .back-to-shop .back-arrow{display:inline-block;flex:0 0 auto;width:20px;height:22px;line-height:22px;font-size:23px;font-weight:400;letter-spacing:0;text-align:center}
 @media(max-width:659px){.sl-product-page .product-topline{margin-bottom:22px}}
+
+/* Single-page shop: remove visual gap left by the retired category panels */
+body[data-page="tabs"] .shop-hero{padding-bottom:36px}
+body[data-page="tabs"] .shop-catalog-section{padding-top:42px}
+@media(max-width:650px){body[data-page="tabs"] .shop-hero{padding-bottom:24px}body[data-page="tabs"] .shop-catalog-section{padding-top:30px}}
