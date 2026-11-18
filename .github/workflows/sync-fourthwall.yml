@@ -1,6 +1,11 @@
 name: Sync Fourthwall catalog
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/sync_fourthwall.py'
+      - '.github/workflows/sync-fourthwall.yml'
   schedule:
     - cron: '17 * * * *'
 permissions:
