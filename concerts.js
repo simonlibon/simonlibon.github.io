@@ -10,8 +10,8 @@
   const params = new URLSearchParams(window.location.search);
   const demo = params.get('demo') === '1';
   const demoShows = [
-    {date: '2027-05-15', city: 'Liège', country: 'Belgium', ticketUrl: ''},
-    {date: '2027-06-22', city: 'Brussels', country: 'Belgium', ticketUrl: ''}
+    {date: '2027-05-15', city: 'Liège', ticketUrl: ''},
+    {date: '2027-06-22', city: 'Brussels', ticketUrl: ''}
   ];
 
   function todayInBrussels() {
@@ -85,18 +85,20 @@
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
           link.setAttribute('aria-label', 'Tickets for ' + location + ' concert');
-        } else {
-          link.replaceWith(document.createElement('span'));
-          const unavailable = article.appendChild(document.createElement('span'));
-          unavailable.className = 'concert-ticket-unavailable';
-          unavailable.textContent = 'TICKETS SOON';
         }
       }
       const info = document.createElement('div');
       info.className = 'concert-info';
       info.append(date, city);
       article.append(info);
-      if (isDemo || ticketUrl(show.ticketUrl)) article.append(link);
+      if (isDemo || ticketUrl(show.ticketUrl)) {
+        article.append(link);
+      } else {
+        const unavailable = document.createElement('span');
+        unavailable.className = 'concert-ticket-unavailable';
+        unavailable.textContent = 'TICKETS SOON';
+        article.append(unavailable);
+      }
       list.append(article);
     }
   }
