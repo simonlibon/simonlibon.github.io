@@ -2,17 +2,17 @@ window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Tracks",
   "products": [
     {
-      "id": "ievtx",
-      "title": "Ok — Backing Track (copy)",
-      "type": "backing",
-      "description": "Official play-along track · Audio\nPlay along with [SONG TITLE] by Simon Libon.\nINCLUDED\nOfficial backing track without lead guitar\nDigital audio download",
+      "id": "lfqdj",
+      "title": "Test finale  — Tabs + Backing Track",
+      "type": "bundle",
+      "description": "Complete EP · Tabs + Backing Tracks\nThe complete collection for the upcoming EP by Simon Libon.\nINCLUDED\nGuitar tablatures (PDF) for every track\nOfficial backing tracks for every track\nDigital download.",
       "includes": [
-        "Official backing track without lead guitar",
-        "Digital audio download"
+        "Guitar tablatures (PDF) for every track",
+        "Official backing tracks for every track"
       ],
-      "price": 5,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ievtx",
-      "image": "https://public-files.gumroad.com/div6a5yo2gvvtetuqh9r7ej0ubaw",
+      "price": 30,
+      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/lfqdj",
+      "image": "https://public-files.gumroad.com/kejemdzck3vbspdvl69zvxn2188i",
       "published": true,
       "releaseDate": "2026-11-18"
     }
