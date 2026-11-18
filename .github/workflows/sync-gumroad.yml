@@ -5,6 +5,12 @@ on:
     # GitHub Actions supports a minimum five-minute interval; jobs may start late.
     - cron: '4/5 * * * *'
   workflow_dispatch:
+  # Refresh the Gumroad catalog when the sync workflow or script is updated.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-gumroad.yml'
+      - 'scripts/sync_gumroad.py'
 
 permissions:
   contents: write
