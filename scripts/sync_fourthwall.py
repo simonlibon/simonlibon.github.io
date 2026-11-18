@@ -46,6 +46,35 @@ for page in range(100):
 else:
     raise SystemExit("Fourthwall pagination exceeds 100 pages")
 
+# Some public bundles are missing from the 'all' collection response.
+# Check the known public bundle slug directly on each scheduled sync.
+# The lookup has no local placeholder: removed or private bundles disappear.
+PUBLIC_BUNDLE_SLUGS = ("bundle",)
+for slug in PUBLIC_BUNDLE_SLUGS:
+    if any(isinstance(p, dict) and p.get("slug") == slug for p in raw):
+        continue
+    url = "https://storefront-api.fourthwall.com/v1/products/" + urllib.parse.quote(slug, safe="")
+    url += "?" + urllib.parse.urlencode({"storefront_token": TOKEN})
+    request = urllib.request.Request(url, headers={
+        "Accept": "application/json",
+        "User-Agent": "SimonLibonCatalogSync/2.0"
+    })
+    try:
+        with urllib.request.urlopen(request, timeout=25) as response:
+            product = json.load(response)
+    except urllib.error.HTTPError as error:
+        # A missing or inaccessible bundle should never hide the other products.
+        print("Bundle slug lookup returned HTTP", error.code, "for", slug)
+        continue
+    except (urllib.error.URLError, ValueError) as error:
+        print("Bundle slug lookup temporarily unavailable for", slug, type(error).__name__)
+        continue
+    if isinstance(product, dict) and product.get("slug") == slug:
+        raw.append(product)
+        print("Found bundle by public product slug:", slug)
+    else:
+        print("Unexpected bundle lookup response for", slug)
+
 products = []
 print("Fourthwall API returned", len(raw), "entries before filtering.")
 for p in raw:
