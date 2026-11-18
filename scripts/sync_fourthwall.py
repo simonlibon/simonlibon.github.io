@@ -56,6 +56,10 @@ for product in products:
              (variants[0].get("unitPrice") if variants else None)) or {}
     images = product.get("images") or []
     first_image = images[0] if images and isinstance(images[0], dict) else {}
+    product_type = product.get("type") or "PRODUCT"
+    variant_id = variants[0].get("id") if product_type == "PRODUCT" and len(variants) == 1 else None
+    is_available = (product.get("state") or {}).get("type") == "AVAILABLE"
+
     image = first_image.get("url") or first_image.get("src") or ""
     output.append({
         "id": str(product.get("id", slug)),
@@ -66,6 +70,10 @@ for product in products:
         "price": price.get("value"),
         "currency": price.get("currency") or "EUR",
         "createdAt": product.get("createdAt") or "",
+        "productType": product_type,
+        "variantId": variant_id,
+        "variantCount": len(variants),
+        "available": is_available,
     })
 
 # Do not replace a working catalog with an empty response accidentally.
