@@ -1,0 +1,53 @@
+name: Publish branded Gumroad profile (one-time)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-gumroad-profile.yml']
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Back up existing status, preview, then publish branded Gumroad home
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request, urllib.error
+          token=os.environ.get("GUMROAD_ACCESS_TOKEN","")
+          if not token: raise SystemExit("Missing Gumroad token; nothing published")
+          base="https://api.gumroad.com/v2/user/"
+          def call(path,params=None,method="GET"):
+              if method=="GET":
+                  url=base+path+"?"+urllib.parse.urlencode({"access_token":token})
+                  req=urllib.request.Request(url,method=method)
+              else:
+                  payload={"access_token":token}
+                  payload.update(params or {})
+                  req=urllib.request.Request(base+path,data=urllib.parse.urlencode(payload).encode(),method=method)
+              try:
+                  with urllib.request.urlopen(req,timeout=40) as resp:return json.load(resp)
+              except urllib.error.HTTPError as e:
+                  print("Gumroad HTTP",e.code,"at",path)
+                  print(e.read().decode("utf-8","replace")[:1200])
+                  raise SystemExit(2)
+          state=call("custom_html")
+          old=state.get("custom_html")
+          print("profile_currently_custom:",bool(old),"profile_url:",state.get("profile_url"))
+          if old:
+              raise SystemExit("Existing custom home detected. No changes made.")
+          html=open("gumroad-profile.html",encoding="utf-8").read()
+          prev=call("preview_custom_html",{"custom_html":html},"POST")
+          clean=prev.get("custom_html","")
+          if not prev.get("success") or "function render()" not in clean or ".products{" not in clean:
+              raise SystemExit("Preview did not keep required dynamic shop; nothing published.")
+          report=prev.get("sanitization_report",{})
+          print("preview_passed; sanitized_tags:",report.get("total_removed"))
+          put=call("custom_html",{"custom_html":html},"PUT")
+          print("published:",put.get("success"),"profile_url:",put.get("profile_url"),"html_length:",len(put.get("custom_html","")))
+          if not put.get("success") or "function render()" not in put.get("custom_html",""):
+              raise SystemExit("Gumroad did not confirm a usable published page")
+          PY
