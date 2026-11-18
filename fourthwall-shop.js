@@ -15,6 +15,8 @@
   let products = [];
   let active = "all";
   let cart = [];
+  let storefrontToken = "";
+  let checkoutConfigLoaded = false;
   const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   const category = p => /bundle|pack|ep complete|ep full/i.test(p.name) || p.productType === "BUNDLE"
     ? "bundle" : /backing|track|instrumental/i.test(p.name) ? "backing" : "tabs";
@@ -44,6 +46,20 @@
   }
   readCart();
 
+  // Check the site-side checkout connection once. Never disclose a private API credential.
+  fetch("fourthwall-public-config.json?v=" + Date.now(), { cache: "no-store" })
+    .then(response => response.ok ? response.json() : null)
+    .then(config => {
+      if (config && typeof config.storefrontToken === "string" &&
+          /^ptkn_[-a-zA-Z0-9]+$/.test(config.storefrontToken))
+        storefrontToken = config.storefrontToken;
+    })
+    .catch(() => {})
+    .finally(() => {
+      checkoutConfigLoaded = true;
+      renderCart();
+    });
+
   const overlay = node("div", "fw-cart-overlay");
   overlay.hidden = true;
   const shade = node("button", "fw-cart-shade");
@@ -67,7 +83,13 @@
   checkout.type = "button";
   const continueButton = node("button", "fw-cart-continue", "CONTINUE SHOPPING");
   continueButton.type = "button";
-  footer.append(note, total, checkout, continueButton);
+  const fallbackArea = node("div", "fw-cart-fallback");
+  fallbackArea.hidden = true;
+  const fallbackText = node("p", "fw-cart-fallback-note");
+  const fallbackLink = node("a", "fw-cart-fallback-link", "OPEN FOURTHWALL");
+  fallbackLink.rel = "noopener noreferrer";
+  fallbackArea.append(fallbackText, fallbackLink);
+  footer.append(note, total, fallbackArea, checkout, continueButton);
   panel.append(header, cartItems, footer);
   overlay.append(shade, panel);
   document.body.append(overlay);
@@ -101,6 +123,9 @@
     cartItems.replaceChildren();
     total.replaceChildren();
     checkout.disabled = true;
+    checkout.hidden = false;
+    fallbackArea.hidden = true;
+    checkoutStatus.hidden = true;
     const staleCount = cart.length - entries.length;
     if (!cart.length) {
       cartItems.append(node("p", "fw-cart-empty", "Your cart is empty. Add a release to get started."));
@@ -138,7 +163,22 @@
       }
     }
     checkout.textContent = "SECURE CHECKOUT";
-    note.textContent = "Your items are transferred to Fourthwall’s secure checkout, where taxes and the final total are confirmed.";
+    const ready = entries.length > 0 && entries.length === cart.length &&
+      entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99) &&
+      new Set(entries.map(x => x.product.currency || "USD")).size === 1;
+    if (ready && checkoutConfigLoaded && !storefrontToken) {
+      checkout.hidden = true;
+      fallbackArea.hidden = false;
+      fallbackText.textContent = entries.length === 1
+        ? "Direct checkout is temporarily unavailable. You can purchase this product securely on Fourthwall; select the quantity again there."
+        : "Direct cart transfer is temporarily unavailable. To buy these items, add them again to the official Fourthwall shop.";
+      fallbackLink.href = entries.length === 1 ? entries[0].product.url : shop;
+      fallbackLink.textContent = entries.length === 1 ? "OPEN PRODUCT ON FOURTHWALL" : "OPEN FOURTHWALL SHOP";
+    }
+    if (ready && !checkoutConfigLoaded) checkout.disabled = true;
+    note.textContent = storefrontToken
+      ? "Your items are transferred to Fourthwall's secure checkout, where taxes and the final total are confirmed."
+      : "Payment and digital delivery are securely handled by Fourthwall.";
   }
   function changeQuantity(id, quantity) {
     const current = cart.find(i => i.id === id);
@@ -182,13 +222,9 @@
     checkoutStatus.hidden = true;
     try {
       // Create a real Fourthwall cart before opening their supported checkout URL.
-      const cfgResponse = await fetch("fourthwall-public-config.json?v=" + Date.now(), { cache: "no-store" });
-      if (!cfgResponse.ok) throw new Error("The store connection is still being prepared.");
-      const cfg = await cfgResponse.json();
-      if (!cfg || typeof cfg.storefrontToken !== "string" || !/^ptkn_[-a-zA-Z0-9]+$/.test(cfg.storefrontToken))
-        throw new Error("The Fourthwall Storefront connection is unavailable.");
+      if (!storefrontToken) throw new Error("Direct checkout is not configured.");
       const url = new URL("https://storefront-api.fourthwall.com/v1/carts");
-      url.searchParams.set("storefront_token", cfg.storefrontToken);
+      url.searchParams.set("storefront_token", storefrontToken);
       url.searchParams.set("currency", currency);
       const response = await fetch(url, {
         method: "POST",
