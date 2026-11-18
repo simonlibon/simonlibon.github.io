@@ -132,12 +132,13 @@
         const currency = entries[0].product.currency || "USD";
         const amount = entries.reduce((sum, x) => sum + Number(x.product.price || 0) * x.item.quantity, 0);
         total.append(node("strong", "", "ESTIMATED TOTAL"), node("strong", "", money(amount, currency)));
-        checkout.disabled = false;
+        checkout.disabled = entries.length !== 1 || entries[0].item.quantity !== 1;
       } else {
         total.append(node("span", "", "Review cart items before checkout."));
       }
     }
-    checkout.textContent = "CHECKOUT SECURELY";
+    checkout.textContent = "CONTINUE TO FOURTHWALL";
+    note.textContent = "Products and quantities shown here are a local preview. Fourthwall confirms your purchase in its secure checkout. For now, complete purchases one item at a time.";
   }
   function changeQuantity(id, quantity) {
     const current = cart.find(i => i.id === id);
@@ -162,16 +163,12 @@
     saveCart();
     showCart();
   }
+  // A Fourthwall checkout requires a real API-created cart ID. Never invent one.
+  // Until cart API access is wired, use the actual product page to finish a single-item purchase.
   checkout.addEventListener("click", () => {
     const entries = availableCart();
-    if (!entries.length || entries.length !== cart.length || !entries.every(x => canAdd(x.product))) return;
-    const currencies = new Set(entries.map(x => x.product.currency || "USD"));
-    if (currencies.size !== 1) return;
-    const params = new URLSearchParams({
-      products: entries.map(x => x.product.variantId + ":" + x.item.quantity).join(","),
-      currency: entries[0].product.currency || "USD"
-    });
-    window.location.assign(shop + "/cart/checkout?" + params.toString());
+    if (entries.length !== 1 || entries[0].item.quantity !== 1 || cart.length !== 1 || !canAdd(entries[0].product)) return;
+    window.location.assign(entries[0].product.url);
   });
 
 
