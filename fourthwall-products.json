@@ -1,47 +1,4 @@
 {
-  "syncedAt": "2026-11-18T18:43:58.541213+00:00",
-  "products": [
-    {
-      "id": "b8b6f877-06fc-409b-ade4-80a8c0dcd75f",
-      "name": "Bundle",
-      "description": "",
-      "image": "https://imgproxy.fourthwall.dev/VAY31qnycd4GHYch77qbF7IKqy1AbAWfDaCNJC6HBBw/w:1920/sm:1/enc/CycuEyexPdEnhbcm/zIlqCblTRhizWnNv/PL_BpEAdRsUq6TOC/lgX17cycRM_EbIMq/Iu2eSv0OUa2U18vr/UBBQKY_H_ykoFuBT/Gi3uHd-5C6rTfUsh/A2f6DGT5gs6mOTVX/lZKtdnpz-HPRtBzi/VkE0dcxib2pjUZnu/GrKt81CwPetNUXYk/HJTzY2KOnEtkY3q1/A6psQNI_37n5CILJ/H5vnZQ.webp",
-      "url": "https://simon-libon-music-shop.fourthwall.com/products/bundle",
-      "price": 30.0,
-      "currency": "USD",
-      "productType": "PRODUCT",
-      "variantId": "e82ca507-93c0-451c-b59e-9bf76b873f46",
-      "variantCount": 1,
-      "createdAt": "2026-11-18T16:30:04.173493Z",
-      "available": true
-    },
-    {
-      "id": "1c96604d-2f9a-4a36-8133-d9d49cb46a51",
-      "name": "Backing Track Test",
-      "description": "",
-      "image": "https://imgproxy.fourthwall.dev/a-c_pneQQWTz6egbSpHbKKnA4xpkn2e9H-CJbGETTIA/w:1920/sm:1/enc/R16pl1_bWJ9YXU2s/LD6TOqDQyYpy1bOo/-7g3tVwKyM_-R7oY/StKicf07Lptf6H0V/SAfWBW8ehJ6YotXh/xZhd1X_ACBo3ySjp/OXMUMdWgHGdIGaim/L0S_VawPPf0wgWKi/-JEzfzzoDLahrwuA/iqDWa5D0cC7hBlh1/UXU6NoVhUdnX24Si/XKFPbHorJG90S5UP/WXT-YQ5wOKrFXjbm/BiQLYg.webp",
-      "url": "https://simon-libon-music-shop.fourthwall.com/products/backing-track-test",
-      "price": 1.0,
-      "currency": "USD",
-      "productType": "PRODUCT",
-      "variantId": "1b83a02e-7998-414c-9729-39eada46a562",
-      "variantCount": 1,
-      "createdAt": "2026-11-18T15:25:27.35421Z",
-      "available": true
-    },
-    {
-      "id": "ff515bec-3a12-407e-973f-e05002608c80",
-      "name": "Tab 2 test",
-      "description": "",
-      "image": "https://imgproxy.fourthwall.dev/QrOVdpYBTYVAApNqWQ1-TMpYwuJu6TkChVEEQA8oPPg/w:1920/sm:1/enc/LlZHDSkF32-tCbfr/BXmAb7q8mQYp5iqC/iQ_xgHoKv0Ee0GT_/VN8SMG7NpHvYSvTM/cJoFKNUeFGNpjOa0/mWtOIlyULL64JFTR/tF6D5Nq7LX_3uUsn/7Y52EcOdF4U_10Ph/0QBxt3n97Q6cmf-K/pY2MlW-WkrqdrjH-/Lovl3a934xknYMMJ/Smm09vcxeb1-lp-p/6vrdIJt1DAvbT_gX/M2Qcgg.webp",
-      "url": "https://simon-libon-music-shop.fourthwall.com/products/tab-2-test",
-      "price": 1.0,
-      "currency": "USD",
-      "productType": "PRODUCT",
-      "variantId": "26ea130e-e4a0-44ef-981f-e69ad9927964",
-      "variantCount": 1,
-      "createdAt": "2026-11-18T13:57:45.04856Z",
-      "available": true
-    }
-  ]
+  "syncedAt": "2026-11-18T18:53:07.619387+00:00",
+  "products": []
 }
