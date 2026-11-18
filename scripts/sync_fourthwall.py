@@ -1,36 +1,80 @@
-"""Read-only Fourthwall catalog sync. Token never appears in generated files."""
-import json, os, urllib.request, urllib.parse
+"""Synchronize public Fourthwall catalog without publishing API credentials."""
+import json
+import os
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
-ROOT=Path(__file__).resolve().parent.parent
-TOKEN=os.environ.get("FOURTHWALL_STOREFRONT_TOKEN","")
-if not TOKEN: raise SystemExit("Missing FOURTHWALL_STOREFRONT_TOKEN")
-base="https://storefront-api.fourthwall.com/v1/collections/all/products"
-products=[]
+
+ROOT = Path(__file__).resolve().parent.parent
+TOKEN = os.environ.get("FOURTHWALL_STOREFRONT_TOKEN", "").strip()
+BASE = "https://storefront-api.fourthwall.com/v1/collections/all/products"
+SHOP = "https://simon-libon-music-shop.fourthwall.com"
+if not TOKEN:
+    raise SystemExit("Fourthwall secret missing: check GitHub Actions repository secret FOURTHWALL_STOREFRONT_TOKEN")
+
+def fetch(page):
+    # The token is never printed, even if Fourthwall returns an error.
+    params = urllib.parse.urlencode({"storefront_token": TOKEN, "page": page, "size": 50})
+    request = urllib.request.Request(BASE + "?" + params, headers={
+        "Accept": "application/json",
+        "User-Agent": "SimonLibonCatalogSync/1.1",
+    })
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403):
+            raise SystemExit(
+                f"Fourthwall denied catalog access (HTTP {exc.code}). "
+                "Confirm that the GitHub secret contains an active Storefront API token "
+                "for this published Fourthwall shop. No token was printed."
+            ) from None
+        raise SystemExit(f"Fourthwall API request failed: HTTP {exc.code}. No token was printed.") from None
+    except urllib.error.URLError as exc:
+        raise SystemExit(f"Could not reach Fourthwall API: {exc.reason}") from None
+
+products = []
 for page in range(100):
-    qs=urllib.parse.urlencode({"storefront_token":TOKEN,"currency":"EUR","page":page,"size":100})
-    req=urllib.request.Request(base+"?"+qs,headers={"Accept":"application/json"})
-    with urllib.request.urlopen(req,timeout=30) as res: data=json.load(res)
-    if isinstance(data,list): batch=data; more=len(batch)==100
-    elif isinstance(data,dict):
-        batch=data.get("results",data.get("products",[]))
-        paging=data.get("paging",{})
-        more=paging.get("hasNextPage",False)
-    else: raise RuntimeError("Unexpected Fourthwall API response")
-    if not isinstance(batch,list): raise RuntimeError("Invalid product list")
-    products.extend(batch)
-    if not more: break
-else: raise RuntimeError("Pagination limit exceeded")
-out=[]
-for p in products:
-    if not isinstance(p,dict): continue
-    if p.get("access",{}).get("type","PUBLIC")!="PUBLIC": continue
-    slug=p.get("slug")
-    if not slug: continue
-    variants=p.get("variants") or []
-    price=(variants[0].get("unitPrice") if variants else None) or {}
-    images=p.get("images") or []
-    out.append({"id":str(p.get("id",slug)),"name":p.get("name") or slug,"slug":slug,"url":"https://simon-libon-music-shop.fourthwall.com/products/"+urllib.parse.quote(slug),"image":images[0].get("url","") if images else "","price":price.get("value"),"currency":price.get("currency","EUR"),"createdAt":p.get("createdAt","")})
-path=ROOT/"fourthwall-products.json"
-content=json.dumps({"products":out},ensure_ascii=False,indent=2)+"\n"
-if not path.exists() or path.read_text()!=content: path.write_text(content)
-print("Synced",len(out),"Fourthwall products")
+    data = fetch(page)
+    if not isinstance(data, dict) or not isinstance(data.get("results"), list):
+        raise SystemExit("Unexpected Fourthwall response format: expected 'results' list.")
+    products.extend(data["results"])
+    if not data.get("paging", {}).get("hasNextPage", False):
+        break
+else:
+    raise SystemExit("Fourthwall catalog pagination exceeded 100 pages.")
+
+output = []
+for product in products:
+    if not isinstance(product, dict) or not product.get("slug"):
+        continue
+    slug = product["slug"]
+    variants = product.get("variants") or []
+    price = (product.get("price") if product.get("type") == "BUNDLE" else
+             (variants[0].get("unitPrice") if variants else None)) or {}
+    images = product.get("images") or []
+    first_image = images[0] if images and isinstance(images[0], dict) else {}
+    image = first_image.get("url") or first_image.get("src") or ""
+    output.append({
+        "id": str(product.get("id", slug)),
+        "name": product.get("name") or slug,
+        "slug": slug,
+        "url": SHOP + "/products/" + urllib.parse.quote(slug, safe=""),
+        "image": image,
+        "price": price.get("value"),
+        "currency": price.get("currency") or "EUR",
+        "createdAt": product.get("createdAt") or "",
+    })
+
+# Do not replace a working catalog with an empty response accidentally.
+target = ROOT / "fourthwall-products.json"
+if not output and target.exists():
+    previous = json.loads(target.read_text(encoding="utf-8"))
+    if previous.get("products"):
+        raise SystemExit("Fourthwall returned zero products; retaining previous catalog for safety.")
+content = json.dumps({"products": output}, ensure_ascii=False, indent=2) + "\n"
+if not target.exists() or target.read_text(encoding="utf-8") != content:
+    target.write_text(content, encoding="utf-8")
+print(f"Fourthwall sync successful: {len(output)} products.")
