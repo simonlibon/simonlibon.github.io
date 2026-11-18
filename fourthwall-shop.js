@@ -15,8 +15,6 @@
   let products = [];
   let active = "all";
   let cart = [];
-  let storefrontToken = "";
-  let checkoutConfigLoaded = false;
   const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   const category = p => /bundle|pack|ep complete|ep full/i.test(p.name) || p.productType === "BUNDLE"
     ? "bundle" : /backing|track|instrumental/i.test(p.name) ? "backing" : "tabs";
@@ -45,20 +43,6 @@
     renderCart();
   }
   readCart();
-
-  // Check the site-side checkout connection once. Never disclose a private API credential.
-  fetch("fourthwall-public-config.json?v=" + Date.now(), { cache: "no-store" })
-    .then(response => response.ok ? response.json() : null)
-    .then(config => {
-      if (config && typeof config.storefrontToken === "string" &&
-          /^ptkn_[-a-zA-Z0-9]+$/.test(config.storefrontToken))
-        storefrontToken = config.storefrontToken;
-    })
-    .catch(() => {})
-    .finally(() => {
-      checkoutConfigLoaded = true;
-      renderCart();
-    });
 
   const overlay = node("div", "fw-cart-overlay");
   overlay.hidden = true;
@@ -163,16 +147,10 @@
       }
     }
     checkout.textContent = "SECURE CHECKOUT";
-    const ready = entries.length > 0 && entries.length === cart.length &&
-      entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99) &&
-      new Set(entries.map(x => x.product.currency || "USD")).size === 1;
-    // A single checkout button is shown; never render a second purchase rectangle.
+    // Only the secure checkout button is shown, and pricing is verified on Fourthwall.
     fallbackArea.hidden = true;
     checkout.hidden = false;
-    if (ready && !checkoutConfigLoaded) checkout.disabled = true;
-    note.textContent = storefrontToken
-      ? "Your items are transferred to Fourthwall's secure checkout, where taxes and the final total are confirmed."
-      : "Payment and digital delivery are securely handled by Fourthwall.";
+    note.textContent = "Your items are transferred to Fourthwall\'s secure checkout, where taxes and the final total are confirmed.";
   }
   function changeQuantity(id, quantity) {
     const current = cart.find(i => i.id === id);
@@ -197,54 +175,27 @@
     saveCart();
     showCart();
   }
-  // Fourthwall documents direct checkout by variant UUID and quantities.
-  // No Storefront token or API-created cart is required for this entrypoint.
+  // Official Fourthwall direct-products checkout works without any Storefront API token.
+  // Keep the user's cart and quantities here, and use a single browser redirect to Fourthwall.
   const checkoutStatus = node("p", "fw-cart-warning");
   checkoutStatus.setAttribute("role", "status");
   checkoutStatus.hidden = true;
   footer.insertBefore(checkoutStatus, checkout);
-  checkout.addEventListener("click", async () => {
+  checkout.addEventListener("click", () => {
     if (checkout.disabled) return;
     const entries = availableCart();
     if (!entries.length || entries.length !== cart.length ||
         !entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99)) return;
     const currencies = new Set(entries.map(x => x.product.currency || "USD"));
     if (currencies.size !== 1) return;
-    const currency = entries[0].product.currency || "USD";
-    checkout.disabled = true;
-    checkout.textContent = "CONNECTING SECURE CHECKOUT…";
-    checkoutStatus.hidden = true;
-    try {
-      // Create a real Fourthwall cart before opening their supported checkout URL.
-      if (!storefrontToken) throw new Error("Direct checkout is not configured.");
-      const url = new URL("https://storefront-api.fourthwall.com/v1/carts");
-      url.searchParams.set("storefront_token", storefrontToken);
-      url.searchParams.set("currency", currency);
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: entries.map(x => ({ variantId: x.product.variantId, quantity: x.item.quantity }))
-        }),
-        cache: "no-store"
-      });
-      if (!response.ok) throw new Error("Fourthwall could not prepare this checkout.");
-      const data = await response.json();
-      if (!data || typeof data.id !== "string" || !data.id || data.id.length > 256)
-        throw new Error("Fourthwall did not return a valid checkout cart.");
-      const checkoutUrl = new URL(shop + "/checkout/");
-      checkoutUrl.searchParams.set("cartId", data.id);
-      checkoutUrl.searchParams.set("cartCurrency", currency);
-      window.location.assign(checkoutUrl.href);
-    } catch (error) {
-      checkoutStatus.hidden = false;
-      checkoutStatus.textContent = "The direct checkout could not be opened. " +
-        (error instanceof Error ? error.message : "Please try again.") +
-        " You can retry, or use the official Fourthwall payment page.";
-      // Keep the checkout action unique; do not send buyers to the shop homepage.
-      checkout.disabled = false;
-      checkout.textContent = "SECURE CHECKOUT";
-    }
+
+    // Fourthwall's /cart/checkout accepts variant UUIDs and quantities in this format:
+    // products=variantId:quantity,variantId:quantity&currency=USD
+    // Its own endpoint generates the checkout session and redirects to payment.
+    const url = new URL(shop + "/cart/checkout");
+    url.searchParams.set("products", entries.map(x => x.product.variantId + ":" + x.item.quantity).join(","));
+    url.searchParams.set("currency", entries[0].product.currency || "USD");
+    window.location.assign(url.href);
   });
 
 
