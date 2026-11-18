@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabs &amp; Backing Tracks | Simon Libon</title>
+<style>
+:root{color-scheme:light;--paper:#faf9f7;--ink:#18181a;--muted:#77767b;--line:#e5e2df}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.wrap{width:min(1150px,calc(100% - 64px));margin:0 auto}
+header{background:var(--paper);border-bottom:1px solid var(--line)}
+header .bar{min-height:90px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.brand{font-family:Arial,Helvetica,sans-serif;font-weight:800;letter-spacing:-.045em;font-size:26px;white-space:nowrap}
+nav{display:flex;align-items:center;gap:27px}
+nav a{font-size:12px;letter-spacing:.07em;font-weight:700;color:#555358;white-space:nowrap}
+nav a.active{color:var(--ink);border-bottom:2px solid var(--ink);padding-bottom:7px}
+main{min-height:55vh;padding:53px 0 72px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+h1{font-size:clamp(34px,4.2vw,51px);font-weight:800;letter-spacing:-.065em;line-height:1.06;margin:0}
+.count{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--muted)}
+.tools{display:flex;align-items:center;gap:14px;margin-top:32px}
+.search{display:flex;align-items:center;border:1px solid var(--line);background:#fff;height:48px;padding:0 14px;flex:1}
+.search input{border:0;outline:0;background:transparent;font-size:13px;color:var(--ink);width:100%}
+.sort{height:48px;min-width:190px;border:1px solid var(--line);background:#fff;padding:0 12px;color:var(--ink);font-size:12px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.filters button{background:transparent;color:#5d5b60;border:1px solid var(--line);padding:11px 17px;font-size:11px;letter-spacing:.055em;font-weight:700}
+.filters button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,250px));justify-content:start;column-gap:22px;row-gap:32px;margin-top:35px}
+.card{min-width:0}
+.art{display:block;aspect-ratio:1;overflow:hidden;background:#efedeb;border:1px solid #ebe8e5}
+.art img{display:block;width:100%;height:100%;object-fit:cover}
+.art.placeholder{display:grid;place-items:center;text-align:center;padding:28px}
+.art.placeholder span{font-size:24px;font-weight:700;letter-spacing:-.045em;line-height:1.12}
+.item-info{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:13px}
+.item-title{font-size:15px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.type{margin-top:6px;font-size:11px;color:var(--muted)}
+.price{font-weight:700;font-size:14px;white-space:nowrap}
+.buy{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:11px;letter-spacing:.04em;font-weight:700;text-decoration:none}
+.buy:hover{text-decoration:underline}
+.empty{margin-top:38px;padding:60px 12px;text-align:center;border:1px solid var(--line)}
+.empty h2{margin:0 0 8px;font-size:22px;letter-spacing:-.03em}
+.empty p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+.secure{font-size:11px;color:#7d7b80;text-align:center;line-height:1.5;margin:30px auto 0}
+footer{border-top:1px solid var(--line);padding:27px 0 24px}
+.footlinks{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.footlinks a{font-size:11px;font-weight:700;letter-spacing:.065em}
+.footbottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:10px;letter-spacing:.05em;color:var(--muted);margin-top:32px}
+@media(max-width:760px){
+.wrap{width:min(100% - 32px,600px)}
+header .bar{padding:19px 0 15px;min-height:0;align-items:flex-start;flex-direction:column;gap:20px}
+.brand{font-size:23px}
+nav{flex-wrap:wrap;gap:14px}
+nav a{font-size:10px}
+main{padding:42px 0 48px}
+.head{justify-content:center;text-align:center}
+h1{font-size:clamp(29px,7.7vw,38px);max-width:360px}
+.count{width:100%;text-align:center}
+.tools{flex-wrap:wrap;margin-top:25px}
+.search{flex-basis:100%}
+.sort{flex:1;min-width:0}
+.filters{gap:6px;justify-content:center}
+.filters button{font-size:10px;padding:10px 12px}
+.products{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:26px;margin-top:25px}
+.item-title{font-size:12px}
+.type{font-size:10px}
+.price{font-size:12px}
+.buy{font-size:10px}
+.footbottom{justify-content:center;text-align:center}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap bar"><a class="brand" href="https://simonlibon.github.io/" target="_blank" rel="noopener">SIMON LIBON</a><nav aria-label="Main navigation"><a href="https://simonlibon.github.io/music.html" target="_blank" rel="noopener">MUSIC</a><a href="https://simonlibon.github.io/concerts.html" target="_blank" rel="noopener">CONCERTS</a><a class="active" href="https://simonlibon.github.io/tabs.html" target="_blank" rel="noopener" aria-current="page">TABS &amp; BACKING TRACKS</a><a href="https://simonlibon.github.io/merch.html" target="_blank" rel="noopener">MERCH</a></nav></div></header>
+<main class="wrap"><div class="head"><h1>TABS &amp; BACKING TRACKS</h1><span class="count" id="count">RELEASES</span></div>
+<div class="tools"><label class="search"><input id="search" type="search" placeholder="Search tabs or backing tracks..." autocomplete="off" aria-label="Search products"></label><select id="sort" class="sort" aria-label="Sort products"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option></select></div>
+<div class="filters" role="group" aria-label="Filter products"><button type="button" data-filter="all" aria-pressed="true">ALL</button><button type="button" data-filter="tabs" aria-pressed="false">TABS</button><button type="button" data-filter="backing" aria-pressed="false">BACKING TRACKS</button><button type="button" data-filter="bundle" aria-pressed="false">BUNDLES</button></div>
+<div id="products" class="products" aria-live="polite"></div>
+<div id="empty" class="empty" hidden><h2>COMING SOON</h2><p>Official guitar tabs, backing tracks and bundles will appear here when released.</p></div>
+<p class="secure">Payments and digital delivery are securely handled by Gumroad.</p>
+</main>
+<footer><div class="wrap"><div class="footlinks"><a href="https://simonlibon.github.io/press.html" target="_blank" rel="noopener">PRESS / EPK</a><a href="mailto:simonlibon.music@gmail.com">CONTACT / BOOKING</a></div><div class="footbottom"><span>&copy; 2026 SIMON LIBON</span><a href="https://simonlibon.github.io/privacy.html" target="_blank" rel="noopener">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
+<script>
+(function(){
+"use strict";
+var list=[];
+try{var node=document.getElementById("gumroad-data");if(node){var data=JSON.parse(node.textContent);list=Array.isArray(data.products)?data.products:[];}}catch(e){}
+function type(p){var n=String(p.name||"").toLowerCase();return n.indexOf("bundle")>=0||n.indexOf("ep / album")>=0?"bundle":n.indexOf("backing")>=0||n.indexOf("track")>=0?"backing":"tabs"}
+function label(t){return t==="bundle"?"Bundles":t==="backing"?"Backing tracks":"Guitar tabs"}
+function link(p){try{var u=new URL(String(p.url));if(u.protocol!=="https:"||!u.hostname.endsWith(".gumroad.com"))return "";u.searchParams.set("wanted","true");u.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");return u.href}catch(e){return ""}}
+function make(tag,cls,text){var el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}
+var grid=document.getElementById("products"),empty=document.getElementById("empty"),count=document.getElementById("count"),search=document.getElementById("search"),sort=document.getElementById("sort"),buttons=[].slice.call(document.querySelectorAll("[data-filter]")),active="all";
+function card(p){var item=make("article","card"),href=link(p),cover=make(href?"a":"div","art");if(href)cover.href=href;var src=String(p.thumbnail_url||p.cover_url||"");if(src.indexOf("https://")===0){var img=make("img");img.src=src;img.alt="Cover for "+p.name;img.loading="lazy";cover.appendChild(img)}else{cover.className+=" placeholder";cover.appendChild(make("span","",type(p)==="bundle"?"EP / ALBUM BUNDLE":type(p)==="backing"?"BACKING TRACK":"GUITAR TABS"))}item.appendChild(cover);
+var meta=make("div","item-info"),details=make("div");details.appendChild(make("div","item-title",p.name||"Digital product"));details.appendChild(make("div","type",label(type(p))));meta.appendChild(details);meta.appendChild(make("div","price",p.price||""));item.appendChild(meta);
+if(href){var buy=make("a","buy","BUY ON GUMROAD →");buy.href=href;item.appendChild(buy)}return item}
+function render(){var q=search.value.trim().toLowerCase();var arr=list.filter(function(p){return(active==="all"||type(p)===active)&&(!q||String(p.name||"").toLowerCase().indexOf(q)>=0)});if(sort.value==="old")arr.reverse();if(sort.value==="az"||sort.value==="za"){arr.sort(function(a,b){return String(a.name).localeCompare(String(b.name))*(sort.value==="az"?1:-1)})}
+grid.replaceChildren.apply(grid,arr.map(card));empty.hidden=arr.length>0;count.textContent=list.length+" "+(list.length===1?"RELEASE":"RELEASES");buttons.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-filter")===active?"true":"false")});}
+buttons.forEach(function(b){b.addEventListener("click",function(){active=b.getAttribute("data-filter");render()})});search.addEventListener("input",render);sort.addEventListener("change",render);render();
+})();
+</script>
+</body>
+</html>
