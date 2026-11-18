@@ -487,3 +487,32 @@ body:not([data-page="home"]) .contact-feedback{color:#67636a}
 @media (min-width:651px) and (max-width:1099px) {
   body[data-page="music"] .music-service{height:112px;min-height:112px}
 }
+
+
+/* V27 — Streaming subtitle spacing and hierarchy; platform layout unchanged. */
+body[data-page="music"] .music-streaming-page .page-title {
+  padding-bottom:1px;
+}
+body[data-page="music"] .music-streaming-subtitle {
+  margin:0 auto;
+  max-width:620px;
+  color:#69656e;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.55;
+  letter-spacing:.095em;
+  text-align:center;
+  text-wrap:balance;
+}
+body[data-page="music"] .music-streaming-wrap .coming-soon-inner {
+  margin-bottom:23px;
+}
+@media(max-width:650px) {
+  body[data-page="music"] .music-streaming-page .page-title {padding-bottom:5px}
+  body[data-page="music"] .music-streaming-subtitle {
+    max-width:320px;
+    font-size:10px;
+    line-height:1.6;
+    letter-spacing:.075em;
+  }
+}
