@@ -52,14 +52,22 @@ for p in raw:
     if not isinstance(p, dict) or not p.get("slug"):
         print("Skipped entry: missing product slug")
         continue
-    state = p.get("state") or {}
-    access = p.get("access") or {}
-    if state.get("type") != "AVAILABLE":
-        print("Skipped product", p.get("name", p.get("slug")), "state:", state.get("type"))
+    # The 'all' collection contains published products. Fourthwall may omit
+    # state/access metadata for some listing types, including bundles.
+    # Respect explicit hidden/unavailable states, but do not reject missing
+    # metadata that would otherwise make a published listing disappear.
+    state = p.get("state")
+    access = p.get("access")
+    state_type = state.get("type") if isinstance(state, dict) else (state if isinstance(state, str) else None)
+    access_type = access.get("type") if isinstance(access, dict) else (access if isinstance(access, str) else None)
+    if state_type and state_type != "AVAILABLE":
+        print("Skipped product", p.get("name", p.get("slug")), "state:", state_type, "type:", p.get("type"))
         continue
-    if access and access.get("type") != "PUBLIC":
-        print("Skipped product", p.get("name", p.get("slug")), "access:", access.get("type"))
+    if access_type and access_type != "PUBLIC":
+        print("Skipped product", p.get("name", p.get("slug")), "access:", access_type, "type:", p.get("type"))
         continue
+    if not state_type or not access_type:
+        print("Included published listing with omitted status metadata:", p.get("name", p.get("slug")), "type:", p.get("type"))
     slug = str(p["slug"])
     variants = p.get("variants") if isinstance(p.get("variants"), list) else []
     product_type = str(p.get("type") or "PRODUCT")
