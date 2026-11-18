@@ -1,11 +1,8 @@
-name: Deploy Simon Libon website with Fourthwall checkout
+name: Deploy Simon Libon website
 on:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Sync Fourthwall catalog"]
-    types: [completed]
 
 permissions:
   contents: read
@@ -18,30 +15,13 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Configure public Fourthwall Storefront token in deployment artifact
-        env:
-          FOURTHWALL_STOREFRONT_TOKEN: ${{ secrets.FOURTHWALL_STOREFRONT_TOKEN }}
-        run: |
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          token = os.environ.get("FOURTHWALL_STOREFRONT_TOKEN", "").strip()
-          if not token.startswith("ptkn_"):
-              raise SystemExit("Missing Fourthwall Storefront API token. Set repository Actions secret FOURTHWALL_STOREFRONT_TOKEN.")
-          # This is Fourthwall's public browser Storefront token, not an Open API or OAuth secret.
-          # It is included only in the Pages artifact, never in Git commits.
-          Path("fourthwall-public-config.json").write_text(
-              json.dumps({"storefrontToken": token}, separators=(",", ":")) + "\n", encoding="utf-8"
-          )
-          PY
-      - name: Prepare site
+      - name: Prepare static website
         run: |
           mkdir -p _site
           tar -cf - --exclude=.git --exclude=.github --exclude=_site --exclude=scripts . | tar -xf - -C _site
