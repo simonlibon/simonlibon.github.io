@@ -117,3 +117,22 @@ body[data-page="home"] .footer{margin-top:0}
 @media(max-width:650px){.shop-link-page .coming-soon-inner{gap:28px}.official-shop-link{min-width:190px}}
 
 
+
+
+/* V20 — Music streaming platforms, intentionally inactive until artist links exist. */
+.music-streaming-page{min-height:0;justify-content:flex-start}
+.music-streaming-page .page-title{padding-top:72px;padding-bottom:14px}
+.music-streaming-wrap{text-align:center;padding:14px 0 88px}
+.music-streaming-wrap .coming-soon-inner{gap:14px;margin-bottom:46px}
+.music-streaming-wrap .coming-soon-inner h2{font-size:clamp(22px,3vw,36px)}
+.music-streaming-subtitle{margin:0;font-size:10px;letter-spacing:.16em;font-weight:700;color:#77757b}
+.music-service-grid{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.music-service{min-width:0;min-height:128px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;border:1px solid #e5e2e1;border-radius:8px;background:#fdfcfb;cursor:default;user-select:none}
+.music-service-mark{width:48px;height:48px;position:relative;display:grid;place-items:center}
+.music-service-mark img{width:42px;height:42px;object-fit:contain;position:absolute;inset:3px;background:#fdfcfb}
+.music-service-fallback{font-size:18px;letter-spacing:-.07em;font-weight:700;font-family:'Space Grotesk',Arial,sans-serif;color:#77757b}
+.music-service-name{font-size:10px;line-height:1.35;font-weight:700;letter-spacing:.025em;color:#4a484f;padding:0 6px}
+.music-streaming-note{font-size:10px;line-height:1.6;letter-spacing:.11em;color:#85838b;margin:35px auto 0;max-width:480px}
+@media(max-width:950px){.music-service-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:650px){.music-streaming-page .page-title{padding-top:59px;padding-bottom:15px}.music-streaming-wrap{padding:10px 0 60px}.music-streaming-wrap .coming-soon-inner{margin-bottom:29px}.music-streaming-subtitle{font-size:9px;line-height:1.8}.music-service-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.music-service{min-height:110px;gap:10px;padding:12px 4px}.music-service-mark{width:42px;height:42px}.music-service-mark img{width:38px;height:38px;inset:2px}.music-service-name{font-size:9px}.music-streaming-note{font-size:9px;margin-top:28px}}
+@media(max-width:370px){.music-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
