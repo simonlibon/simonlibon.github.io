@@ -1,33 +1,47 @@
 name: Sync Gumroad shop
+
 on:
   schedule:
-    - cron: '17 * * * *'
+    # GitHub Actions supports a minimum five-minute interval; jobs may start late.
+    - cron: '3/5 * * * *'
   workflow_dispatch:
+
 permissions:
   contents: write
+
+concurrency:
+  group: gumroad-catalog-sync
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Sync published products
+
+      - name: Synchronise published Gumroad products
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           if [ -z "$GUMROAD_ACCESS_TOKEN" ]; then
-            echo "GUMROAD_ACCESS_TOKEN secret is missing"
+            echo "::error::Missing repository secret GUMROAD_ACCESS_TOKEN"
             exit 1
           fi
           python scripts/sync_gumroad.py
-      - name: Commit catalogue and cache-busting page changes
+
+      - name: Publish catalogue only when changed
         run: |
-          if ! git diff --quiet -- catalog.js tabs.html; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add catalog.js tabs.html
-            git commit -m "Sync published Gumroad catalogue"
-            git push
+          if git diff --quiet -- catalog.js; then
+            echo "No catalogue changes"
+            exit 0
           fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- catalog.js
+          git commit -m "Sync published Gumroad catalogue"
+          git push
