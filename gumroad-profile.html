@@ -5,31 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tabs &amp; Backing Tracks | Simon Libon</title>
 <style>
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 :root{color-scheme:light;--paper:#faf9f7;--ink:#18181a;--muted:#77767b;--line:#e5e2df}
 *{box-sizing:border-box}
 html{background:var(--paper)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button,input,select{font:inherit}
 button{cursor:pointer}
-.wrap{width:min(1150px,calc(100% - 64px));margin:0 auto}
+.wrap{width:min(1220px,calc(100% - 88px));margin:0 auto}
 header{background:var(--paper);border-bottom:1px solid var(--line)}
-header .bar{min-height:90px;display:flex;align-items:center;justify-content:space-between;gap:32px}
-.brand{font-family:Arial,Helvetica,sans-serif;font-weight:800;letter-spacing:-.045em;font-size:26px;white-space:nowrap}
-nav{display:flex;align-items:center;gap:27px}
-nav a{font-size:12px;letter-spacing:.07em;font-weight:700;color:#555358;white-space:nowrap}
-nav a.active{color:var(--ink);border-bottom:2px solid var(--ink);padding-bottom:7px}
-main{min-height:55vh;padding:53px 0 72px}
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
-h1{font-size:clamp(34px,4.2vw,51px);font-weight:800;letter-spacing:-.065em;line-height:1.06;margin:0}
-.count{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--muted)}
+header .bar{height:74px;display:flex;align-items:center;justify-content:center}
+.brand{font-family:"Space Grotesk",Arial,sans-serif;font-weight:700;letter-spacing:-.05em;font-size:26px;white-space:nowrap;line-height:1}
+.menu-toggle{display:none}
+nav{display:flex;justify-content:center;align-items:center;gap:clamp(19px,2.7vw,38px);min-height:44px}
+nav a{font-size:11px;letter-spacing:.105em;font-weight:700;color:#77757a;white-space:nowrap;position:relative;line-height:1.3}
+nav a.active{color:var(--ink)}
+nav a.active:after{content:"";position:absolute;left:0;right:0;bottom:-9px;border-bottom:2px solid var(--ink)}
+main{min-height:55vh;padding:55px 0 72px}
+.head{display:block;text-align:center;margin:0 0 24px}
+h1{font-family:"Space Grotesk",Arial,sans-serif;font-size:clamp(43px,5.65vw,74px);font-weight:700;letter-spacing:-.064em;line-height:1.08;margin:0;text-wrap:balance}
+.count{display:block;text-align:right;margin-top:19px;font-size:11px;font-weight:700;letter-spacing:.15em;color:#85838b}
 .tools{display:flex;align-items:center;gap:14px;margin-top:32px}
 .search{display:flex;align-items:center;border:1px solid var(--line);background:#fff;height:48px;padding:0 14px;flex:1}
 .search input{border:0;outline:0;background:transparent;font-size:13px;color:var(--ink);width:100%}
 .sort{height:48px;min-width:190px;border:1px solid var(--line);background:#fff;padding:0 12px;color:var(--ink);font-size:12px}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
-.filters button{background:transparent;color:#5d5b60;border:1px solid var(--line);padding:11px 17px;font-size:11px;letter-spacing:.055em;font-weight:700}
-.filters button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.filters{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+.filters button{background:transparent;color:#77757b;border:0;border-bottom:1px solid transparent;padding:4px 0 9px;font-size:10px;letter-spacing:.13em;font-weight:700}
+.filters button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,250px));justify-content:start;column-gap:22px;row-gap:32px;margin-top:35px}
 .card{min-width:0}
 .art{display:block;aspect-ratio:1;overflow:hidden;background:#efedeb;border:1px solid #ebe8e5}
@@ -37,7 +40,7 @@ h1{font-size:clamp(34px,4.2vw,51px);font-weight:800;letter-spacing:-.065em;line-
 .art.placeholder{display:grid;place-items:center;text-align:center;padding:28px}
 .art.placeholder span{font-size:24px;font-weight:700;letter-spacing:-.045em;line-height:1.12}
 .item-info{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:13px}
-.item-title{font-size:15px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.item-title{font-family:"Space Grotesk",Arial,sans-serif;font-size:15px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
 .type{margin-top:6px;font-size:11px;color:var(--muted)}
 .price{font-weight:700;font-size:14px;white-space:nowrap}
 .buy{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:11px;letter-spacing:.04em;font-weight:700;text-decoration:none}
@@ -51,31 +54,35 @@ footer{border-top:1px solid var(--line);padding:27px 0 24px}
 .footlinks a{font-size:11px;font-weight:700;letter-spacing:.065em}
 .footbottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:10px;letter-spacing:.05em;color:var(--muted);margin-top:32px}
 @media(max-width:760px){
-.wrap{width:min(100% - 32px,600px)}
-header .bar{padding:19px 0 15px;min-height:0;align-items:flex-start;flex-direction:column;gap:20px}
+.wrap{width:min(calc(100% - 36px),1220px)}
+header .bar{height:68px;padding:0;align-items:center;justify-content:space-between;flex-direction:row;gap:10px}
 .brand{font-size:23px}
-nav{flex-wrap:wrap;gap:14px}
-nav a{font-size:10px}
-main{padding:42px 0 48px}
-.head{justify-content:center;text-align:center}
-h1{font-size:clamp(29px,7.7vw,38px);max-width:360px}
-.count{width:100%;text-align:center}
+.menu-toggle{display:flex;border:1px solid var(--line);background:transparent;border-radius:99px;font-size:10px;padding:9px 13px;letter-spacing:.1em;color:var(--ink)}
+nav{display:none;min-height:0;flex-direction:column;align-items:center;gap:11px;padding:10px 18px 21px}
+nav.open{display:flex}
+nav a{font-size:12px;letter-spacing:.09em;padding:7px 10px}
+nav a.active:after{bottom:0}
+main{padding:48px 0 48px}
+.head{text-align:center;margin-bottom:24px}
+h1{font-size:clamp(31px,7.8vw,37px);max-width:330px;margin:0 auto}
+.count{width:100%;text-align:center;margin-top:15px;font-size:9px}
 .tools{flex-wrap:wrap;margin-top:25px}
 .search{flex-basis:100%}
 .sort{flex:1;min-width:0}
-.filters{gap:6px;justify-content:center}
-.filters button{font-size:10px;padding:10px 12px}
+.filters{gap:15px;justify-content:center}
+.filters button{font-size:10px;padding:4px 0 9px;letter-spacing:.09em}
 .products{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:26px;margin-top:25px}
-.item-title{font-size:12px}
-.type{font-size:10px}
-.price{font-size:12px}
+.item-info{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.item-title{font-size:clamp(12px,3.25vw,15px);min-height:2.7em}
+.type{font-size:11px}
+.price{font-size:14px}
 .buy{font-size:10px}
 .footbottom{justify-content:center;text-align:center}
 }
 </style>
 </head>
 <body>
-<header><div class="wrap bar"><a class="brand" href="https://simonlibon.github.io/" target="_blank" rel="noopener">SIMON LIBON</a><nav aria-label="Main navigation"><a href="https://simonlibon.github.io/music.html" target="_blank" rel="noopener">MUSIC</a><a href="https://simonlibon.github.io/concerts.html" target="_blank" rel="noopener">CONCERTS</a><a class="active" href="https://simonlibon.github.io/tabs.html" target="_blank" rel="noopener" aria-current="page">TABS &amp; BACKING TRACKS</a><a href="https://simonlibon.github.io/merch.html" target="_blank" rel="noopener">MERCH</a></nav></div></header>
+<header><div class="wrap bar"><a class="brand" href="https://simonlibon.github.io/" target="_blank" rel="noopener">SIMON LIBON</a><button type="button" class="menu-toggle" id="menu-toggle" aria-controls="site-nav" aria-expanded="false">MENU</button></div><nav id="site-nav" aria-label="Main navigation"><a href="https://simonlibon.github.io/music.html" target="_blank" rel="noopener">MUSIC</a><a href="https://simonlibon.github.io/concerts.html" target="_blank" rel="noopener">CONCERTS</a><a class="active" href="https://simonlibon.github.io/tabs.html" target="_blank" rel="noopener" aria-current="page">TABS &amp; BACKING TRACKS</a><a href="https://simonlibon.github.io/merch.html" target="_blank" rel="noopener">MERCH</a></nav></header>
 <main class="wrap"><div class="head"><h1>TABS &amp; BACKING TRACKS</h1><span class="count" id="count">RELEASES</span></div>
 <div class="tools"><label class="search"><input id="search" type="search" placeholder="Search tabs or backing tracks..." autocomplete="off" aria-label="Search products"></label><select id="sort" class="sort" aria-label="Sort products"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option></select></div>
 <div class="filters" role="group" aria-label="Filter products"><button type="button" data-filter="all" aria-pressed="true">ALL</button><button type="button" data-filter="tabs" aria-pressed="false">TABS</button><button type="button" data-filter="backing" aria-pressed="false">BACKING TRACKS</button><button type="button" data-filter="bundle" aria-pressed="false">BUNDLES</button></div>
@@ -87,6 +94,8 @@ h1{font-size:clamp(29px,7.7vw,38px);max-width:360px}
 <script>
 (function(){
 "use strict";
+var menu=document.getElementById("menu-toggle"),nav=document.getElementById("site-nav");
+if(menu&&nav){menu.addEventListener("click",function(){var expanded=menu.getAttribute("aria-expanded")==="true";menu.setAttribute("aria-expanded",expanded?"false":"true");nav.classList.toggle("open",!expanded)})}
 var list=[];
 try{var node=document.getElementById("gumroad-data");if(node){var data=JSON.parse(node.textContent);list=Array.isArray(data.products)?data.products:[];}}catch(e){}
 function type(p){var n=String(p.name||"").toLowerCase();return n.indexOf("bundle")>=0||n.indexOf("ep / album")>=0?"bundle":n.indexOf("backing")>=0||n.indexOf("track")>=0?"backing":"tabs"}
