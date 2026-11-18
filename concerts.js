@@ -10,8 +10,8 @@
   const params = new URLSearchParams(window.location.search);
   const demo = params.get('demo') === '1';
   const demoShows = [
-    {date: '2027-05-15', city: 'Liège', ticketUrl: ''},
-    {date: '2027-06-22', city: 'Brussels', ticketUrl: ''}
+    {date: '2027-05-15', city: 'Liège', country: 'Belgium', ticketUrl: ''},
+    {date: '2027-06-22', city: 'Brussels', country: 'Belgium', ticketUrl: ''}
   ];
 
   function todayInBrussels() {
