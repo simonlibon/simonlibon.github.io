@@ -86,11 +86,6 @@
       link.setAttribute('aria-label', 'Choose options for ' + p.name + ' on Fourthwall');
       actions.append(link);
     }
-    if (detail) {
-      const more = el('a', 'fw-details-link', 'PRODUCT DETAILS');
-      more.href = detail;
-      actions.append(more);
-    }
     copy.append(actions);
     card.append(copy);
     return card;
