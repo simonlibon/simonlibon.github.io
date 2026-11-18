@@ -34,9 +34,10 @@ def fetch(page):
     except urllib.error.URLError:
         raise SystemExit("Fourthwall API not reachable") from None
 
-# Diagnostic: compare the documented public collection feed with the API.
-# Print only public product titles/slugs, never credentials or response bodies.
-def inspect_public_feed():
+# Fourthwall's public collection is the authoritative visibility list.
+# The storefront API may still return Hidden products; never promote them
+# to the website solely because the API returns them.
+def read_public_products():
     url = SHOP + "/collections/all.json?sync_check=" + str(int(datetime.now(timezone.utc).timestamp()))
     req = urllib.request.Request(url, headers={
         "Accept": "application/json", "User-Agent": "SimonLibonCatalogSync/2.0"
@@ -44,24 +45,40 @@ def inspect_public_feed():
     try:
         with urllib.request.urlopen(req, timeout=20) as response:
             payload = json.load(response)
-        print("Public feed root:", type(payload).__name__)
-        if isinstance(payload, dict):
-            print("Public feed keys:", sorted(payload.keys())[:15])
-            for k in ("products", "results", "items", "collection"):
-                v = payload.get(k)
-                if isinstance(v, dict):
-                    print("Public feed", k, "keys:", sorted(v.keys())[:15])
-                    v = v.get("products") or v.get("results")
-                if isinstance(v, list):
-                    print("Public feed", k, "entries:", len(v))
-                    print("Public feed items:", [(p.get("slug"), p.get("name")) for p in v[:15] if isinstance(p, dict)])
-        elif isinstance(payload, list):
-            print("Public feed entries:", len(payload))
-            print("Public feed items:", [(p.get("slug"), p.get("name")) for p in payload[:15] if isinstance(p, dict)])
     except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as exc:
-        print("Public feed unavailable:", type(exc).__name__, getattr(exc, "code", ""))
+        # Keep the previously published catalog if visibility cannot be checked.
+        raise SystemExit("Cannot verify public Fourthwall collection: " + type(exc).__name__) from None
+    listings = payload.get("products") if isinstance(payload, dict) else None
+    if not isinstance(listings, list):
+        raise SystemExit("Unexpected Fourthwall public collection response")
 
-inspect_public_feed()
+    handles, ids = set(), set()
+    for item in listings:
+        if not isinstance(item, dict):
+            continue
+        for entry in (item, item.get("product")):
+            if not isinstance(entry, dict):
+                continue
+            for field in ("handle", "slug"):
+                value = entry.get(field)
+                if isinstance(value, str) and value.strip():
+                    handles.add(value.strip().lower())
+            product_id = entry.get("id")
+            if product_id is not None:
+                ids.add(str(product_id))
+            for field in ("url", "productUrl", "product_url"):
+                value = entry.get(field)
+                if isinstance(value, str):
+                    path = urllib.parse.urlparse(value).path
+                    if path.startswith("/products/"):
+                        handles.add(urllib.parse.unquote(path.split("/")[2]).lower())
+    if listings and not (handles or ids):
+        # A changed public feed format must not make existing products disappear.
+        raise SystemExit("Public Fourthwall products have no recognizable identifiers")
+    print("Fourthwall public collection lists", len(listings), "products.")
+    return handles, ids
+
+public_handles, public_ids = read_public_products()
 
 raw = []
 for page in range(100):
@@ -127,6 +144,9 @@ for p in raw:
     if not state_type or not access_type:
         print("Included published listing with omitted status metadata:", p.get("name", p.get("slug")), "type:", p.get("type"))
     slug = str(p["slug"])
+    if slug.lower() not in public_handles and str(p.get("id") or "") not in public_ids:
+        print("Skipped product not in public Fourthwall collection:", p.get("name", slug))
+        continue
     variants = p.get("variants") if isinstance(p.get("variants"), list) else []
     product_type = str(p.get("type") or "PRODUCT")
     price = (p.get("price") if product_type == "BUNDLE" else
