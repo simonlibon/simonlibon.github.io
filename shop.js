@@ -15,7 +15,7 @@ const pay=p=>{const u=new URL(p.gumroadUrl);u.searchParams.set("wanted","true");
 function art(p,cls){const box=el("div",cls),uri=String(p.image||"");if(uri&&(/^(https?:\/\/|data:image\/(png|jpeg|webp);base64,)/i.test(uri)||/^images\//i.test(uri))){const img=el("img");img.src=uri;img.alt="Cover artwork for "+p.title;img.loading="lazy";box.append(img)}else{box.classList.add("is-placeholder");const text=el("span","placeholder-text",titles[p.type]||"SIMON\nLIBON");text.style.whiteSpace="pre-line";box.append(text)}return box}
 function card(p){
  const item=el("article","shop-item"), purchasable=canPurchase(p),url=purchasable?pay(p):"";
- const cover=el(purchasable?"a":"div",purchasable?"shop-card-link gumroad-button":"shop-card-preview");
+ const cover=el(purchasable?"a":"div",purchasable?"shop-card-link":"shop-card-preview");
  if(purchasable){
    cover.href=url;
    cover.dataset.gumroadSingleProduct="true";
@@ -31,7 +31,7 @@ function card(p){
  item.append(meta);
  const actions=el("div","shop-item-actions");
  if(purchasable){
-   const buy=el("a","buy-quick gumroad-button","BUY ON GUMROAD");
+   const buy=el("a","buy-quick","BUY ON GUMROAD");
    buy.dataset.gumroadSingleProduct="true";
    buy.href=url;
    buy.rel="noopener noreferrer";
