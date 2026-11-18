@@ -454,3 +454,36 @@ body:not([data-page="home"]) .contact-feedback{color:#67636a}
     inset:3px;
   }
 }
+
+
+/* V26 — Consistent desktop streaming card and logo proportions. */
+@media (min-width:651px) {
+  body[data-page="music"] .music-service {
+    box-sizing:border-box;
+    height:116px;
+    min-height:116px;
+    justify-content:center;
+    align-items:center;
+  }
+  body[data-page="music"] .music-service-mark {
+    position:relative;
+    flex-shrink:0;
+    overflow:visible;
+  }
+  body[data-page="music"] .music-service-mark img {
+    display:block;
+    object-fit:contain;
+    object-position:center;
+  }
+  body[data-page="music"] .music-service-name {
+    width:100%;
+    max-width:100%;
+    min-height:26px;
+    line-height:1.3;
+    overflow-wrap:anywhere;
+    text-align:center;
+  }
+}
+@media (min-width:651px) and (max-width:1099px) {
+  body[data-page="music"] .music-service{height:112px;min-height:112px}
+}
