@@ -202,3 +202,4 @@ if previous.get("products") != products or age >= 3600:
         "syncedAt": now.isoformat(), "products": products
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print("Fourthwall public catalog verified:", len(products), "products.")
+# Refresh requested after Fourthwall products were republished; visibility is still validated via public collection.
