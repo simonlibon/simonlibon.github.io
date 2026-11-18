@@ -9,11 +9,13 @@
   <link href="style.css?v=20" rel="stylesheet">
   <style>
   .native-shop{min-height:60vh;background:#faf9f7;padding:72px 0 100px}
-  .native-shop h1{font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(42px,7vw,86px);letter-spacing:-.075em;line-height:1.04;margin:8px 0 18px}
-  .native-shop .fw-kicker{font-size:10px;letter-spacing:.18em;font-weight:700;color:#89848c}
-  .native-shop .fw-lede{font-size:14px;color:#77757b;line-height:1.7;margin-bottom:48px}
-  .fw-controls{border-top:1px solid #dedbd8;border-bottom:1px solid #dedbd8;padding:22px 0;margin:0 0 35px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+  .native-shop h1{font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(42px,7vw,86px);letter-spacing:-.075em;line-height:1.04;margin:0 0 32px}
+  .fw-controls{padding:0;margin:0 0 35px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
   .fw-filter-list{display:flex;gap:7px;flex-wrap:wrap}
+  .fw-control-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .fw-sort{display:flex;align-items:center;gap:7px;color:#77757b;font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+  .fw-sort select{appearance:auto;font:inherit;font-size:11px;font-weight:600;letter-spacing:0;background:#fff;border:1px solid #dcdad7;border-radius:0;color:#18181a;padding:10px 8px;min-height:41px;cursor:pointer}
+  .fw-sort select:disabled{opacity:.5;cursor:default}
   .fw-filter-list button{background:transparent;color:#55545a;border:1px solid #dcdad7;border-radius:30px;padding:10px 15px;font-size:10px;font-weight:700;letter-spacing:.09em;cursor:pointer}
   .fw-filter-list button[aria-pressed="true"]{background:#18181a;border-color:#18181a;color:#faf9f7}
   .fw-filter-list button:disabled{opacity:.5;cursor:default}
@@ -33,19 +35,16 @@
   .fw-buy-button{display:inline-flex;justify-content:center;align-items:center;text-align:center;min-height:45px;padding:12px 20px;background:#18181a;color:white;text-decoration:none;font-size:10px;letter-spacing:.12em;font-weight:800}
   .fw-buy-button:hover{background:#534b61;color:white}
   .fw-details-link{font-size:10px;letter-spacing:.08em;font-weight:700;text-decoration:underline;text-underline-offset:4px;color:#55545a}
-  .fw-message{text-align:center;color:#77757b;padding:85px 16px;border-top:1px solid #e8e4e0;font-size:13px}
-  .fw-footnote{margin-top:55px;color:#85838b;font-size:11px;line-height:1.7}
+  .fw-message{text-align:center;color:#77757b;padding:85px 16px;font-size:13px}
   @media(max-width:900px){.fw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:650px){.native-shop{padding:53px 0 70px}.native-shop .fw-lede{margin-bottom:30px}.fw-grid{grid-template-columns:1fr;gap:38px}.fw-controls{align-items:stretch}.fw-search{width:100%}.fw-product-title{font-size:24px}}
+  @media(max-width:650px){.native-shop{padding:53px 0 70px}.fw-grid{grid-template-columns:1fr;gap:38px}.fw-controls{align-items:stretch}.fw-control-right{width:100%}.fw-search{width:100%;flex:1 1 190px}.fw-product-title{font-size:24px}}
 </style>
 </head>
 <body data-page="fourthwall">
 <header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="active" aria-current="page" href="tabs.html?store=20261118">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header>
 <main id="main-content" class="native-shop">
   <section class="container" aria-labelledby="shop-title">
-    <div class="fw-kicker">OFFICIAL DIGITAL RELEASES</div>
     <h1 id="shop-title">TABS &amp; BACKING TRACKS</h1>
-    <p class="fw-lede">Guitar tabs, backing tracks and bundles. Buy directly through Fourthwall's secure checkout.</p>
     <div class="fw-controls">
       <div class="fw-filter-list" role="group" aria-label="Product category">
         <button type="button" data-fw-filter="all" aria-pressed="true" disabled>ALL</button>
@@ -53,12 +52,23 @@
         <button type="button" data-fw-filter="backing" aria-pressed="false" disabled>BACKING TRACKS</button>
         <button type="button" data-fw-filter="bundle" aria-pressed="false" disabled>BUNDLES</button>
       </div>
-      <input id="fw-search" class="fw-search" type="search" placeholder="Search releases..." aria-label="Search releases" disabled>
+      <div class="fw-control-right">
+        <label class="fw-sort" for="fw-sort"><span>SORT BY</span>
+          <select id="fw-sort" disabled>
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+            <option value="price-low">Price: low to high</option>
+            <option value="price-high">Price: high to low</option>
+          </select>
+        </label>
+        <input id="fw-search" class="fw-search" type="search" placeholder="Search releases..." aria-label="Search releases" disabled>
+      </div>
     </div>
     <span id="fw-count" class="fw-count" aria-live="polite">RELEASES</span>
     <div id="fw-products" class="fw-grid"></div>
     <p id="fw-message" class="fw-message" role="status">Loading Fourthwall products...</p>
-    <p class="fw-footnote">Products update automatically from Fourthwall. No cart is stored on this website; payment and digital delivery are handled securely by Fourthwall.</p>
   </section>
 </main>
 <footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
@@ -74,6 +84,6 @@
 <p aria-live="polite" class="contact-feedback" data-contact-feedback=""></p>
 </section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
 <script src="site.js?v=19"></script>
-<script src="fourthwall-catalog.js?v=2" defer></script>
+<script src="fourthwall-catalog.js?v=3" defer></script>
 </body>
 </html>

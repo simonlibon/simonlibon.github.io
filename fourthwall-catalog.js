@@ -5,8 +5,9 @@
   const message = document.getElementById('fw-message');
   const number = document.getElementById('fw-count');
   const search = document.getElementById('fw-search');
+  const sorter = document.getElementById('fw-sort');
   const filters = Array.from(document.querySelectorAll('[data-fw-filter]'));
-  if (!grid || !message || !number || !search) return;
+  if (!grid || !message || !number || !search || !sorter) return;
 
   let products = [], filter = 'all';
   const validUUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -97,6 +98,25 @@
       (filter === 'all' || category(p) === filter) &&
       ((p.name || '').toLocaleLowerCase().includes(term) ||
       (p.description || '').toLocaleLowerCase().includes(term)));
+    const nameOrder = (a, b) => (a.name || '').localeCompare(b.name || '', 'en');
+    const dateOrder = (a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    const priceOrder = (a, b, direction) => {
+      const aPrice = Number.isFinite(a.price) ? a.price : null;
+      const bPrice = Number.isFinite(b.price) ? b.price : null;
+      if (aPrice === null) return bPrice === null ? nameOrder(a, b) : 1;
+      if (bPrice === null) return -1;
+      return direction * (aPrice - bPrice) || nameOrder(a, b);
+    };
+    visible.sort((a, b) => {
+      switch (sorter.value) {
+        case 'old': return -dateOrder(a, b) || nameOrder(a, b);
+        case 'az': return nameOrder(a, b);
+        case 'za': return -nameOrder(a, b);
+        case 'price-low': return priceOrder(a, b, 1);
+        case 'price-high': return priceOrder(a, b, -1);
+        default: return dateOrder(a, b) || nameOrder(a, b);
+      }
+    });
     grid.replaceChildren(...visible.map(productCard));
     number.textContent = products.length + (products.length === 1 ? ' RELEASE' : ' RELEASES');
     filters.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fwFilter === filter)));
@@ -125,6 +145,7 @@
         typeof p.name === 'string' && trustedProductUrl(p));
       products.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
       search.disabled = false;
+      sorter.disabled = false;
       filters.forEach(b => { b.disabled = false; });
       render();
     } catch (_) {
@@ -140,6 +161,7 @@
     render();
   }));
   search.addEventListener('input', render);
+  sorter.addEventListener('change', render);
   load();
   document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
   setInterval(() => { if (!document.hidden) load(); }, 120000);
