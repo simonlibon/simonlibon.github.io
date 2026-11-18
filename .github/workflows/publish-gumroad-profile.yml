@@ -1,4 +1,4 @@
-name: Publish branded Gumroad profile (one-time)
+name: Update branded Gumroad profile
 on:
   push:
     branches: [main]
@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
-      - name: Back up existing status, preview, then publish branded Gumroad home
+      - name: Validate existing custom home, preview changes, then publish
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -37,12 +37,12 @@ jobs:
           state=call("custom_html")
           old=state.get("custom_html")
           print("profile_currently_custom:",bool(old),"profile_url:",state.get("profile_url"))
-          if old:
-              raise SystemExit("Existing custom home detected. No changes made.")
+          if old and not ("function render()" in old and "TABS &amp; BACKING TRACKS" in old and 'gumroad-data' in old and 'id="search"' in old):
+              raise SystemExit("The live profile is not our known template. No changes made.")
           html=open("gumroad-profile.html",encoding="utf-8").read()
           prev=call("preview_custom_html",{"custom_html":html},"POST")
           clean=prev.get("custom_html","")
-          if not prev.get("success") or "function render()" not in clean or ".products{" not in clean:
+          if not prev.get("success") or "function render()" not in clean or ".products{" not in clean or 'id="menu-toggle"' not in clean or 'id="site-nav"' not in clean:
               raise SystemExit("Preview did not keep required dynamic shop; nothing published.")
           report=prev.get("sanitization_report",{})
           print("preview_passed; sanitized_tags:",report.get("total_removed"))
