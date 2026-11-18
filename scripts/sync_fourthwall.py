@@ -34,6 +34,35 @@ def fetch(page):
     except urllib.error.URLError:
         raise SystemExit("Fourthwall API not reachable") from None
 
+# Diagnostic: compare the documented public collection feed with the API.
+# Print only public product titles/slugs, never credentials or response bodies.
+def inspect_public_feed():
+    url = SHOP + "/collections/all.json?sync_check=" + str(int(datetime.now(timezone.utc).timestamp()))
+    req = urllib.request.Request(url, headers={
+        "Accept": "application/json", "User-Agent": "SimonLibonCatalogSync/2.0"
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=20) as response:
+            payload = json.load(response)
+        print("Public feed root:", type(payload).__name__)
+        if isinstance(payload, dict):
+            print("Public feed keys:", sorted(payload.keys())[:15])
+            for k in ("products", "results", "items", "collection"):
+                v = payload.get(k)
+                if isinstance(v, dict):
+                    print("Public feed", k, "keys:", sorted(v.keys())[:15])
+                    v = v.get("products") or v.get("results")
+                if isinstance(v, list):
+                    print("Public feed", k, "entries:", len(v))
+                    print("Public feed items:", [(p.get("slug"), p.get("name")) for p in v[:15] if isinstance(p, dict)])
+        elif isinstance(payload, list):
+            print("Public feed entries:", len(payload))
+            print("Public feed items:", [(p.get("slug"), p.get("name")) for p in payload[:15] if isinstance(p, dict)])
+    except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as exc:
+        print("Public feed unavailable:", type(exc).__name__, getattr(exc, "code", ""))
+
+inspect_public_feed()
+
 raw = []
 for page in range(100):
     data = fetch(page)
