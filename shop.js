@@ -17,6 +17,7 @@ function card(p){
  if(purchasable){
    cover.href=url;
    cover.rel="noopener noreferrer";
+   cover.setAttribute("data-gumroad-single-product","true");
    cover.setAttribute("aria-label","Buy "+p.title+" securely through Gumroad");
  }
  cover.append(art(p,"shop-item-image"));
@@ -30,6 +31,7 @@ function card(p){
    const buy=el("a","buy-quick","BUY ON GUMROAD");
    buy.href=url;
    buy.rel="noopener noreferrer";
+   buy.setAttribute("data-gumroad-single-product","true");
    buy.insertAdjacentHTML("beforeend",arrow);
    actions.append(buy);
  } else {
