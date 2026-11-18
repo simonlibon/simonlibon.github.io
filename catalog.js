@@ -7,10 +7,10 @@ window.SIMON_SHOP_CATALOG = {
       "type": "backing",
       "description": "Official backing track without lead guitar. Digital audio download.",
       "includes": [
-        "Official backing track without lead guitar",
+        "Backing track without lead guitar",
         "Digital audio download"
       ],
-      "price": 5,
+      "price": 5.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ievtx",
       "image": "https://public-files.gumroad.com/div6a5yo2gvvtetuqh9r7ej0ubaw",
       "published": true,
