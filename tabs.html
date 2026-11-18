@@ -8,10 +8,10 @@
   <title>Tabs &amp; Backing Tracks | Simon Libon</title>
   <link href="style.css?v=20" rel="stylesheet">
   <style>
-  .native-shop{background:#faf9f7;padding:72px 0 40px}
-  .native-shop h1{font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(42px,7vw,86px);letter-spacing:-.075em;line-height:1.04;margin:0 0 32px;text-align:center}
+  .native-shop{background:#faf9f7;padding:42px 0 28px}
+  .native-shop h1{font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(38px,5vw,64px);letter-spacing:-.075em;line-height:1.04;margin:0 0 22px;text-align:center}
   body[data-page="fourthwall"] .footer{margin-top:0}
-  .fw-controls{padding:0;margin:0 0 35px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+  .fw-controls{padding:0;margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
   .fw-filter-list{display:flex;gap:7px;flex-wrap:wrap}
   .fw-control-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .fw-sort{display:flex;align-items:center;gap:7px;color:#77757b;font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
@@ -21,25 +21,26 @@
   .fw-filter-list button[aria-pressed="true"]{background:#18181a;border-color:#18181a;color:#faf9f7}
   .fw-filter-list button:disabled{opacity:.5;cursor:default}
   .fw-search{border:1px solid #dcdad7;background:#fff;color:#18181a;padding:11px 13px;min-width:210px;font:inherit;font-size:12px;max-width:100%}
-  .fw-count{display:block;text-align:right;font-size:10px;letter-spacing:.12em;font-weight:700;color:#85838b;margin:0 0 18px}
-  .fw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:24px;row-gap:56px}
+  .fw-count{display:block;text-align:right;font-size:10px;letter-spacing:.12em;font-weight:700;color:#85838b;margin:0 0 12px}
+  .fw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,220px));justify-content:center;column-gap:18px;row-gap:30px}
   .fw-product-card{min-width:0}
   .fw-product-art{width:100%;aspect-ratio:1;display:grid;place-items:center;background:#eeeceb;overflow:hidden}
   .fw-product-art img{height:100%;width:100%;object-fit:cover}
   .fw-art-placeholder{font-family:'Space Grotesk',Arial,sans-serif;font-size:24px;letter-spacing:-.05em;color:#aaa5ad;font-weight:700}
-  .fw-product-copy{padding:17px 0}
+  .fw-product-copy{padding:12px 0}
   .fw-product-type{font-size:9px;letter-spacing:.14em;color:#89848c;font-weight:700}
-  .fw-product-title{font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(20px,2vw,27px);letter-spacing:-.055em;line-height:1.1;margin:9px 0;font-weight:700}
-  .fw-product-price{font-size:14px;font-weight:700;margin:10px 0 16px}
-  .fw-product-description{color:#77757b;font-size:12px;line-height:1.75;margin:10px 0 18px;max-height:9em;overflow:hidden;overflow-wrap:anywhere}
+  .fw-product-title{font-family:'Space Grotesk',Arial,sans-serif;font-size:20px;letter-spacing:-.055em;line-height:1.1;margin:7px 0;font-weight:700}
+  .fw-product-price{font-size:13px;font-weight:700;margin:8px 0 12px}
+  .fw-product-description{color:#77757b;font-size:12px;line-height:1.5;margin:8px 0 12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
   .fw-product-actions{display:flex;flex-wrap:wrap;align-items:center;gap:15px}
-  .fw-buy-button{display:inline-flex;justify-content:center;align-items:center;text-align:center;min-height:45px;padding:12px 20px;background:#18181a;color:white;text-decoration:none;font-size:10px;letter-spacing:.12em;font-weight:800}
+  .fw-buy-button{display:inline-flex;justify-content:center;align-items:center;text-align:center;min-height:40px;padding:10px 18px;background:#18181a;color:white;text-decoration:none;font-size:10px;letter-spacing:.12em;font-weight:800}
   .fw-buy-button:hover{background:#534b61;color:white}
   .fw-details-link{font-size:10px;letter-spacing:.08em;font-weight:700;text-decoration:underline;text-underline-offset:4px;color:#55545a}
   .fw-message{text-align:center;color:#77757b;padding:85px 16px;font-size:13px}
-  @media(max-width:900px){.fw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:650px){.native-shop{padding:53px 0 30px}.fw-grid{grid-template-columns:1fr;gap:38px}.fw-controls{align-items:stretch}.fw-control-right{width:100%}.fw-search{width:100%;flex:1 1 190px}.fw-product-title{font-size:24px}}
-  .fw-credit{margin:22px 0 0;text-align:center;color:#85838b;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+  @media(min-width:901px) and (max-width:1100px){.fw-grid{grid-template-columns:repeat(auto-fit,minmax(180px,210px))}}
+  @media(max-width:900px){.fw-grid{grid-template-columns:repeat(2,minmax(0,220px))}}
+  @media(max-width:650px){.native-shop{padding:47px 0 30px}.native-shop h1{font-size:clamp(38px,10vw,55px);margin-bottom:25px}.fw-grid{grid-template-columns:minmax(0,300px);gap:30px}.fw-controls{align-items:stretch}.fw-control-right{width:100%}.fw-search{width:100%;flex:1 1 190px}.fw-product-title{font-size:22px}}
+  .fw-credit{margin:18px 0 0;text-align:center;color:#85838b;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
 </style>
 </head>
 <body data-page="fourthwall">
