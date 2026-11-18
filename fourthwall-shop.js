@@ -314,26 +314,91 @@
     renderCart();
   }
 
-  fetch("fourthwall-products.json?v=" + Math.floor(Date.now() / 300000), { cache: "no-store" })
-    .then(r => { if (!r.ok) throw Error("Catalog unavailable"); return r.json(); })
-    .then(data => {
-      products = Array.isArray(data.products) ? data.products.filter(p =>
-        typeof p.id === "string" && typeof p.name === "string" &&
-        typeof p.url === "string" && p.url.startsWith(shop + "/products/")
-      ) : [];
-      search.disabled = false; sort.disabled = false;
-      filters.forEach(button => {
-        button.disabled = false;
-        button.addEventListener("click", () => { active = button.dataset.shopFilter; render(); });
-      });
-      search.addEventListener("input", render);
-      sort.addEventListener("change", render);
-      render();
-    })
-    .catch(() => {
-      empty.hidden = false;
-      empty.querySelector("p").textContent = "The Fourthwall catalog is temporarily unavailable. Gumroad is unaffected.";
-      renderCart();
+  // Read Fourthwall directly when the public Storefront configuration is available.
+  // The synchronized JSON file is a fallback for network/API failures.
+  // This keeps newly published and unpublished products up to date on page load.
+  async function getLiveCatalog() {
+    const configResponse = await fetch("fourthwall-public-config.json", { cache: "no-store" });
+    if (!configResponse.ok) throw new Error("Live catalog configuration unavailable");
+    const config = await configResponse.json();
+    const token = config && config.storefrontToken;
+    if (typeof token !== "string" || !/^ptkn_[a-z0-9-]+$/i.test(token)) {
+      throw new Error("Live catalog configuration invalid");
+    }
+    const raw = [];
+    for (let page = 0; page < 100; page++) {
+      const endpoint = new URL("https://storefront-api.fourthwall.com/v1/collections/all/products");
+      endpoint.searchParams.set("storefront_token", token);
+      endpoint.searchParams.set("page", String(page));
+      endpoint.searchParams.set("size", "50");
+      const response = await fetch(endpoint.href, { cache: "no-store" });
+      if (!response.ok) throw new Error("Live catalog request unavailable");
+      const data = await response.json();
+      if (!data || !Array.isArray(data.results)) throw new Error("Unexpected live catalog response");
+      raw.push(...data.results);
+      if (!data.paging || !data.paging.hasNextPage) {
+        return raw.filter(p => p && typeof p.slug === "string" && p.slug)
+          .map(p => {
+            const variants = Array.isArray(p.variants) ? p.variants : [];
+            const isBundle = p.type === "BUNDLE";
+            const price = (isBundle ? p.price : variants[0] && variants[0].unitPrice) || {};
+            const cover = Array.isArray(p.images) ? p.images[0] : null;
+            return {
+              id: String(p.id || p.slug),
+              name: String(p.name || p.slug),
+              description: String(p.description || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 1800),
+              url: shop + "/products/" + encodeURIComponent(p.slug),
+              image: cover && (cover.url || cover.src) || "",
+              price: typeof price.value === "number" ? price.value : null,
+              currency: price.currency || "EUR",
+              createdAt: p.createdAt || "",
+              productType: p.type || "PRODUCT",
+              variantId: !isBundle && variants.length === 1 ? variants[0].id : null,
+              variantCount: variants.length,
+              available: p.state && p.state.type === "AVAILABLE"
+            };
+          });
+      }
+    }
+    throw new Error("Live catalog pagination limit reached");
+  }
+  async function getFallbackCatalog() {
+    const response = await fetch("fourthwall-products.json?v=" + Date.now(), { cache: "no-store" });
+    if (!response.ok) throw new Error("Saved catalog unavailable");
+    const data = await response.json();
+    if (!data || !Array.isArray(data.products)) throw new Error("Saved catalog invalid");
+    return data.products;
+  }
+  async function loadCatalog() {
+    let fetched;
+    try {
+      fetched = await getLiveCatalog();
+    } catch (_) {
+      try {
+        fetched = await getFallbackCatalog();
+      } catch (_) {
+        empty.hidden = false;
+        empty.querySelector("h3").textContent = "CATALOG UNAVAILABLE.";
+        empty.querySelector("p").textContent = "Fourthwall products could not be loaded. Please try refreshing this page.";
+        count.textContent = "RELEASES";
+        renderCart();
+        return;
+      }
+    }
+    products = fetched.filter(p =>
+      typeof p.id === "string" && typeof p.name === "string" &&
+      typeof p.url === "string" && p.url.startsWith(shop + "/products/")
+    );
+    search.disabled = false;
+    sort.disabled = false;
+    filters.forEach(button => {
+      button.disabled = false;
+      button.addEventListener("click", () => { active = button.dataset.shopFilter; render(); });
     });
+    search.addEventListener("input", render);
+    sort.addEventListener("change", render);
+    render();
+  }
+  loadCatalog();
   renderCart();
 })();
