@@ -7,6 +7,7 @@
   const search = document.getElementById('fw-search');
   const sorter = document.getElementById('fw-sort');
   const filters = Array.from(document.querySelectorAll('[data-fw-filter]'));
+  const controls = document.querySelector('.fw-controls');
   if (!grid || !message || !number || !search || !sorter) return;
 
   let products = [], filter = 'all';
@@ -121,6 +122,9 @@
       }
     });
     grid.replaceChildren(...visible.map(productCard));
+    // When the storefront is empty, do not display unused search and sorting tools.
+    if (controls) controls.hidden = products.length === 0;
+    number.hidden = products.length === 0;
     number.textContent = products.length + (products.length === 1 ? ' RELEASE' : ' RELEASES');
     filters.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fwFilter === filter)));
     message.hidden = visible.length > 0;
@@ -151,6 +155,8 @@
     } catch (_) {
       products = [];
       grid.replaceChildren();
+      if (controls) controls.hidden = true;
+      number.hidden = true;
       number.textContent = 'RELEASES';
       message.hidden = false;
       message.textContent = 'The Fourthwall catalog is temporarily unavailable. Please try again shortly.';
