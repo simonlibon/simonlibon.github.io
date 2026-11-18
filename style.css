@@ -129,3 +129,20 @@ body[data-page="home"] .footer{margin-top:0}
 .email-picker-menu>a{display:block;padding:13px 14px;color:#f4f3f3;font-size:10px;font-weight:700;letter-spacing:.12em;line-height:1.4}
 .email-picker-menu>a:hover,.email-picker-menu>a:focus-visible{background:#313137}
 .email-picker-menu>p{margin:6px 12px 8px;padding-top:11px;border-top:1px solid #414047;font-size:11px;letter-spacing:normal;line-height:1.55;color:#bbb9c3}
+
+
+/* Shared page height: consistent footer and social icon position across sections.
+   Long pages retain natural scrolling rather than overlapping the footer. */
+body{
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+}
+body > .header,body > .footer{flex-shrink:0}
+body > main{flex:1 0 auto;min-width:0}
+body > .footer{margin-top:0}
+body[data-page="home"] > main{display:flex;flex-direction:column}
+body[data-page="home"] .home-stage{flex:1 0 auto;min-height:0}
+body[data-page="concerts"] .concerts-page,
+body[data-page="merch"] .coming-page{min-height:0}
