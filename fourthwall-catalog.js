@@ -55,8 +55,15 @@
 
   function productCard(p) {
     const card = el('article', 'fw-product-card');
-    const cover = el('div', 'fw-product-art');
-    if (p.image && /^https:\/\//.test(p.image)) {
+    const buy = checkoutUrl(p);
+    const detail = trustedProductUrl(p);
+    const destination = buy || detail;
+    const cover = el(destination ? 'a' : 'div', 'fw-product-art');
+    if (destination) {
+      cover.href = destination;
+      cover.setAttribute('aria-label', (buy ? 'Buy ' : 'View ') + p.name + (buy ? ' — Fourthwall checkout' : ' on Fourthwall'));
+    }
+    if (p.image && /^https:\\/\\//.test(p.image)) {
       const img = el('img');
       img.src = p.image;
       img.alt = 'Cover of ' + p.name;
@@ -73,21 +80,6 @@
     const cost = price(p);
     if (cost) copy.append(el('div', 'fw-product-price', cost));
     if (p.description) copy.append(el('p', 'fw-product-description', p.description));
-    const actions = el('div', 'fw-product-actions');
-    const buy = checkoutUrl(p);
-    const detail = trustedProductUrl(p);
-    if (buy) {
-      const link = el('a', 'fw-buy-button', 'BUY NOW');
-      link.href = buy;
-      link.setAttribute('aria-label', 'Buy ' + p.name + ' — Fourthwall checkout');
-      actions.append(link);
-    } else if (detail) {
-      const link = el('a', 'fw-buy-button', 'CHOOSE OPTIONS');
-      link.href = detail;
-      link.setAttribute('aria-label', 'Choose options for ' + p.name + ' on Fourthwall');
-      actions.append(link);
-    }
-    copy.append(actions);
     card.append(copy);
     return card;
   }
