@@ -47,14 +47,18 @@ else:
     raise SystemExit("Fourthwall pagination exceeds 100 pages")
 
 products = []
+print("Fourthwall API returned", len(raw), "entries before filtering.")
 for p in raw:
     if not isinstance(p, dict) or not p.get("slug"):
+        print("Skipped entry: missing product slug")
         continue
     state = p.get("state") or {}
     access = p.get("access") or {}
     if state.get("type") != "AVAILABLE":
+        print("Skipped product", p.get("name", p.get("slug")), "state:", state.get("type"))
         continue
     if access and access.get("type") != "PUBLIC":
+        print("Skipped product", p.get("name", p.get("slug")), "access:", access.get("type"))
         continue
     slug = str(p["slug"])
     variants = p.get("variants") if isinstance(p.get("variants"), list) else []
@@ -76,6 +80,7 @@ for p in raw:
     image_url = image.get("url") or image.get("src") or ""
     if not isinstance(image_url, str) or not image_url.startswith("https://"):
         image_url = ""
+    print("Included product:", p.get("name", slug), "type:", product_type)
     products.append({
         "id": str(p.get("id") or slug),
         "name": str(p.get("name") or slug),
