@@ -147,34 +147,258 @@ body[data-page="home"] .home-stage{flex:1 0 auto;min-height:0}
 body[data-page="concerts"] .concerts-page,
 body[data-page="merch"] .coming-page{min-height:0}
 
+/* V24 — Balanced responsive design across every page.
+   Keep existing typography, neutral colors, and the dark home presentation. */
+:root{--site-header-height:118px}
+.header-inner{height:74px}
+.wordmark{font-size:26px;letter-spacing:-.05em}
+.nav{height:44px;align-items:center;gap:clamp(19px,2.7vw,38px)}
+.nav a{font-size:11px;letter-spacing:.105em;padding:0;line-height:1.3}
+.nav a.active:after{bottom:-9px;border-bottom-width:2px}
+.header{border-bottom-color:#e7e4e1}
 
-/* Inner pages: keep the dark footer below the initial viewport. */
-/* Scroll to reach the footer; pages with products can extend naturally. */
+/* The inner pages get a calm first screen while remaining naturally scrollable. */
 body[data-page="music"] > main,
 body[data-page="concerts"] > main,
 body[data-page="fourthwall"] > main,
-body[data-page="merch"] > main {
-  min-height:calc(100vh - 126px);
-  min-height:calc(100svh - 126px);
+body[data-page="merch"] > main{
+  min-height:calc(100vh - var(--site-header-height));
+  min-height:calc(100svh - var(--site-header-height));
 }
-@media (max-width:650px) {
-  body[data-page="music"] > main,
-  body[data-page="concerts"] > main,
-  body[data-page="fourthwall"] > main,
-  body[data-page="merch"] > main {
-    min-height:calc(100vh - 68px);
-    min-height:calc(100svh - 68px);
+body[data-page="music"] .page-title h1,
+body[data-page="concerts"] .page-title h1,
+body[data-page="merch"] .page-title h1,
+body[data-page="fourthwall"] .native-shop h1{
+  font-size:clamp(43px,5.65vw,74px);
+  letter-spacing:-.064em;
+  line-height:1.08;
+  font-weight:700;
+  text-wrap:balance;
+}
+body[data-page="music"] .page-title,
+body[data-page="concerts"] .page-title,
+body[data-page="merch"] .page-title{
+  border:0;
+  padding:52px 0 14px;
+  text-align:center;
+}
+body[data-page="merch"] .coming-page{
+  justify-content:center;
+}
+body[data-page="merch"] .coming-soon-wrap{
+  padding:6px 0 80px;
+}
+body[data-page="concerts"] .concerts-page{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+body[data-page="concerts"] .concerts-content{
+  padding-top:22px;
+  padding-bottom:75px;
+}
+body[data-page="concerts"] .concert-message{
+  padding:50px 12px;
+}
+body[data-page="concerts"] .concert-row{gap:22px;padding:22px 0}
+body[data-page="concerts"] .concert-info{gap:clamp(16px,3vw,30px)}
+
+/* Streaming logos: predictable, balanced sizes and centered rows. */
+body[data-page="music"] .music-streaming-page{
+  justify-content:center;
+}
+body[data-page="music"] .music-streaming-wrap{
+  padding:4px 0 72px;
+}
+body[data-page="music"] .music-streaming-wrap .coming-soon-inner{
+  gap:9px;
+  margin-bottom:25px;
+}
+body[data-page="music"] .music-streaming-wrap .coming-soon-inner h2{
+  font-size:clamp(22px,2.45vw,29px);
+  letter-spacing:-.045em;
+}
+body[data-page="music"] .music-streaming-subtitle{
+  font-size:10px;
+  letter-spacing:.13em;
+  line-height:1.65;
+}
+body[data-page="music"] .music-service-grid{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+}
+body[data-page="music"] .music-service{
+  flex:0 0 calc((100% - 100px) / 11);
+  min-width:0;
+  min-height:93px;
+  padding:10px 5px;
+  gap:6px;
+  border-color:#e8e5e2;
+  border-radius:9px;
+  background:#fdfcfb;
+  box-shadow:none;
+}
+body[data-page="music"] .music-service-mark{
+  position:relative;
+  width:45px;
+  height:45px;
+  flex:0 0 45px;
+}
+body[data-page="music"] .music-service-mark img{
+  width:39px;
+  height:39px;
+  inset:3px;
+  object-fit:contain;
+  background:transparent;
+}
+body[data-page="music"] .music-service-name{
+  min-height:24px;
+  font-size:10px;
+  line-height:1.25;
+  letter-spacing:0;
+  font-weight:600;
+  overflow-wrap:anywhere;
+}
+body[data-page="music"] .music-service:nth-child(5) .music-service-mark img{
+  width:67px;
+  height:43px;
+  max-width:none;
+  inset:1px auto auto 50%;
+  transform:translateX(-50%);
+}
+
+/* Shop: restrained product proportions and controls that align to cards. */
+body[data-page="fourthwall"] .native-shop{
+  padding:55px 0 65px;
+}
+body[data-page="fourthwall"] .native-shop h1{
+  margin:0 0 29px;
+}
+body[data-page="fourthwall"] .fw-controls{
+  margin-bottom:22px;
+  gap:12px;
+  align-items:center;
+}
+body[data-page="fourthwall"] .fw-filter-list{gap:7px}
+body[data-page="fourthwall"] .fw-filter-list button{
+  min-height:39px;
+  padding:9px 14px;
+}
+body[data-page="fourthwall"] .fw-control-right{gap:11px}
+body[data-page="fourthwall"] .fw-grid{
+  grid-template-columns:repeat(auto-fill,minmax(185px,218px));
+  justify-content:start;
+  gap:27px 20px;
+}
+body[data-page="fourthwall"] .fw-product-art{
+  border-radius:7px;
+  background:#eeeceb;
+}
+body[data-page="fourthwall"] .fw-product-title{
+  font-size:19px;
+  line-height:1.19;
+  margin-top:6px;
+}
+body[data-page="fourthwall"] .fw-product-actions{margin-top:11px}
+body[data-page="fourthwall"] .fw-buy-button{min-height:39px;border-radius:2px}
+body[data-page="fourthwall"] .fw-credit{margin:28px 0 0}
+body[data-page="fourthwall"] .fw-controls[hidden],
+body[data-page="fourthwall"] .fw-count[hidden]{display:none!important}
+
+/* Compact footer across the site; on inner pages it blends into white. */
+.footer-inner{padding:27px 0 19px}
+.footer .socials{gap:18px;margin:0 0 14px}
+.footer .socials a{width:32px;height:32px}
+.footer .socials svg{width:19px;height:19px}
+.footer-quicklinks{margin:0 0 18px}
+.footer-bottom{padding-top:14px;line-height:1.7}
+body:not([data-page="home"]) > .footer{
+  background:var(--white);
+  color:var(--ink);
+  border-top:1px solid #e6e3e0;
+}
+body:not([data-page="home"]) .footer .socials a{color:#66636b}
+body:not([data-page="home"]) .footer .socials a:hover{color:#18181a}
+body:not([data-page="home"]) .footer-quicklinks a{color:#4f4d53}
+body:not([data-page="home"]) .footer-quicklinks a:hover{color:#18181a}
+body:not([data-page="home"]) .footer-bottom{
+  border-top-color:#e6e3e0;
+  color:#78757b;
+}
+body:not([data-page="home"]) .footer-bottom a:hover{color:#18181a}
+body:not([data-page="home"]) .contact-panel{border-top-color:#e6e3e0}
+body:not([data-page="home"]) .contact-address{color:#18181a}
+body:not([data-page="home"]) .contact-action{
+  color:#18181a;
+  border-color:#bab6bc;
+}
+body:not([data-page="home"]) .contact-action:hover{
+  color:#18181a;
+  border-color:#18181a;
+  background:#f0eeec;
+}
+body:not([data-page="home"]) .contact-feedback{color:#67636a}
+
+@media (min-width:651px) and (max-width:1180px){
+  body[data-page="music"] .music-service{flex-basis:calc((100% - 70px) / 8)}
+}
+@media (min-width:651px) and (max-width:880px){
+  body[data-page="music"] .music-service{flex-basis:calc((100% - 50px) / 6)}
+  .nav{gap:21px}
+  .nav a{font-size:10px}
+}
+@media (max-width:650px){
+  :root{--site-header-height:68px}
+  .header-inner{height:68px}
+  .wordmark{font-size:23px}
+  .nav{height:auto;gap:11px;padding:10px 18px 21px}
+  .nav a{font-size:12px;letter-spacing:.09em;padding:7px 10px}
+  .nav a.active:after{bottom:0}
+  .menu-toggle{min-height:35px;padding:8px 14px}
+  body[data-page="music"] .page-title,
+  body[data-page="concerts"] .page-title,
+  body[data-page="merch"] .page-title{padding:35px 0 12px}
+  body[data-page="music"] .page-title h1,
+  body[data-page="concerts"] .page-title h1,
+  body[data-page="merch"] .page-title h1,
+  body[data-page="fourthwall"] .native-shop h1{
+    font-size:clamp(35px,8.5vw,52px);
   }
+  body[data-page="music"] .music-streaming-wrap{padding:5px 0 46px}
+  body[data-page="music"] .music-streaming-wrap .coming-soon-inner{margin-bottom:19px}
+  body[data-page="music"] .music-service-grid{gap:8px}
+  body[data-page="music"] .music-service{
+    flex-basis:calc((100% - 24px) / 4);
+    min-height:91px;
+    padding:9px 4px;
+  }
+  body[data-page="music"] .music-service-name{font-size:9px}
+  body[data-page="concerts"] .concerts-content{padding:15px 0 55px}
+  body[data-page="concerts"] .concert-row{padding:19px 0}
+  body[data-page="fourthwall"] .native-shop{padding:38px 0 47px}
+  body[data-page="fourthwall"] .native-shop h1{margin-bottom:24px}
+  body[data-page="fourthwall"] .fw-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:16px;
+    row-gap:27px;
+    justify-content:stretch;
+  }
+  body[data-page="fourthwall"] .fw-product-title{
+    font-size:clamp(12px,3.5vw,16px);
+    line-height:1.35;
+    margin:7px 0 4px;
+  }
+  body[data-page="fourthwall"] .fw-product-actions{margin-top:auto}
+  .footer-inner{padding:23px 0 18px}
+  .footer .socials{gap:17px;margin:0 0 10px}
+  .footer-quicklinks{margin:0 0 16px}
+  .footer-bottom{padding-top:13px;gap:5px}
 }
-
-
-/* Desktop/mobile: inner page whites fully cover the opening viewport. */
-/* Use a full viewport for the content, not viewport minus header; the
-   footer begins below the fold and only appears once visitors scroll. */
-body[data-page="music"] > main,
-body[data-page="concerts"] > main,
-body[data-page="fourthwall"] > main,
-body[data-page="merch"] > main {
-  min-height:100vh !important;
-  min-height:100svh !important;
+@media (max-width:410px){
+  body[data-page="music"] .music-service{flex-basis:calc((100% - 16px) / 3)}
 }
