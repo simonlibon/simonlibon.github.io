@@ -138,7 +138,7 @@
       }
     }
     checkout.textContent = "SECURE CHECKOUT";
-    note.textContent = "The exact total, any taxes and payment are confirmed by Fourthwall. Checkout opens directly, without an extra product page.";
+    note.textContent = "Your items are transferred to Fourthwall’s secure checkout, where taxes and the final total are confirmed.";
   }
   function changeQuantity(id, quantity) {
     const current = cart.find(i => i.id === id);
@@ -165,17 +165,55 @@
   }
   // Fourthwall documents direct checkout by variant UUID and quantities.
   // No Storefront token or API-created cart is required for this entrypoint.
-  checkout.addEventListener("click", () => {
+  const checkoutStatus = node("p", "fw-cart-warning");
+  checkoutStatus.setAttribute("role", "status");
+  checkoutStatus.hidden = true;
+  footer.insertBefore(checkoutStatus, checkout);
+  checkout.addEventListener("click", async () => {
+    if (checkout.disabled) return;
     const entries = availableCart();
     if (!entries.length || entries.length !== cart.length ||
         !entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99)) return;
     const currencies = new Set(entries.map(x => x.product.currency || "USD"));
     if (currencies.size !== 1) return;
-    const query = new URLSearchParams({
-      products: entries.map(x => x.product.variantId + ":" + x.item.quantity).join(","),
-      currency: entries[0].product.currency || "USD"
-    });
-    window.location.assign(shop + "/cart/checkout?" + query.toString());
+    const currency = entries[0].product.currency || "USD";
+    checkout.disabled = true;
+    checkout.textContent = "CONNECTING SECURE CHECKOUT…";
+    checkoutStatus.hidden = true;
+    try {
+      // Create a real Fourthwall cart before opening their supported checkout URL.
+      const cfgResponse = await fetch("fourthwall-public-config.json?v=" + Date.now(), { cache: "no-store" });
+      if (!cfgResponse.ok) throw new Error("The store connection is still being prepared.");
+      const cfg = await cfgResponse.json();
+      if (!cfg || typeof cfg.storefrontToken !== "string" || !/^ptkn_[-a-zA-Z0-9]+$/.test(cfg.storefrontToken))
+        throw new Error("The Fourthwall Storefront connection is unavailable.");
+      const url = new URL("https://storefront-api.fourthwall.com/v1/carts");
+      url.searchParams.set("storefront_token", cfg.storefrontToken);
+      url.searchParams.set("currency", currency);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: entries.map(x => ({ variantId: x.product.variantId, quantity: x.item.quantity }))
+        }),
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error("Fourthwall could not prepare this checkout.");
+      const data = await response.json();
+      if (!data || typeof data.id !== "string" || !data.id || data.id.length > 256)
+        throw new Error("Fourthwall did not return a valid checkout cart.");
+      const checkoutUrl = new URL(shop + "/checkout/");
+      checkoutUrl.searchParams.set("cartId", data.id);
+      checkoutUrl.searchParams.set("cartCurrency", currency);
+      window.location.assign(checkoutUrl.href);
+    } catch (error) {
+      checkoutStatus.hidden = false;
+      checkoutStatus.textContent = "Checkout was not opened. " +
+        (error instanceof Error ? error.message : "Please try again.") +
+        " You can continue shopping or retry.";
+      checkout.disabled = false;
+      checkout.textContent = "SECURE CHECKOUT";
+    }
   });
 
 
