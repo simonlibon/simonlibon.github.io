@@ -1,7 +1,21 @@
-/* Product templates only. Unpublished templates never appear in the public shop. Gumroad synchronization will replace this catalogue when configured. */
 window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Backing Tracks",
   "products": [
+    {
+      "id": "qttrtc",
+      "title": "Reverie — Guitar Tabs",
+      "type": "tabs",
+      "description": "Official guitar tablature for Reverie by Simon Libon.",
+      "includes": [
+        "Guitar tabs (PDF)",
+        "Digital download"
+      ],
+      "price": 8,
+      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/qttrtc",
+      "image": "https://public-files.gumroad.com/2h6qoouftjx8s2rpq1blgiv6d364",
+      "published": true,
+      "releaseDate": "2026-11-18"
+    },
     {
       "id": "tabs-template",
       "title": "Guitar Tabs — template",
