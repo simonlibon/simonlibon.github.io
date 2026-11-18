@@ -22,12 +22,12 @@ jobs:
             exit 1
           fi
           python scripts/sync_gumroad.py
-      - name: Commit catalogue changes
+      - name: Commit catalogue and cache-busting page changes
         run: |
-          if ! git diff --quiet -- catalog.js; then
+          if ! git diff --quiet -- catalog.js tabs.html; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add catalog.js
+            git add catalog.js tabs.html
             git commit -m "Sync published Gumroad catalogue"
             git push
           fi
