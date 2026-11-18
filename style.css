@@ -136,3 +136,15 @@ body[data-page="home"] .footer{margin-top:0}
 @media(max-width:950px){.music-service-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:650px){.music-streaming-page .page-title{padding-top:59px;padding-bottom:15px}.music-streaming-wrap{padding:10px 0 60px}.music-streaming-wrap .coming-soon-inner{margin-bottom:29px}.music-streaming-subtitle{font-size:9px;line-height:1.8}.music-service-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.music-service{min-height:110px;gap:10px;padding:12px 4px}.music-service-mark{width:42px;height:42px}.music-service-mark img{width:38px;height:38px;inset:2px}.music-service-name{font-size:9px}.music-streaming-note{font-size:9px;margin-top:28px}}
 @media(max-width:370px){.music-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* One unobtrusive email action for all visitors, with accessible webmail choices. */
+.email-picker{position:relative;z-index:12}
+.email-picker>summary.contact-action{list-style:none;user-select:none}
+.email-picker>summary.contact-action::-webkit-details-marker{display:none}
+.email-picker>summary.contact-action::marker{content:""}
+.email-picker[open]>summary.contact-action{background:#242429;border-color:#f4f3f3}
+.email-picker-menu{position:absolute;z-index:30;top:calc(100% + 9px);left:50%;transform:translateX(-50%);width:min(290px,calc(100vw - 36px));padding:8px;background:#1c1c20;border:1px solid #515058;box-shadow:0 16px 32px #0005;text-align:left}
+.email-picker-menu>a{display:block;padding:13px 14px;color:#f4f3f3;font-size:10px;font-weight:700;letter-spacing:.12em;line-height:1.4}
+.email-picker-menu>a:hover,.email-picker-menu>a:focus-visible{background:#313137}
+.email-picker-menu>p{margin:6px 12px 8px;padding-top:11px;border-top:1px solid #414047;font-size:11px;letter-spacing:normal;line-height:1.55;color:#bbb9c3}
