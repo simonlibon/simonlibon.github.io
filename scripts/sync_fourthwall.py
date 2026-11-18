@@ -1,6 +1,7 @@
 """Synchronize Fourthwall product catalog and public Storefront API browser token."""
 import json
 import re
+from datetime import datetime, timezone
 from html import unescape
 import os
 import sys
@@ -61,12 +62,15 @@ for product in products:
     description = product.get("description") or ""
     if isinstance(description, str):
         description = unescape(re.sub(r"<[^>]*>", " ", description))
-        description = re.sub(r"\\s+", " ", description).strip()[:1800]
+        description = re.sub(r"\s+", " ", description).strip()[:1800]
     else:
         description = ""
     product_type = product.get("type") or "PRODUCT"
     variant_id = variants[0].get("id") if product_type == "PRODUCT" and len(variants) == 1 else None
     is_available = (product.get("state") or {}).get("type") == "AVAILABLE"
+    # Do not surface draft, hidden, or unavailable products as public releases.
+    if not is_available:
+        continue
 
     image = first_image.get("url") or first_image.get("src") or ""
     output.append({
@@ -85,13 +89,10 @@ for product in products:
         "available": is_available,
     })
 
-# Do not replace a working catalog with an empty response accidentally.
+# A verified empty API result is meaningful: all products may have been unpublished.
+# Never preserve an old product list merely because no products remain.
 target = ROOT / "fourthwall-products.json"
-if not output and target.exists():
-    previous = json.loads(target.read_text(encoding="utf-8"))
-    if previous.get("products"):
-        raise SystemExit("Fourthwall returned zero products; retaining previous catalog for safety.")
-content = json.dumps({"products": output}, ensure_ascii=False, indent=2) + "\n"
+content = json.dumps({"syncedAt": datetime.now(timezone.utc).isoformat(), "products": output}, ensure_ascii=False, indent=2) + "\n"
 if not target.exists() or target.read_text(encoding="utf-8") != content:
     target.write_text(content, encoding="utf-8")
 # The Storefront token is used only by this GitHub Actions job to fetch the catalog.
