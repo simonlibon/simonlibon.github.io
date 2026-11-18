@@ -3,7 +3,7 @@ name: Sync Gumroad shop
 on:
   schedule:
     # GitHub Actions supports a minimum five-minute interval; jobs may start late.
-    - cron: '3/5 * * * *'
+    - cron: '4/5 * * * *'
   workflow_dispatch:
 
 permissions:
