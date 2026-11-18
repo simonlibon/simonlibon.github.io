@@ -11,7 +11,7 @@ const euro=n=>Number(n||0).toLocaleString("en-IE",{style:"currency",currency:"EU
 const good=u=>{try{const x=new URL(u);return x.protocol==="https:"&&x.hostname==="simonlibonstore.gumroad.com"&&/^\/l\/[a-z0-9_-]+\/?$/i.test(x.pathname)}catch{return false}};
 const canPurchase=p=>!p?.demo&&good(p?.gumroadUrl);
 const live=p=>p?.published===true&&(p.demo===true||canPurchase(p));
-const pay=p=>{const u=new URL(p.gumroadUrl);u.searchParams.set("wanted","true");return u.href};
+const pay=p=>{const u=new URL(p.gumroadUrl);u.searchParams.set("wanted","true");u.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");return u.href};
 function art(p,cls){const box=el("div",cls),uri=String(p.image||"");if(uri&&(/^(https?:\/\/|data:image\/(png|jpeg|webp);base64,)/i.test(uri)||/^images\//i.test(uri))){const img=el("img");img.src=uri;img.alt="Cover artwork for "+p.title;img.loading="lazy";box.append(img)}else{box.classList.add("is-placeholder");const text=el("span","placeholder-text",titles[p.type]||"SIMON\nLIBON");text.style.whiteSpace="pre-line";box.append(text)}return box}
 function card(p){
  const item=el("article","shop-item"), purchasable=canPurchase(p),url=purchasable?pay(p):"";
@@ -19,7 +19,7 @@ function card(p){
  if(purchasable){
    cover.href=url;
    cover.dataset.gumroadSingleProduct="true";
-   cover.rel="noopener noreferrer";
+   cover.rel="noopener";
    cover.target="_blank";
    cover.setAttribute("aria-label","Buy "+p.title+" securely through Gumroad");
  }
@@ -34,7 +34,7 @@ function card(p){
    const buy=el("a","buy-quick","BUY ON GUMROAD");
    buy.href=url;
    buy.dataset.gumroadSingleProduct="true";
-   buy.rel="noopener noreferrer";
+   buy.rel="noopener";
    buy.target="_blank";
    buy.insertAdjacentHTML("beforeend",arrow);
    actions.append(buy);
