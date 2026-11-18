@@ -166,15 +166,9 @@
     const ready = entries.length > 0 && entries.length === cart.length &&
       entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99) &&
       new Set(entries.map(x => x.product.currency || "USD")).size === 1;
-    if (ready && checkoutConfigLoaded && !storefrontToken) {
-      checkout.hidden = true;
-      fallbackArea.hidden = false;
-      fallbackText.textContent = entries.length === 1
-        ? "Direct checkout is temporarily unavailable. You can purchase this product securely on Fourthwall; select the quantity again there."
-        : "Direct cart transfer is temporarily unavailable. To buy these items, add them again to the official Fourthwall shop.";
-      fallbackLink.href = entries.length === 1 ? entries[0].product.url : shop;
-      fallbackLink.textContent = entries.length === 1 ? "OPEN PRODUCT ON FOURTHWALL" : "OPEN FOURTHWALL SHOP";
-    }
+    // A single checkout button is shown; never render a second purchase rectangle.
+    fallbackArea.hidden = true;
+    checkout.hidden = false;
     if (ready && !checkoutConfigLoaded) checkout.disabled = true;
     note.textContent = storefrontToken
       ? "Your items are transferred to Fourthwall's secure checkout, where taxes and the final total are confirmed."
@@ -247,12 +241,7 @@
       checkoutStatus.textContent = "The direct checkout could not be opened. " +
         (error instanceof Error ? error.message : "Please try again.") +
         " You can retry, or use the official Fourthwall payment page.";
-      const fallback = document.createElement("a");
-      fallback.href = entries.length === 1 ? entries[0].product.url : shop;
-      fallback.textContent = " OPEN FOURTHWALL";
-      fallback.style.marginLeft = "8px";
-      fallback.style.textDecoration = "underline";
-      checkoutStatus.append(fallback);
+      // Keep the checkout action unique; do not send buyers to the shop homepage.
       checkout.disabled = false;
       checkout.textContent = "SECURE CHECKOUT";
     }
