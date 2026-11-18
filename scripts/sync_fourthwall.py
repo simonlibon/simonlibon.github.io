@@ -75,6 +75,10 @@ def read_public_products():
     if listings and not (handles or ids):
         # A changed public feed format must not make existing products disappear.
         raise SystemExit("Public Fourthwall products have no recognizable identifiers")
+    print("Public listing safe fields:", [
+        {k: p.get(k) for k in ("id", "handle", "slug", "name", "title", "url", "type", "state", "access") if k in p}
+        for p in listings[:12] if isinstance(p, dict)
+    ])
     print("Fourthwall public collection lists", len(listings), "products.")
     return handles, ids
 
