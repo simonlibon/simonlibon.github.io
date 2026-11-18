@@ -21,7 +21,7 @@
     <div class="shop-filters" role="group" aria-label="Filter by product type"><button type="button" data-shop-filter="all" aria-pressed="true">ALL</button><button type="button" data-shop-filter="tabs" aria-pressed="false">TABS</button><button type="button" data-shop-filter="backing" aria-pressed="false">BACKING TRACKS</button><button type="button" data-shop-filter="bundle" aria-pressed="false">BUNDLES</button></div>
     <div id="shop-grid" class="shop-product-grid" aria-live="polite"></div>
     <div id="shop-empty" class="shop-empty" hidden><span class="shop-empty-label">THE NEXT RELEASE</span><h3>COMING SOON</h3><p>Official tabs, backing tracks and bundles will appear here when they are released.</p></div>
-    <div class="shop-payment-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Payments and file delivery are handled securely by Gumroad. You leave this website only when you choose to buy.</span></div>
+    <div class="shop-payment-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Payments and file delivery are securely handled by Gumroad in a separate tab. This shop stays open here.</span></div>
   </section>
 </main>
 <footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
@@ -43,7 +43,7 @@
   catalog.src = 'catalog.js?refresh=' + Date.now();
   catalog.onload = function(){
     const store = document.createElement('script');
-    store.src = 'shop.js?v=12';
+    store.src = 'shop.js?v=16';
     document.body.appendChild(store);
   };
   catalog.onerror = function(){
