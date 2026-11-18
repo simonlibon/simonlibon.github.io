@@ -15,6 +15,11 @@
   let products = [];
   let active = "all";
   let cart = [];
+  let catalogVerified = false;
+  let catalogError = false;
+  let catalogRefresh = null;
+  let controlsReady = false;
+  let cartNotice = "";
   const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   const category = p => /bundle|pack|ep complete|ep full/i.test(p.name) || p.productType === "BUNDLE"
     ? "bundle" : /backing|track|instrumental/i.test(p.name) ? "backing" : "tabs";
@@ -83,6 +88,8 @@
     overlay.hidden = false;
     document.body.classList.add("fw-cart-visible");
     closeButton.focus();
+    // Every time the cart opens, check current products and remove discontinued ones.
+    refreshCatalog();
   }
   function hideCart() {
     overlay.hidden = true;
@@ -102,7 +109,7 @@
   }
   function renderCart() {
     const entries = availableCart();
-    const qty = cart.reduce((n, item) => n + item.quantity, 0);
+    const qty = catalogVerified ? cart.reduce((n, item) => n + item.quantity, 0) : 0;
     openButton.querySelector("[data-cart-count]").textContent = String(qty);
     cartItems.replaceChildren();
     total.replaceChildren();
@@ -110,47 +117,64 @@
     checkout.hidden = false;
     fallbackArea.hidden = true;
     checkoutStatus.hidden = true;
-    const staleCount = cart.length - entries.length;
-    if (!cart.length) {
-      cartItems.append(node("p", "fw-cart-empty", "Your cart is empty. Add a release to get started."));
-    } else if (!products.length) {
-      cartItems.append(node("p", "fw-cart-empty", "Loading your saved items…"));
+
+    if (!catalogVerified) {
+      cartItems.append(node("p", "fw-cart-empty", catalogError
+        ? "Could not verify the current Fourthwall products. Please try again."
+        : "Checking current products and your saved cart…"));
     } else {
-      if (staleCount) cartItems.append(node("p", "fw-cart-warning", "Some previously saved items are no longer available."));
-      for (const { item, product: p } of entries) {
-        const line = node("div", "fw-cart-line");
-        if (p.image) {
-          const img = node("img", "fw-cart-thumb"); img.src = p.image; img.alt = ""; img.loading = "lazy"; line.append(img);
-        }
-        const details = node("div", "fw-cart-line-copy");
-        details.append(node("strong", "", p.name), node("small", "", money(Number(p.price || 0), p.currency)));
-        const controls = node("div", "fw-cart-qty");
-        const minus = node("button", "", "−"), plus = node("button", "", "+"), number = node("span", "", String(item.quantity));
-        minus.type = plus.type = "button";
-        minus.setAttribute("aria-label", "Decrease quantity for " + p.name);
-        plus.setAttribute("aria-label", "Increase quantity for " + p.name);
-        minus.addEventListener("click", () => changeQuantity(p.id, item.quantity - 1));
-        plus.addEventListener("click", () => changeQuantity(p.id, Math.min(99, item.quantity + 1)));
-        controls.append(minus, number, plus);
-        details.append(controls);
-        line.append(details);
-        cartItems.append(line);
-      }
-      const currencies = new Set(entries.map(x => x.product.currency || "USD"));
-      if (currencies.size === 1 && entries.length && !staleCount && entries.every(x => canAdd(x.product))) {
-        const currency = entries[0].product.currency || "USD";
-        const amount = entries.reduce((sum, x) => sum + Number(x.product.price || 0) * x.item.quantity, 0);
-        total.append(node("strong", "", "ESTIMATED TOTAL"), node("strong", "", money(amount, currency)));
-        checkout.disabled = false;
+      if (cartNotice) cartItems.append(node("p", "fw-cart-warning", cartNotice));
+      if (!cart.length) {
+        cartItems.append(node("p", "fw-cart-empty", "Your cart is empty. Add a release to get started."));
       } else {
-        total.append(node("span", "", "Review cart items before checkout."));
+        for (const { item, product: p } of entries) {
+          const line = node("div", "fw-cart-line");
+          if (p.image) {
+            const img = node("img", "fw-cart-thumb");
+            img.src = p.image; img.alt = ""; img.loading = "lazy"; line.append(img);
+          }
+          const details = node("div", "fw-cart-line-copy");
+          details.append(node("strong", "", p.name), node("small", "", money(Number(p.price || 0), p.currency)));
+          const controls = node("div", "fw-cart-qty");
+          const minus = node("button", "", "−");
+          const plus = node("button", "", "+");
+          const number = node("span", "", String(item.quantity));
+          minus.type = plus.type = "button";
+          minus.setAttribute("aria-label", "Decrease quantity for " + p.name);
+          plus.setAttribute("aria-label", "Increase quantity for " + p.name);
+          minus.addEventListener("click", () => changeQuantity(p.id, item.quantity - 1));
+          plus.addEventListener("click", () => changeQuantity(p.id, Math.min(99, item.quantity + 1)));
+          controls.append(minus, number, plus);
+          details.append(controls);
+          line.append(details);
+          cartItems.append(line);
+        }
+        const currencies = new Set(entries.map(x => x.product.currency || "USD"));
+        if (currencies.size === 1 && entries.length === cart.length && entries.every(x => canAdd(x.product))) {
+          const currency = entries[0].product.currency || "USD";
+          const amount = entries.reduce((sum, x) => sum + Number(x.product.price || 0) * x.item.quantity, 0);
+          total.append(node("strong", "", "ESTIMATED TOTAL"), node("strong", "", money(amount, currency)));
+          checkout.disabled = false;
+        } else {
+          total.append(node("span", "", "Review cart items before checkout."));
+        }
       }
     }
     checkout.textContent = "SECURE CHECKOUT";
-    // Only the secure checkout button is shown, and pricing is verified on Fourthwall.
-    fallbackArea.hidden = true;
-    checkout.hidden = false;
-    note.textContent = "Your items are transferred to Fourthwall\'s secure checkout, where taxes and the final total are confirmed.";
+    note.textContent = "Your items are transferred to Fourthwall's secure checkout, where taxes and the final total are confirmed.";
+  }
+  function reconcileCart() {
+    // Never erase saved purchases on a transient network failure.
+    // Only remove items after a successful read of the current live catalog.
+    const purchasableIds = new Set(products.filter(canAdd).map(p => p.id));
+    const removedCount = cart.filter(item => !purchasableIds.has(item.id)).length;
+    if (removedCount) {
+      cart = cart.filter(item => purchasableIds.has(item.id));
+      try { localStorage.setItem(key, JSON.stringify(cart)); } catch (_) {}
+      cartNotice = removedCount === 1
+        ? "An unpublished or deleted product was automatically removed from your cart."
+        : "Unpublished or deleted products were automatically removed from your cart.";
+    }
   }
   function changeQuantity(id, quantity) {
     const current = cart.find(i => i.id === id);
@@ -160,7 +184,8 @@
     saveCart();
   }
   function addToCart(p) {
-    if (!canAdd(p)) return;
+    if (!catalogVerified || !canAdd(p)) return;
+    cartNotice = "";
     const currency = p.currency || "USD";
     const currencyConflict = availableCart().some(x => (x.product.currency || "USD") !== currency);
     if (currencyConflict) {
@@ -181,17 +206,23 @@
   checkoutStatus.setAttribute("role", "status");
   checkoutStatus.hidden = true;
   footer.insertBefore(checkoutStatus, checkout);
-  checkout.addEventListener("click", () => {
+  checkout.addEventListener("click", async () => {
     if (checkout.disabled) return;
+    checkout.disabled = true;
+    // Recheck immediately before redirect: never pass an unpublished or changed product to checkout.
+    await refreshCatalog();
+    if (!catalogVerified) return;
     const entries = availableCart();
     if (!entries.length || entries.length !== cart.length ||
-        !entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99)) return;
+        !entries.every(x => canAdd(x.product) && x.item.quantity >= 1 && x.item.quantity <= 99)) {
+      renderCart();
+      return;
+    }
     const currencies = new Set(entries.map(x => x.product.currency || "USD"));
-    if (currencies.size !== 1) return;
-
-    // Fourthwall's /cart/checkout accepts variant UUIDs and quantities in this format:
-    // products=variantId:quantity,variantId:quantity&currency=USD
-    // Its own endpoint generates the checkout session and redirects to payment.
+    if (currencies.size !== 1) {
+      renderCart();
+      return;
+    }
     const url = new URL(shop + "/cart/checkout");
     url.searchParams.set("products", entries.map(x => x.product.variantId + ":" + x.item.quantity).join(","));
     url.searchParams.set("currency", entries[0].product.currency || "USD");
@@ -337,7 +368,8 @@
       if (!data || !Array.isArray(data.results)) throw new Error("Unexpected live catalog response");
       raw.push(...data.results);
       if (!data.paging || !data.paging.hasNextPage) {
-        return raw.filter(p => p && typeof p.slug === "string" && p.slug)
+        return raw.filter(p => p && typeof p.slug === "string" && p.slug &&
+          p.state && p.state.type === "AVAILABLE")
           .map(p => {
             const variants = Array.isArray(p.variants) ? p.variants : [];
             const isBundle = p.type === "BUNDLE";
@@ -362,43 +394,68 @@
     }
     throw new Error("Live catalog pagination limit reached");
   }
-  async function getFallbackCatalog() {
-    const response = await fetch("fourthwall-products.json?v=" + Date.now(), { cache: "no-store" });
-    if (!response.ok) throw new Error("Saved catalog unavailable");
-    const data = await response.json();
-    if (!data || !Array.isArray(data.products)) throw new Error("Saved catalog invalid");
-    return data.products;
-  }
-  async function loadCatalog() {
-    let fetched;
-    try {
-      fetched = await getLiveCatalog();
-    } catch (_) {
+  // Fourthwall is the source of truth: never show an old GitHub cache as if it were live.
+  // This prevents deleted or unpublished products from reappearing after an API error.
+  async function refreshCatalog() {
+    if (catalogRefresh) return catalogRefresh;
+    catalogVerified = false;
+    catalogError = false;
+    renderCart();
+    catalogRefresh = (async () => {
       try {
-        fetched = await getFallbackCatalog();
+        const fetched = await getLiveCatalog();
+        products = fetched.filter(p =>
+          typeof p.id === "string" && typeof p.name === "string" &&
+          typeof p.url === "string" && p.url.startsWith(shop + "/products/") &&
+          p.available === true
+        );
+        catalogVerified = true;
+        catalogError = false;
+        reconcileCart();
+        if (!controlsReady) {
+          search.disabled = false;
+          sort.disabled = false;
+          filters.forEach(button => {
+            button.disabled = false;
+            button.addEventListener("click", () => { active = button.dataset.shopFilter; render(); });
+          });
+          search.addEventListener("input", render);
+          sort.addEventListener("change", render);
+          controlsReady = true;
+        }
+        render();
       } catch (_) {
+        catalogVerified = false;
+        catalogError = true;
+        products = [];
+        grid.replaceChildren();
         empty.hidden = false;
         empty.querySelector("h3").textContent = "CATALOG UNAVAILABLE.";
-        empty.querySelector("p").textContent = "Fourthwall products could not be loaded. Please try refreshing this page.";
+        empty.querySelector("p").textContent =
+          "Could not load current Fourthwall products. Please refresh and try again.";
         count.textContent = "RELEASES";
         renderCart();
-        return;
       }
+    })();
+    try {
+      await catalogRefresh;
+    } finally {
+      catalogRefresh = null;
     }
-    products = fetched.filter(p =>
-      typeof p.id === "string" && typeof p.name === "string" &&
-      typeof p.url === "string" && p.url.startsWith(shop + "/products/")
-    );
-    search.disabled = false;
-    sort.disabled = false;
-    filters.forEach(button => {
-      button.disabled = false;
-      button.addEventListener("click", () => { active = button.dataset.shopFilter; render(); });
-    });
-    search.addEventListener("input", render);
-    sort.addEventListener("change", render);
-    render();
   }
-  loadCatalog();
+  refreshCatalog();
+  window.addEventListener("focus", () => refreshCatalog());
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshCatalog();
+  });
+  window.addEventListener("storage", event => {
+    if (event.key === key) {
+      readCart();
+      if (catalogVerified) reconcileCart();
+      renderCart();
+    }
+  });
+  // Also refresh if the user leaves the page open while editing products on Fourthwall.
+  setInterval(() => { if (!document.hidden) refreshCatalog(); }, 120000);
   renderCart();
 })();
