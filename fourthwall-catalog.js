@@ -46,6 +46,8 @@
   // A product is purchased one at a time. Nothing is stored in a local cart.
   // This is Fourthwall's previously used single-variant direct checkout link.
   function checkoutUrl(p) {
+    // Fourthwall bundles should open their own product page for a valid checkout.
+    if (category(p) === 'bundle') return '';
     if (!validUUID.test(p.variantId || '') || p.variantCount !== 1 || p.available !== true) return '';
     const url = new URL('/cart/checkout', shop);
     url.searchParams.set('products', p.variantId + ':1');
