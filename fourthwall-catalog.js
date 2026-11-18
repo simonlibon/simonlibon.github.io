@@ -46,8 +46,9 @@
   // A product is purchased one at a time. Nothing is stored in a local cart.
   // This is Fourthwall's previously used single-variant direct checkout link.
   function checkoutUrl(p) {
-    // Fourthwall bundles should open their own product page for a valid checkout.
-    if (category(p) === 'bundle') return '';
+    // Only native Fourthwall bundle types need a product-page checkout.
+    // A digital product named "Bundle" with one variant uses the normal direct checkout.
+    if (p.productType === 'BUNDLE') return '';
     if (!validUUID.test(p.variantId || '') || p.variantCount !== 1 || p.available !== true) return '';
     const url = new URL('/cart/checkout', shop);
     url.searchParams.set('products', p.variantId + ':1');
@@ -84,9 +85,9 @@
       link.setAttribute('aria-label', 'Buy ' + p.name + ' — Fourthwall checkout');
       actions.append(link);
     } else if (detail) {
-      const link = el('a', 'fw-buy-button', 'CHOOSE OPTIONS');
+      const link = el('a', 'fw-buy-button', 'BUY NOW');
       link.href = detail;
-      link.setAttribute('aria-label', 'Choose options for ' + p.name + ' on Fourthwall');
+      link.setAttribute('aria-label', 'View and buy ' + p.name + ' on Fourthwall');
       actions.append(link);
     }
     copy.append(actions);
