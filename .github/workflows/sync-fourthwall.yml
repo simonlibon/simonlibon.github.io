@@ -1,6 +1,9 @@
 name: Sync Fourthwall product catalog
 on:
   workflow_dispatch:
+  # A verified Fourthwall product event can trigger the same catalog refresh.
+  repository_dispatch:
+    types: [fourthwall_products_changed]
   push:
     branches: [main]
     paths:
