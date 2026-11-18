@@ -1,5 +1,7 @@
 """Synchronize public Fourthwall catalog without publishing API credentials."""
 import json
+import re
+from html import unescape
 import os
 import sys
 import urllib.error
@@ -56,6 +58,12 @@ for product in products:
              (variants[0].get("unitPrice") if variants else None)) or {}
     images = product.get("images") or []
     first_image = images[0] if images and isinstance(images[0], dict) else {}
+    description = product.get("description") or ""
+    if isinstance(description, str):
+        description = unescape(re.sub(r"<[^>]*>", " ", description))
+        description = re.sub(r"\\s+", " ", description).strip()[:1800]
+    else:
+        description = ""
     product_type = product.get("type") or "PRODUCT"
     variant_id = variants[0].get("id") if product_type == "PRODUCT" and len(variants) == 1 else None
     is_available = (product.get("state") or {}).get("type") == "AVAILABLE"
@@ -64,6 +72,7 @@ for product in products:
     output.append({
         "id": str(product.get("id", slug)),
         "name": product.get("name") or slug,
+        "description": description,
         "slug": slug,
         "url": SHOP + "/products/" + urllib.parse.quote(slug, safe=""),
         "image": image,
