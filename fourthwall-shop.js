@@ -208,9 +208,15 @@
       window.location.assign(checkoutUrl.href);
     } catch (error) {
       checkoutStatus.hidden = false;
-      checkoutStatus.textContent = "Checkout was not opened. " +
+      checkoutStatus.textContent = "The direct checkout could not be opened. " +
         (error instanceof Error ? error.message : "Please try again.") +
-        " You can continue shopping or retry.";
+        " You can retry, or use the official Fourthwall payment page.";
+      const fallback = document.createElement("a");
+      fallback.href = entries.length === 1 ? entries[0].product.url : shop;
+      fallback.textContent = " OPEN FOURTHWALL";
+      fallback.style.marginLeft = "8px";
+      fallback.style.textDecoration = "underline";
+      checkoutStatus.append(fallback);
       checkout.disabled = false;
       checkout.textContent = "SECURE CHECKOUT";
     }
