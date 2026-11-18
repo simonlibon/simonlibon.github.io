@@ -1,4 +1,33 @@
 {
-  "syncedAt": "",
-  "products": []
+  "syncedAt": "2026-11-18T15:23:03.965869+00:00",
+  "products": [
+    {
+      "id": "ff515bec-3a12-407e-973f-e05002608c80",
+      "name": "Tab 2 test",
+      "description": "",
+      "image": "https://imgproxy.fourthwall.dev/QrOVdpYBTYVAApNqWQ1-TMpYwuJu6TkChVEEQA8oPPg/w:1920/sm:1/enc/LlZHDSkF32-tCbfr/BXmAb7q8mQYp5iqC/iQ_xgHoKv0Ee0GT_/VN8SMG7NpHvYSvTM/cJoFKNUeFGNpjOa0/mWtOIlyULL64JFTR/tF6D5Nq7LX_3uUsn/7Y52EcOdF4U_10Ph/0QBxt3n97Q6cmf-K/pY2MlW-WkrqdrjH-/Lovl3a934xknYMMJ/Smm09vcxeb1-lp-p/6vrdIJt1DAvbT_gX/M2Qcgg.webp",
+      "url": "https://simon-libon-music-shop.fourthwall.com/products/tab-2-test",
+      "price": 1.0,
+      "currency": "USD",
+      "productType": "PRODUCT",
+      "variantId": "26ea130e-e4a0-44ef-981f-e69ad9927964",
+      "variantCount": 1,
+      "createdAt": "2026-11-18T13:57:45.04856Z",
+      "available": true
+    },
+    {
+      "id": "37ef3336-34d9-4fee-b45d-beae5fe1bfa2",
+      "name": "Tab test",
+      "description": "",
+      "image": "https://imgproxy.fourthwall.dev/Ok5DQLwQgaWLk-jZzGuxX9rtkp9HnVmt9KxOpXV0r9I/w:1920/sm:1/enc/zD_CkZToFMA7WFE0/Lvp1rdeCaAYlZ5uy/v3tHAietZWs9KJoe/QjHu1iEHE-D4C7DH/ZBr17PyUEjBU3YXM/p_ORRwZpIRTbhvM3/0UCfiUhxlfYUsvpa/56JYJF5SiMadUZ6C/ZtiNyBTliKINeXpI/emdjb4nv_hi5t6D_/jJsilheXnpyn2c8n/WYyyk00TB3xRs3zn/IYD81fOAIsPhP1e2/-8U2yw.webp",
+      "url": "https://simon-libon-music-shop.fourthwall.com/products/tab-test",
+      "price": 1.0,
+      "currency": "USD",
+      "productType": "PRODUCT",
+      "variantId": "6c6f1ac8-ae65-40de-9041-332d8ae6a82b",
+      "variantCount": 1,
+      "createdAt": "2026-11-18T03:27:43.828203Z",
+      "available": true
+    }
+  ]
 }
