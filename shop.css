@@ -125,3 +125,115 @@ body[data-page="tabs"] .shop-catalog-section{border-top:0;padding-top:clamp(32px
 .shop-cart-link:hover,.shop-cart-link:focus-visible{background:#ede9e6;border-color:#b9b1af}
 .shop-cart-link svg{display:block;flex:none;width:18px;height:18px}
 @media(max-width:520px){.shop-catalog-head{align-items:center;flex-wrap:wrap}.shop-catalog-head h2{margin-bottom:22px}.shop-catalog-actions{gap:9px;padding-bottom:22px}.shop-cart-link{padding:7px 10px;min-height:38px;font-size:10px}.shop-cart-link svg{width:17px;height:17px}}
+
+
+
+/* V12 — Gumroad shop restored; typography, title and color match official site. */
+body[data-page="tabs"] .sl-shop{
+  background:#faf9f7;
+  color:#1b1b1e;
+  font-family:'DM Sans',Arial,sans-serif;
+  padding:0 0 55px;
+}
+body[data-page="tabs"] .shop-catalog-section{
+  border:0;
+  padding:55px 0 30px;
+}
+body[data-page="tabs"] .shop-catalog-head{
+  display:block;
+  margin:0 0 24px;
+  text-align:center;
+}
+body[data-page="tabs"] .shop-catalog-head h1{
+  font-family:'Space Grotesk',Arial,sans-serif;
+  font-size:clamp(43px,5.65vw,74px);
+  font-weight:700;
+  line-height:1.08;
+  letter-spacing:-.064em;
+  text-wrap:balance;
+  margin:0;
+  color:#1b1b1e;
+}
+body[data-page="tabs"] .shop-catalog-actions{
+  min-height:44px;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  margin-top:19px;
+  padding:0;
+}
+body[data-page="tabs"] .shop-catalog-actions .shop-count{
+  color:#85838b;
+  font-weight:700;
+}
+body[data-page="tabs"] .shop-cart-link{
+  color:#1b1b1e;
+  border-color:#dedbd7;
+  background:#fff;
+  font-family:'Space Grotesk',Arial,sans-serif;
+}
+body[data-page="tabs"] .shop-tools{
+  margin-bottom:22px;
+}
+body[data-page="tabs"] .shop-filters button{
+  color:#77757b;
+  font-weight:700;
+}
+body[data-page="tabs"] .shop-filters button[aria-pressed="true"]{
+  color:#1b1b1e;
+  border-color:#1b1b1e;
+}
+body[data-page="tabs"] .shop-item-title{
+  font-family:'Space Grotesk',Arial,sans-serif;
+  color:#1b1b1e;
+  font-weight:700;
+}
+body[data-page="tabs"] .shop-item-price{color:#1b1b1e}
+body[data-page="tabs"] .shop-item-actions .buy-quick{color:#1b1b1e}
+body[data-page="tabs"] .shop-empty{
+  background:transparent;
+  border:0;
+  min-height:185px;
+  padding:38px 10px 31px;
+  text-align:center;
+}
+body[data-page="tabs"] .shop-empty h3{
+  font-family:'Space Grotesk',Arial,sans-serif;
+  font-size:clamp(23px,2.8vw,32px);
+  font-weight:500;
+  letter-spacing:-.045em;
+  line-height:1.2;
+  color:#77757b;
+  margin:12px 0;
+}
+body[data-page="tabs"] .shop-empty p{
+  color:#85838b;
+  font-size:13px;
+  margin:7px auto 0;
+  max-width:600px;
+}
+body[data-page="tabs"] .shop-payment-note{
+  color:#85838b;
+  font-size:11px;
+  justify-content:center;
+  text-align:center;
+  margin:22px auto 0;
+}
+body[data-page="tabs"] .shop-payment-note svg{flex-shrink:0}
+@media(max-width:650px){
+  body[data-page="tabs"] .shop-catalog-section{padding:35px 0 28px}
+  body[data-page="tabs"] .shop-catalog-head h1{
+    font-size:clamp(35px,8.5vw,52px);
+  }
+  body[data-page="tabs"] .shop-catalog-actions{
+    margin-top:15px;
+    justify-content:center;
+  }
+  body[data-page="tabs"] .shop-tools{gap:9px}
+  body[data-page="tabs"] .shop-empty{
+    padding:27px 4px 28px;
+    min-height:150px;
+  }
+  body[data-page="tabs"] .shop-empty h3{font-size:clamp(22px,6vw,27px)}
+  body[data-page="tabs"] .shop-payment-note{font-size:10px}
+}
