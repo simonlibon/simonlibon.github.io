@@ -134,11 +134,8 @@
       const response = await fetch('fourthwall-products.json?t=' + Date.now(), {cache: 'no-store'});
       if (!response.ok) throw new Error('Catalog unavailable');
       const data = await response.json();
-      const verified = Date.parse(data.syncedAt || '');
-      // Do not display stale products that may have been unpublished.
-      if (!Number.isFinite(verified) || Date.now() - verified > 2 * 60 * 60 * 1000) {
-        throw new Error('Catalog has not synchronized recently');
-      }
+      // Show the latest successfully synchronized catalog even if the sync is delayed.
+      // A delayed sync must not make the entire storefront disappear.
       if (!Array.isArray(data.products)) throw new Error('Invalid catalog');
       products = data.products.filter(p => p &&
         p.available === true && typeof p.id === 'string' &&
