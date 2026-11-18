@@ -1,6 +1,8 @@
 (function(){
 "use strict";
 const list=Array.isArray(window.SIMON_SHOP_CATALOG?.products)?window.SIMON_SHOP_CATALOG.products:[];
+// The catalogue lists newly added releases first. Keep that order for same-day releases.
+const releaseIndex=new Map(list.map((p,i)=>[p.id,i]));
 const names={tabs:"Guitar tabs",backing:"Backing tracks",bundle:"Bundles"};
 const titles={tabs:"GUITAR\nTABS",backing:"BACKING\nTRACK",bundle:"EP / ALBUM\nBUNDLE"};
 const arrow='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
@@ -41,7 +43,7 @@ function card(p){
  return item;
 }
 function catalogue(){const grid=document.getElementById("shop-grid");if(!grid)return;const search=document.getElementById("shop-search-input"),sort=document.getElementById("shop-sort-select"),empty=document.getElementById("shop-empty"),count=document.getElementById("shop-count"),filterButtons=[...document.querySelectorAll("[data-shop-filter]")],coll=new Intl.Collator("en",{sensitivity:"base",numeric:true}),all=list.filter(live);let active="all";
-function render(){const q=search.value.trim().toLocaleLowerCase();const filtered=all.filter(p=>(active==="all"||p.type===active)&&(!q||(p.title+" "+p.description+" "+(names[p.type]||"")).toLocaleLowerCase().includes(q)));const order=sort.value;filtered.sort((a,b)=>order==="az"?coll.compare(a.title,b.title):order==="za"?coll.compare(b.title,a.title):((new Date(b.releaseDate).getTime()||0)-(new Date(a.releaseDate).getTime()||0))*(order==="new"?1:-1));grid.replaceChildren(...filtered.map(card));empty.hidden=filtered.length>0;empty.querySelector("h3").textContent=all.length?"NO MATCHES.":"COMING SOON.";empty.querySelector("p").textContent=all.length?"Try a different search or category.":"Official tabs, backing tracks and bundles will appear here when released.";count.textContent=all.length+" "+(all.length===1?"RELEASE":"RELEASES");filterButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shopFilter===active)))}
+function render(){const q=search.value.trim().toLocaleLowerCase();const filtered=all.filter(p=>(active==="all"||p.type===active)&&(!q||(p.title+" "+p.description+" "+(names[p.type]||"")).toLocaleLowerCase().includes(q)));const order=sort.value;filtered.sort((a,b)=>order==="az"?coll.compare(a.title,b.title):order==="za"?coll.compare(b.title,a.title):(((new Date(b.releaseDate).getTime()||0)-(new Date(a.releaseDate).getTime()||0))||((releaseIndex.get(a.id)??0)-(releaseIndex.get(b.id)??0)))*(order==="new"?1:-1));grid.replaceChildren(...filtered.map(card));empty.hidden=filtered.length>0;empty.querySelector("h3").textContent=all.length?"NO MATCHES.":"COMING SOON.";empty.querySelector("p").textContent=all.length?"Try a different search or category.":"Official tabs, backing tracks and bundles will appear here when released.";count.textContent=all.length+" "+(all.length===1?"RELEASE":"RELEASES");filterButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shopFilter===active)))}
 filterButtons.forEach(b=>b.addEventListener("click",()=>{active=b.dataset.shopFilter;render()}));document.querySelectorAll("[data-shop-category]").forEach(b=>b.addEventListener("click",()=>{active=b.dataset.shopCategory;render();document.getElementById("shop-catalog").scrollIntoView({behavior:"smooth"})}));search.addEventListener("input",render);sort.addEventListener("change",render);render()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{catalogue()});else{catalogue()}
 })();
