@@ -24,4 +24,15 @@
 <button class="contact-action" data-copy-email="simonlibon.music@gmail.com" type="button">COPY EMAIL</button>
 </div>
 <p aria-live="polite" class="contact-feedback" data-contact-feedback=""></p>
-</section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer><script src="catalog.js?v=bb7c1b76"></script><script src="site.js?v=19"></script><script src="shop.js?v=8"></script></body></html>
+</section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer><script src="site.js?v=19"></script><script>
+(function(){
+  const catalog=document.createElement('script');
+  catalog.src='catalog.js?refresh='+Date.now();
+  catalog.onload=function(){
+    const shop=document.createElement('script');
+    shop.src='shop.js?v=10';
+    document.body.appendChild(shop);
+  };
+  document.body.appendChild(catalog);
+})();
+</script></body></html>
