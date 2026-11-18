@@ -79,6 +79,15 @@ def read_public_products():
         {k: p.get(k) for k in ("id", "handle", "slug", "name", "title", "url", "type", "state", "access") if k in p}
         for p in listings[:12] if isinstance(p, dict)
     ])
+    print("Public listing structure:", [
+        { "handle": p.get("handle"),
+          "keys": sorted(p.keys()),
+          "variant_keys": sorted(p["variants"][0].keys()) if isinstance(p.get("variants"), list) and p["variants"] and isinstance(p["variants"][0], dict) else [],
+          "first_image": str(p.get("featured_image") or p.get("images", [""])[0] if p.get("images") else p.get("featured_image") or "")[:170],
+          "price": p.get("price"),
+          "available": p.get("available") }
+        for p in listings[:8] if isinstance(p, dict)
+    ])
     print("Fourthwall public collection lists", len(listings), "products.")
     return handles, ids
 
