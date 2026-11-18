@@ -116,3 +116,12 @@ body[data-page="tabs"] .shop-catalog-section{padding-top:42px}
 
 /* Standalone shop page: no hero or category chooser; start with catalogue */
 body[data-page="tabs"] .shop-catalog-section{border-top:0;padding-top:clamp(32px,5vw,72px)}
+
+
+/* Mini shopping-cart shortcut: Gumroad remains the checkout provider. */
+.shop-catalog-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px;padding-bottom:35px}
+.shop-catalog-actions .shop-count{padding-bottom:0;white-space:nowrap}
+.shop-cart-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:11px;font-weight:800;letter-spacing:.10em;white-space:nowrap;transition:background .18s ease,border-color .18s ease}
+.shop-cart-link:hover,.shop-cart-link:focus-visible{background:#ede9e6;border-color:#b9b1af}
+.shop-cart-link svg{display:block;flex:none;width:18px;height:18px}
+@media(max-width:520px){.shop-catalog-head{align-items:center;flex-wrap:wrap}.shop-catalog-head h2{margin-bottom:22px}.shop-catalog-actions{gap:9px;padding-bottom:22px}.shop-cart-link{padding:7px 10px;min-height:38px;font-size:10px}.shop-cart-link svg{width:17px;height:17px}}
