@@ -2,7 +2,7 @@ name: Update branded Gumroad profile
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/publish-gumroad-profile.yml']
+    paths: ['.github/workflows/publish-gumroad-profile.yml', 'gumroad-profile.html']
 permissions:
   contents: read
 jobs:
@@ -42,7 +42,7 @@ jobs:
           html=open("gumroad-profile.html",encoding="utf-8").read()
           prev=call("preview_custom_html",{"custom_html":html},"POST")
           clean=prev.get("custom_html","")
-          if not prev.get("success") or "function render()" not in clean or ".products{" not in clean or 'id="menu-toggle"' not in clean or 'id="site-nav"' not in clean:
+          if not prev.get("success") or "function render()" not in clean or ".products{" not in clean or 'id="menu-toggle"' not in clean or 'id="site-nav"' not in clean or 'class="cart"' not in clean or 'class="sort"' not in clean:
               raise SystemExit("Preview did not keep required dynamic shop; nothing published.")
           report=prev.get("sanitization_report",{})
           print("preview_passed; sanitized_tags:",report.get("total_removed"))
