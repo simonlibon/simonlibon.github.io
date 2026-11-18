@@ -516,3 +516,75 @@ body[data-page="music"] .music-streaming-wrap .coming-soon-inner {
     letter-spacing:.075em;
   }
 }
+
+
+/* V29 — Concerts and Merch share the same status position and typography. */
+/* Override the old page-specific rules, including Concerts' inline stylesheet. */
+body[data-page="concerts"] .concerts-page,
+body[data-page="merch"] .coming-page {
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+body[data-page="concerts"] .concerts-page .page-title,
+body[data-page="merch"] .coming-page .page-title {
+  padding:52px 0 14px;
+  border:0;
+  text-align:center;
+}
+body[data-page="concerts"] .concerts-page .page-title h1,
+body[data-page="merch"] .coming-page .page-title h1 {
+  font-family:'Space Grotesk',Arial,sans-serif;
+  font-size:clamp(43px,5.65vw,74px);
+  font-weight:700;
+  letter-spacing:-.064em;
+  line-height:1.08;
+  text-wrap:balance;
+}
+body[data-page="concerts"] .concerts-page .concerts-content,
+body[data-page="merch"] .coming-page .coming-soon-wrap {
+  display:block;
+  width:min(900px,calc(100% - 88px));
+  min-height:0;
+  margin:0 auto;
+  padding:12px 0 76px;
+  text-align:center;
+}
+body[data-page="merch"] .coming-page .coming-soon-inner {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
+body[data-page="concerts"] .concerts-page .concert-message,
+body[data-page="merch"] .coming-page .coming-soon-inner h2 {
+  box-sizing:border-box;
+  margin:0;
+  padding:34px 10px 0;
+  color:#77757b;
+  font-family:'Space Grotesk',Arial,sans-serif;
+  font-size:clamp(23px,2.8vw,32px);
+  font-weight:500;
+  line-height:1.2;
+  letter-spacing:-.045em;
+  text-align:center;
+}
+@media(max-width:650px){
+  body[data-page="concerts"] .concerts-page .page-title,
+  body[data-page="merch"] .coming-page .page-title {
+    padding:35px 0 12px;
+  }
+  body[data-page="concerts"] .concerts-page .page-title h1,
+  body[data-page="merch"] .coming-page .page-title h1 {
+    font-size:clamp(35px,8.5vw,52px);
+  }
+  body[data-page="concerts"] .concerts-page .concerts-content,
+  body[data-page="merch"] .coming-page .coming-soon-wrap {
+    width:calc(100% - 36px);
+    padding:10px 0 58px;
+  }
+  body[data-page="concerts"] .concerts-page .concert-message,
+  body[data-page="merch"] .coming-page .coming-soon-inner h2 {
+    font-size:clamp(22px,6vw,27px);
+    padding:29px 8px 0;
+  }
+}
