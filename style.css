@@ -166,3 +166,15 @@ body[data-page="merch"] > main {
     min-height:calc(100svh - 68px);
   }
 }
+
+
+/* Desktop/mobile: inner page whites fully cover the opening viewport. */
+/* Use a full viewport for the content, not viewport minus header; the
+   footer begins below the fold and only appears once visitors scroll. */
+body[data-page="music"] > main,
+body[data-page="concerts"] > main,
+body[data-page="fourthwall"] > main,
+body[data-page="merch"] > main {
+  min-height:100vh !important;
+  min-height:100svh !important;
+}
