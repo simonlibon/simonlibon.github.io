@@ -1,25 +1,11 @@
 window.SIMON_SHOP_CATALOG = {
-  "shopName": "Simon Libon — Tabs & Backing Tracks",
+  "shopName": "Simon Libon — Tabs & Tracks",
   "products": [
-    {
-        "id": "ppuchi",
-        "title": "Look — Guitar Tabs",
-        "type": "tabs",
-        "description": "Official guitar tablature for Look by Simon Libon.",
-        "includes": [
-            "Guitar tabs (digital download)"
-        ],
-        "price": 8,
-        "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ppuchi",
-        "image": "https://public-files.gumroad.com/u3voaeprqodbryu98w5u0ozgfqvf",
-        "published": true,
-        "releaseDate": "2026-11-18"
-    },
     {
       "id": "qttrtc",
       "title": "Reverie — Guitar Tabs",
       "type": "tabs",
-      "description": "Official guitar tablature for Reverie by Simon Libon.",
+      "description": "Official guitar tablature for Reverie by Simon Libon.\nINCLUDED\nGuitar tabs (PDF)\nDigital download",
       "includes": [
         "Guitar tabs (PDF)",
         "Digital download"
@@ -29,58 +15,6 @@ window.SIMON_SHOP_CATALOG = {
       "image": "https://public-files.gumroad.com/2h6qoouftjx8s2rpq1blgiv6d364",
       "published": true,
       "releaseDate": "2026-11-18"
-    },
-    {
-      "id": "tabs-template",
-      "title": "Guitar Tabs — template",
-      "type": "tabs",
-      "description": "Official guitar tablature for one song (PDF).",
-      "includes": [
-        "Guitar tablature (PDF)"
-      ],
-      "price": 0,
-      "gumroadUrl": "",
-      "image": "",
-      "published": false
-    },
-    {
-      "id": "backing-template",
-      "title": "Backing Track — template",
-      "type": "backing",
-      "description": "Official backing track for one song (audio).",
-      "includes": [
-        "Backing track (audio)"
-      ],
-      "price": 0,
-      "gumroadUrl": "",
-      "image": "",
-      "published": false
-    },
-    {
-      "id": "ep-tabs-template",
-      "title": "Complete EP / Album — Guitar Tabs",
-      "type": "bundle",
-      "description": "All guitar tablatures from the EP or album.",
-      "includes": [
-        "Complete EP / album guitar tablatures (PDF)"
-      ],
-      "price": 0,
-      "gumroadUrl": "",
-      "image": "",
-      "published": false
-    },
-    {
-      "id": "ep-backing-template",
-      "title": "Complete EP / Album — Backing Tracks",
-      "type": "bundle",
-      "description": "All backing tracks from the EP or album.",
-      "includes": [
-        "Complete EP / album backing tracks (audio)"
-      ],
-      "price": 0,
-      "gumroadUrl": "",
-      "image": "",
-      "published": false
     }
   ]
 };
