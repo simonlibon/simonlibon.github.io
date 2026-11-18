@@ -268,3 +268,19 @@ body[data-page="tabs"] .shop-payment-note svg{flex-shrink:0}
   body[data-page="tabs"] .shop-item-actions a{font-size:clamp(9px,2.6vw,11px);letter-spacing:.055em;white-space:nowrap;gap:4px}
   body[data-page="tabs"] .shop-item-actions svg{width:15px;height:15px;flex-shrink:0}
 }
+
+
+/* V15 — Compact desktop product cards; keep the mobile layout unchanged. */
+@media (min-width:901px){
+  body[data-page="tabs"] .shop-product-grid{
+    grid-template-columns:repeat(auto-fill,minmax(215px,250px));
+    justify-content:start;
+    column-gap:22px;
+    row-gap:32px;
+  }
+  body[data-page="tabs"] .shop-item-title{
+    font-size:15px;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+  }
+}
