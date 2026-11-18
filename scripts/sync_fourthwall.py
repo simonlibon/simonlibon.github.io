@@ -1,4 +1,4 @@
-"""Synchronize public Fourthwall catalog without publishing API credentials."""
+"""Synchronize Fourthwall product catalog and public Storefront API browser token."""
 import json
 import re
 from html import unescape
@@ -94,4 +94,12 @@ if not output and target.exists():
 content = json.dumps({"products": output}, ensure_ascii=False, indent=2) + "\n"
 if not target.exists() or target.read_text(encoding="utf-8") != content:
     target.write_text(content, encoding="utf-8")
+# Browser Storefront token: Fourthwall officially treats this as public (NEXT_PUBLIC_FW_STOREFRONT_TOKEN).
+# Never place a private Open API user, OAuth token, or account credential in this file.
+if not TOKEN.startswith("ptkn_"):
+    raise SystemExit("Not a Storefront API token. No public checkout config was written.")
+client_config = ROOT / "fourthwall-public-config.json"
+client_body = json.dumps({"storefrontToken": TOKEN}, separators=(",", ":")) + "\n"
+if not client_config.exists() or client_config.read_text(encoding="utf-8") != client_body:
+    client_config.write_text(client_body, encoding="utf-8")
 print(f"Fourthwall sync successful: {len(output)} products.")
