@@ -373,9 +373,9 @@ body:not([data-page="home"]) .contact-feedback{color:#67636a}
   body[data-page="music"] .music-streaming-wrap .coming-soon-inner{margin-bottom:19px}
   body[data-page="music"] .music-service-grid{gap:8px}
   body[data-page="music"] .music-service{
-    flex-basis:calc((100% - 24px) / 4);
-    min-height:91px;
-    padding:9px 4px;
+    flex-basis:calc((100% - 16px) / 3);
+    min-height:101px;
+    padding:10px 5px;
   }
   body[data-page="music"] .music-service-name{font-size:9px}
   body[data-page="concerts"] .concerts-content{padding:15px 0 55px}
