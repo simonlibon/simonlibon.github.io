@@ -174,11 +174,76 @@
     window.location.assign(shop + "/cart/checkout?" + params.toString());
   });
 
+
+  // Product details remain on Simon Libon, rather than opening Fourthwall.
+  const detail = node("div", "fw-product-overlay");
+  detail.hidden = true;
+  const detailShade = node("button", "fw-product-shade");
+  detailShade.type = "button";
+  detailShade.setAttribute("aria-label", "Close product details");
+  const detailPanel = node("section", "fw-product-panel");
+  detailPanel.setAttribute("role", "dialog");
+  detailPanel.setAttribute("aria-modal", "true");
+  detailPanel.setAttribute("aria-label", "Product details");
+  const detailTop = node("div", "fw-product-top");
+  const detailBack = node("button", "fw-product-back", "← BACK TO SHOP");
+  detailBack.type = "button";
+  detailTop.append(detailBack);
+  const detailBody = node("div", "fw-product-body");
+  detailPanel.append(detailTop, detailBody);
+  detail.append(detailShade, detailPanel);
+  document.body.append(detail);
+  let detailReturn = null;
+  function closeDetails() {
+    detail.hidden = true;
+    document.body.classList.remove("fw-product-visible");
+    if (detailReturn && detailReturn.isConnected) detailReturn.focus();
+  }
+  function openDetails(p, origin) {
+    detailReturn = origin;
+    detailBody.replaceChildren();
+    const cover = node("div", "fw-product-cover");
+    if (p.image) {
+      const img = node("img"); img.src = p.image; img.alt = "Cover artwork for " + p.name; cover.append(img);
+    } else {
+      cover.append(node("span", "fw-product-placeholder", "SIMON LIBON"));
+    }
+    const info = node("div", "fw-product-info");
+    info.append(node("p", "fw-product-kicker", categories[category(p)] || "Digital release"),
+      node("h2", "fw-product-name", p.name),
+      node("p", "fw-product-price", typeof p.price === "number" ? money(p.price, p.currency) : "VIEW PRODUCT"));
+    const description = (p.description || "").trim();
+    if (description) info.append(node("p", "fw-product-description", description));
+    if (canAdd(p)) {
+      const add = node("button", "fw-product-add", "ADD TO CART");
+      add.type = "button";
+      add.addEventListener("click", () => { closeDetails(); addToCart(p); });
+      info.append(add);
+    } else {
+      // Items with options require selecting the variant at Fourthwall.
+      const go = node("a", "fw-product-add", "CHOOSE OPTIONS ON FOURTHWALL");
+      go.href = p.url; go.rel = "noopener noreferrer";
+      info.append(go);
+    }
+    const small = node("p", "fw-product-footnote", "Secure payment and digital delivery are handled by Fourthwall.");
+    info.append(small);
+    detailBody.append(cover, info);
+    detail.hidden = false;
+    document.body.classList.add("fw-product-visible");
+    detailBack.focus();
+  }
+  detailShade.addEventListener("click", closeDetails);
+  detailBack.addEventListener("click", closeDetails);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !detail.hidden) closeDetails();
+  });
+
   function card(p) {
     const item = node("article", "shop-item");
-    const imageLink = node("a", "shop-card-link");
-    imageLink.href = p.url; imageLink.target = "_blank"; imageLink.rel = "noopener noreferrer";
-    imageLink.setAttribute("aria-label", "View " + p.name + " details");
+    const imageLink = node("button", "shop-card-link fw-product-preview");
+    imageLink.type = "button";
+    imageLink.setAttribute("aria-label", "View " + p.name + " details on Simon Libon");
+    imageLink.addEventListener("click", () => openDetails(p, imageLink));
     const photo = node("div", "shop-item-image");
     if (p.image) {
       const img = node("img"); img.src = p.image; img.alt = "Cover artwork for " + p.name; img.loading = "lazy"; photo.append(img);
@@ -190,7 +255,11 @@
     }
     imageLink.append(photo); item.append(imageLink);
     const meta = node("div", "shop-item-meta"), detail = node("div");
-    detail.append(node("h3", "shop-item-title", p.name), node("div", "shop-item-type", categories[category(p)]));
+    const titleButton = node("button", "fw-product-title", p.name);
+    titleButton.type = "button";
+    titleButton.addEventListener("click", () => openDetails(p, titleButton));
+    const h = node("h3", "shop-item-title"); h.append(titleButton);
+    detail.append(h, node("div", "shop-item-type", categories[category(p)]));
     meta.append(detail, node("span", "shop-item-price", typeof p.price === "number" ? money(p.price, p.currency) : "VIEW PRODUCT"));
     item.append(meta);
     const actions = node("div", "shop-item-actions");
@@ -198,8 +267,9 @@
       const buy = node("button", "fw-add-to-cart", "ADD TO CART");
       buy.type = "button"; buy.addEventListener("click", () => addToCart(p)); actions.append(buy);
     } else {
-      const view = node("a", "", p.productType === "BUNDLE" ? "VIEW BUNDLE" : p.available === false ? "VIEW DETAILS" : "VIEW PRODUCT");
-      view.href = p.url; view.target = "_blank"; view.rel = "noopener noreferrer";
+      const view = node("button", "fw-add-to-cart", p.productType === "BUNDLE" ? "VIEW BUNDLE" : "VIEW DETAILS");
+      view.type = "button";
+      view.addEventListener("click", () => openDetails(p, view));
       actions.append(view);
     }
     item.append(actions);
