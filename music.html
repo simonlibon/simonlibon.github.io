@@ -1,9 +1,28 @@
 <!DOCTYPE html>
 
 <html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Music | Simon Libon</title><link href="style.css?v=20" rel="stylesheet"/><style>
-/* Keep Music platform list close to the footer, without changing other pages. */
-body[data-page="music"] .music-streaming-wrap{padding-bottom:28px}
+/* Music only: compact the full streaming directory into one desktop viewport. */
 body[data-page="music"] .footer{margin-top:0}
+body[data-page="music"] .music-streaming-wrap{padding-bottom:28px}
+@media(min-width:1050px){
+  body[data-page="music"]{display:flex;flex-direction:column;min-height:100svh}
+  body[data-page="music"] .music-streaming-page{flex:1 0 auto}
+  body[data-page="music"] .music-streaming-page .page-title{padding-top:24px;padding-bottom:6px}
+  body[data-page="music"] .music-streaming-page .page-title h1{font-size:clamp(60px,5.5vw,82px)}
+  body[data-page="music"] .music-streaming-wrap{padding-top:6px;padding-bottom:20px}
+  body[data-page="music"] .music-streaming-wrap .coming-soon-inner{gap:5px;margin-bottom:18px}
+  body[data-page="music"] .music-streaming-wrap .coming-soon-inner h2{font-size:26px}
+  body[data-page="music"] .music-service-grid{max-width:1120px;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}
+  body[data-page="music"] .music-service{min-height:83px;gap:6px;padding:8px 3px}
+  body[data-page="music"] .music-service-mark{width:36px;height:36px}
+  body[data-page="music"] .music-service-mark img{width:32px;height:32px;inset:2px}
+  body[data-page="music"] .music-service-name{font-size:9px;line-height:1.2}
+  body[data-page="music"] .music-streaming-note{margin-top:15px}
+  body[data-page="music"] .footer-inner{padding-top:20px;padding-bottom:18px}
+  body[data-page="music"] .footer .socials{margin:6px 0 18px}
+  body[data-page="music"] .footer-quicklinks{margin:0 0 18px}
+  body[data-page="music"] .footer-bottom{padding-top:12px}
+}
 @media(max-width:650px){body[data-page="music"] .music-streaming-wrap{padding-bottom:24px}}
 </style></head><body data-page="music"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a aria-current="page" class="active" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html?store=20261118">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main class="coming-page music-streaming-page"><section class="page-title"><div class="container"><h1>MUSIC</h1></div></section><section class="container music-streaming-wrap" aria-labelledby="music-coming-soon"><div class="coming-soon-inner"><h2 id="music-coming-soon">COMING SOON</h2><p class="music-streaming-subtitle">FIND MY MUSIC ON YOUR FAVORITE PLATFORM</p></div><div class="music-service-grid" role="list" aria-label="Streaming platforms. Artist links will be added after release.">
 <div class="music-service" role="listitem" title="Spotify — artist link coming soon"><span class="music-service-mark" aria-hidden="true"><img src="data:image/svg+xml,%3Csvg%20fill%3D%27%231DB954%27%20role%3D%22img%22%20viewBox%3D%220%200%2024%2024%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ctitle%3ESpotify%3C%2Ftitle%3E%3Cpath%20d%3D%22M12%200C5.4%200%200%205.4%200%2012s5.4%2012%2012%2012%2012-5.4%2012-12S18.66%200%2012%200zm5.521%2017.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9%204.56-1.021%208.52-.6%2011.64%201.32.42.18.479.659.301%201.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6%209.9%2015%2010.561%2018.72%2012.84c.361.181.54.78.241%201.2zm.12-3.36C15.24%208.4%208.82%208.16%205.16%209.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381%204.26-1.26%2011.28-1.02%2015.721%201.621.539.3.719%201.02.419%201.56-.299.421-1.02.599-1.559.3z%22%2F%3E%3C%2Fsvg%3E" alt="" loading="eager" width="42" height="42" onerror="this.remove()"></span><span class="music-service-name">Spotify</span></div>
