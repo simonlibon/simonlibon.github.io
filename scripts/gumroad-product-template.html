@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Simon Libon — Digital Download</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+:root{--paper:#faf9f7;--ink:#18181a;--muted:#78757b;--line:#e6e3e0;color-scheme:light}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;min-width:280px;background:var(--paper);font-family:"DM Sans",Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+.wrap{width:min(1200px,calc(100% - 88px));margin:0 auto}
+.site-head{border-bottom:1px solid var(--line);background:var(--paper)}
+.brandline{height:74px;display:flex;justify-content:center;align-items:center}
+.brand{font-family:"Space Grotesk",Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-.05em;line-height:1}
+.menu-toggle{display:none}
+.main-nav{min-height:44px;display:flex;justify-content:center;align-items:center;gap:clamp(19px,2.7vw,38px)}
+.main-nav a{font-size:11px;letter-spacing:.105em;font-weight:700;color:#77757a;white-space:nowrap;line-height:1.3;position:relative}
+.main-nav a.selected{color:var(--ink)}
+.main-nav a.selected:after{content:"";position:absolute;left:0;right:0;bottom:-9px;border-bottom:2px solid var(--ink)}
+main{padding:54px 0 74px;min-height:60vh}
+.crumb{font-size:10px;letter-spacing:.13em;font-weight:700;color:#77757a;margin-bottom:24px}
+.crumb a{border-bottom:1px solid #a9a5a9;padding-bottom:2px}
+.crumb b{font-weight:400;color:#bcb9ba;margin:0 10px}
+.detail{display:grid;grid-template-columns:minmax(250px,460px) minmax(0,1fr);gap:clamp(30px,6.2vw,92px);align-items:start}
+.cover{display:block;aspect-ratio:1;border:1px solid #e9e5e1;background:#f3f1ee;overflow:hidden}
+.cover img{display:block;width:100%;height:100%;object-fit:cover}
+.cover-fallback{height:100%;display:grid;place-items:center;font-family:"Space Grotesk",Arial,sans-serif;font-size:35px;font-weight:700;letter-spacing:-.07em}
+.info{padding-top:4px;min-width:0}
+.eyebrow{margin:0 0 18px;color:#79757b;font-size:10px;letter-spacing:.17em;font-weight:700}
+h1{font-family:"Space Grotesk",Arial,sans-serif;font-size:clamp(34px,4vw,57px);line-height:1.06;letter-spacing:-.067em;margin:0 0 18px;font-weight:700;overflow-wrap:anywhere}
+.price{font-family:"Space Grotesk",Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-.03em;margin:0 0 24px}
+.rule{border:0;border-top:1px solid var(--line);margin:0 0 25px}
+.about-heading{font-size:11px;letter-spacing:.12em;font-weight:800;margin:0 0 18px}
+.description{font-size:14px;color:#545258;line-height:1.8;overflow-wrap:anywhere}
+.description p{margin:0 0 16px}
+.description strong{color:var(--ink)}
+.description ul{padding-left:20px}
+.buy{display:flex;width:100%;max-width:420px;justify-content:center;align-items:center;min-height:51px;margin:27px 0 12px;padding:12px 20px;border:1px solid var(--ink);background:var(--ink);color:#fff;letter-spacing:.12em;font-size:11px;font-weight:800;cursor:pointer}
+.buy:hover,.buy:focus-visible{background:#313038}
+.secure{max-width:420px;color:#85838b;font-size:11px;line-height:1.6;margin:0}
+.back-link{display:inline-block;border-bottom:1px solid #8a858a;font-size:11px;letter-spacing:.09em;font-weight:700;margin-top:29px;padding-bottom:5px}
+footer{border-top:1px solid var(--line);padding:27px 0 19px}
+.socials{display:flex;justify-content:center;align-items:center;gap:18px;margin:0 0 14px}
+.socials a{width:32px;height:32px;display:grid;place-items:center;color:#66636b}
+.socials svg{display:block;width:19px;height:19px}
+.footlinks{display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;margin:0 0 18px}
+.footlinks a{font-size:10px;font-weight:700;letter-spacing:.12em;color:#4f4d53}
+.footbottom{border-top:1px solid #e6e3e0;padding-top:14px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:9px;letter-spacing:.12em;color:#78757b;line-height:1.7}
+@media(max-width:760px){
+.wrap{width:min(calc(100% - 36px),1200px)}
+.brandline{height:68px;justify-content:space-between}
+.brand{font-size:23px}
+.menu-toggle{display:flex;border:1px solid var(--line);background:transparent;border-radius:99px;padding:9px 13px;font-size:10px;letter-spacing:.1em;color:var(--ink)}
+.main-nav{display:none;min-height:0;flex-direction:column;align-items:center;gap:11px;padding:10px 18px 21px}
+.main-nav.open{display:flex}
+.main-nav a{font-size:12px;letter-spacing:.09em;padding:7px 10px}
+.main-nav a.selected:after{bottom:0}
+main{padding:35px 0 55px}
+.crumb{margin-bottom:22px}
+.detail{grid-template-columns:1fr;gap:27px}
+.cover{width:min(100%,440px);margin:0 auto}
+.info{padding:0 2px}
+h1{font-size:clamp(31px,8vw,43px)}
+.price{font-size:24px}
+.buy{max-width:none}
+.secure{max-width:none}
+.footbottom{justify-content:center;text-align:center;flex-direction:column;gap:5px}
+}
+</style></head>
+<body>
+<header class="site-head">
+<div class="wrap brandline"><a class="brand" href="https://simonlibonstore.gumroad.com">SIMON LIBON</a><button class="menu-toggle" id="mobile-menu" type="button" aria-controls="site-nav" aria-expanded="false">MENU</button></div>
+<nav class="main-nav" id="site-nav" aria-label="Main navigation"><a href="https://simonlibon.github.io/music.html" target="_blank" rel="noopener">MUSIC</a><a href="https://simonlibon.github.io/concerts.html" target="_blank" rel="noopener">CONCERTS</a><a class="selected" href="https://simonlibonstore.gumroad.com" aria-current="page">TABS &amp; BACKING TRACKS</a><a href="https://simonlibon.github.io/merch.html" target="_blank" rel="noopener">MERCH</a></nav>
+</header>
+<main class="wrap" data-sl-product-template="v1">
+<div class="crumb"><a href="https://simonlibonstore.gumroad.com">TABS &amp; BACKING TRACKS</a><b>/</b>OFFICIAL DOWNLOAD</div>
+<div class="detail">
+<div class="cover">[[COVER_HTML]]</div>
+<article class="info">
+<p class="eyebrow">SIMON LIBON · [[TYPE_LABEL]]</p>
+<h1 data-gumroad-field="name">OFFICIAL DIGITAL PRODUCT</h1>
+<p class="price" data-gumroad-field="price">[[PRICE_FALLBACK]]</p>
+<hr class="rule">
+<h2 class="about-heading">ABOUT THIS PRODUCT</h2>
+<div class="description" data-gumroad-field="description"><p>Official digital download by Simon Libon.</p></div>
+<a class="buy" href="#" data-gumroad-action="buy">BUY NOW</a>
+<p class="secure">Secure checkout and digital delivery by Gumroad.</p>
+<a class="back-link" href="https://simonlibonstore.gumroad.com">BACK TO ALL PRODUCTS</a>
+</article>
+</div>
+</main>
+<footer><div class="wrap"><div aria-label="Social media" class="socials">
+<a aria-label="YouTube" data-link="youtube" href="https://www.youtube.com/@simonlibon" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="4" width="20" x="2" y="5"></rect><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="none"></path></svg></a>
+<a aria-label="Instagram" data-link="instagram" href="https://www.instagram.com/simon.libon/" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="18" rx="5" width="18" x="3" y="3"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" fill="currentColor" r="1" stroke="none"></circle></svg></a>
+<a aria-label="TikTok" data-link="tiktok" href="https://www.tiktok.com/@simonlibon.music" rel="noopener noreferrer" target="_blank" title="TikTok"><svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24"><path d="M15.3 2c.2 2.1 1.4 3.6 3.6 3.8v3.1c-1.4 0-2.6-.4-3.8-1.2v6.5c0 4.3-2.6 6.7-6.5 6.7-3.2 0-5.7-2.5-5.7-5.7 0-3.9 3.1-6.2 7-6v3.2c-2-.4-3.7.9-3.7 2.8 0 1.5 1.1 2.6 2.6 2.6 1.8 0 2.8-1.2 2.8-3.2V2h3.7Z"></path></svg></a>
+<a aria-label="Facebook" data-link="facebook" href="https://www.facebook.com/profile.php?id=100070692266151" rel="noopener noreferrer" target="_blank" title="Facebook"><svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24"><path d="M14 22v-9h3l.45-3.5H14V7.4c0-1.02.31-1.7 1.74-1.7H18V2.58C17.6 2.52 16.48 2.4 15.14 2.4 12.32 2.4 10.4 4.12 10.4 7.25V9.5H7.5V13h2.9v9H14Z"></path></svg></a></div><div class="footlinks"><a href="https://simonlibon.github.io/press.html" target="_blank" rel="noopener">PRESS / EPK</a><a href="mailto:simonlibon.music@gmail.com">CONTACT / BOOKING</a></div><div class="footbottom"><span>&copy; 2026 SIMON LIBON</span><a href="https://simonlibon.github.io/privacy.html" target="_blank" rel="noopener">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
+<script>(function(){var toggle=document.getElementById("mobile-menu");var nav=document.getElementById("site-nav");if(toggle&&nav){toggle.addEventListener("click",function(){var x=toggle.getAttribute("aria-expanded")==="true";toggle.setAttribute("aria-expanded",x?"false":"true");nav.classList.toggle("open",!x)})}})()</script>
+</body></html>
