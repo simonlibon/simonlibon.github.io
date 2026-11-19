@@ -24,5 +24,7 @@ jobs:
           html=obj.get("custom_html") or ""
           print("success:",obj.get("success"),"has_landing_page:",obj.get("has_landing_page"),"html_length:",len(html))
           print("known_links:",[part for part in ("ALL TABS", "OFFICIAL DOWNLOAD", "BACK TO ALL", "BUY NOW") if part in html])
-          print("head_preview:",html[:1800].replace("\n"," ").replace("\r"," "))
+          for term in ('class="crumb"', 'class="back"', 'BACK TO ALL', 'OFFICIAL DOWNLOAD', 'data-gumroad-action="buy"'):
+              pos=html.find(term)
+              print("MATCH",term,"position",pos,"near:",html[max(0,pos-300):pos+650].replace("\n"," ").replace("\r"," ") if pos>=0 else "NONE")
           PY
