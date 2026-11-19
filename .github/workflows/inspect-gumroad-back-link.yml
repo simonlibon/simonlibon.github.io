@@ -1,4 +1,4 @@
-name: Inspect Gumroad content return link (read-only)
+name: Remove Gumroad content return button
 on:
   push:
     branches: [main]
@@ -6,33 +6,98 @@ on:
 permissions:
   contents: read
 jobs:
-  inspect:
+  remove:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Install Gumroad CLI
+      - name: Install official Gumroad CLI
         run: go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
-      - name: Inspect button block structure without changing anything
+      - name: Remove ONLY the precise return button and verify content
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           python3 - <<'PY'
-          import os,subprocess,json
-          if not os.getenv("GUMROAD_ACCESS_TOKEN"):raise RuntimeError("Missing token")
-          cmd=[os.path.join(os.environ["HOME"],"go","bin","gumroad"),"products","content","get","zvxja","--json","--no-input","--quiet"]
-          p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=True)
-          o=json.loads(p.stdout)
-          print("root_type",type(o).__name__,"pages",len(o) if isinstance(o,list) else list(o))
-          def walk(node,path="root"):
-              if isinstance(node,dict):
-                  if any(isinstance(v,str) and ("BACK TO SIMON LIBON SHOP" in v or "simonlibon.github.io/tabs.html" in v) for v in node.values()):
-                      print("match at",path,"keys",list(node.keys()),"short",str({k: v[:130] if isinstance(v,str) else type(v).__name__ for k,v in node.items()})[:500])
-                  for k,v in node.items():walk(v,path+"."+str(k))
-              elif isinstance(node,list):
-                  for i,v in enumerate(node):walk(v,path+"["+str(i)+"]")
-          walk(o)
+          import os,subprocess,json,copy
+          from pathlib import Path
+          if not os.getenv("GUMROAD_ACCESS_TOKEN"):raise RuntimeError("Missing Gumroad token")
+          cli=str(Path.home()/"go/bin/gumroad")
+          ids=["zvxja","lfqdj","ievtx","jghmyd","ieyysn","svmxa"]
+          target="https://simonlibon.github.io/tabs.html"
+          label="BACK TO SIMON LIBON SHOP"
+          dest=Path("/tmp/gumroad-content-before")
+          dest.mkdir(parents=True,exist_ok=True)
+          def run(*args):
+              cmd=[cli,"products","content",*args,"--json","--no-input","--quiet"]
+              p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+              if p.returncode:raise RuntimeError("Gumroad command failed: "+" ".join(args[:2])+" "+p.stderr[-500:])
+              try:return json.loads(p.stdout)
+              except json.JSONDecodeError:raise RuntimeError("Invalid Gumroad response")
+          def pages_for(product):
+              o=run("get",product)
+              if not isinstance(o,list) or not o or not all(isinstance(x,dict) and x.get("id") for x in o):
+                  raise RuntimeError("Unexpected rich content; refuse to modify "+product)
+              return o
+          def match(node):
+              if not isinstance(node,dict):return False
+              attrs=node.get("attrs")
+              if not isinstance(attrs,dict) or attrs.get("href")!=target:return False
+              children=node.get("content")
+              return (isinstance(children,list) and len(children)==1 and
+                  isinstance(children[0],dict) and children[0].get("text")==label and children[0].get("type")=="text")
+          def strip_one(pages):
+              result=copy.deepcopy(pages)
+              found=0
+              for page in result:
+                  description=page.get("description")
+                  if not isinstance(description,dict):raise RuntimeError("Missing description")
+                  blocks=description.get("content")
+                  if not isinstance(blocks,list):raise RuntimeError("Missing description blocks")
+                  kept=[]
+                  for block in blocks:
+                      if match(block):
+                          found+=1
+                          continue
+                      kept.append(block)
+                  description["content"]=kept
+              return result,found
+          # Read and validate the entire content of all six products BEFORE any writes.
+          plan=[]
+          for product in ids:
+              pages=pages_for(product)
+              Path(dest/(product+".json")).write_text(json.dumps(pages,ensure_ascii=False,indent=2))
+              after,count=strip_one(pages)
+              if count>1:raise RuntimeError("Multiple matching link blocks: "+product)
+              if count==0:
+                  print(product,"no matching button (already absent)")
+                  continue
+              beforeids=[x["id"] for x in pages]
+              afterids=[x["id"] for x in after]
+              if beforeids!=afterids or len(after)!=len(pages):
+                  raise RuntimeError("Page list changed")
+              plan.append((product,pages,after))
+              print(product,"exactly one button to remove; all content pages preserved")
+          for product,before,after in plan:
+              updated=dest/(product+"-updated.json")
+              updated.write_text(json.dumps(after,ensure_ascii=False))
+              run("set",product,str(updated),"--dry-run")
+              run("set",product,str(updated),"--yes")
+              actual=pages_for(product)
+              if any(match(block) for page in actual for block in page.get("description",{}).get("content",[])):
+                  raise RuntimeError("Button still present after update for "+product)
+              if len(actual)!=len(before) or [x["id"] for x in actual]!=[x["id"] for x in before]:
+                  raise RuntimeError("Content page IDs changed unexpectedly for "+product)
+              print(product,"VERIFIED: return button removed; content pages retained")
+          print("Finished verified products:",len(plan))
           PY
+      - name: Preserve before-change content backups
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gumroad-content-before-return-button-removal
+          path: /tmp/gumroad-content-before/*.json
+          retention-days: 30
+          if-no-files-found: ignore
