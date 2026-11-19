@@ -58,6 +58,10 @@ h1{font-family:"Space Grotesk",Arial,sans-serif;font-size:clamp(43px,5.65vw,74px
 .empty p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
 .secure{font-size:11px;color:#7d7b80;text-align:center;line-height:1.5;margin:30px auto 0}
 footer{border-top:1px solid var(--line);padding:27px 0 24px}
+.socials{display:flex;justify-content:center;align-items:center;gap:18px;margin:0 0 17px}
+.socials a{width:32px;height:32px;display:grid;place-items:center;color:#66636b;transition:color .18s ease,transform .18s ease}
+.socials a:hover{color:var(--ink);transform:translateY(-2px)}
+.socials svg{display:block;width:19px;height:19px}
 .footlinks{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
 .footlinks a{font-size:11px;font-weight:700;letter-spacing:.065em}
 .footbottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:10px;letter-spacing:.05em;color:var(--muted);margin-top:32px}
@@ -101,7 +105,11 @@ h1{font-size:clamp(31px,7.8vw,37px);max-width:330px;margin:0 auto}
 <div id="empty" class="empty" hidden><h2>COMING SOON</h2><p>Official guitar tabs, backing tracks and bundles will appear here when released.</p></div>
 <p class="secure">Payments and digital delivery are securely handled by Gumroad.</p>
 </main>
-<footer><div class="wrap"><div class="footlinks"><a href="https://simonlibon.github.io/press.html" target="_blank" rel="noopener">PRESS / EPK</a><a href="mailto:simonlibon.music@gmail.com">CONTACT / BOOKING</a></div><div class="footbottom"><span>&copy; 2026 SIMON LIBON</span><a href="https://simonlibon.github.io/privacy.html" target="_blank" rel="noopener">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
+<footer><div class="wrap"><div aria-label="Social media" class="socials">
+<a aria-label="YouTube" data-link="youtube" href="https://www.youtube.com/@simonlibon" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="4" width="20" x="2" y="5"></rect><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="none"></path></svg></a>
+<a aria-label="Instagram" data-link="instagram" href="https://www.instagram.com/simon.libon/" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="18" rx="5" width="18" x="3" y="3"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" fill="currentColor" r="1" stroke="none"></circle></svg></a>
+<a aria-label="TikTok" data-link="tiktok" href="https://www.tiktok.com/@simonlibon.music" rel="noopener noreferrer" target="_blank" title="TikTok"><svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24"><path d="M15.3 2c.2 2.1 1.4 3.6 3.6 3.8v3.1c-1.4 0-2.6-.4-3.8-1.2v6.5c0 4.3-2.6 6.7-6.5 6.7-3.2 0-5.7-2.5-5.7-5.7 0-3.9 3.1-6.2 7-6v3.2c-2-.4-3.7.9-3.7 2.8 0 1.5 1.1 2.6 2.6 2.6 1.8 0 2.8-1.2 2.8-3.2V2h3.7Z"></path></svg></a>
+<a aria-label="Facebook" data-link="facebook" href="https://www.facebook.com/profile.php?id=100070692266151" rel="noopener noreferrer" target="_blank" title="Facebook"><svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24"><path d="M14 22v-9h3l.45-3.5H14V7.4c0-1.02.31-1.7 1.74-1.7H18V2.58C17.6 2.52 16.48 2.4 15.14 2.4 12.32 2.4 10.4 4.12 10.4 7.25V9.5H7.5V13h2.9v9H14Z"></path></svg></a></div><div class="footlinks"><a href="https://simonlibon.github.io/press.html" target="_blank" rel="noopener">PRESS / EPK</a><a href="mailto:simonlibon.music@gmail.com">CONTACT / BOOKING</a></div><div class="footbottom"><span>&copy; 2026 SIMON LIBON</span><a href="https://simonlibon.github.io/privacy.html" target="_blank" rel="noopener">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
 <script>
 (function(){
 "use strict";
