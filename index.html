@@ -76,6 +76,14 @@ body[data-page="home"] .newsletter-expand{width:auto}
 body[data-page="home"] .newsletter-expand summary{padding:15px 34px}
 body[data-page="home"] .newsletter-expanded{left:50%;right:auto;transform:translateX(-50%);text-align:left}
 @media(max-width:650px){body[data-page="home"] main{min-height:clamp(340px,55svh,660px)}body[data-page="home"] .newsletter-inner{padding:60px 0}body[data-page="home"] .newsletter-copy h2{font-size:34px}}
+
+/* Understated newsletter: small, quiet, centered and unboxed. */
+body[data-page="home"] .newsletter-inner{gap:13px;padding:30px 0}
+body[data-page="home"] .newsletter-copy h2{font-size:clamp(15px,2vw,19px);font-weight:600;letter-spacing:.06em;margin:0 0 7px}
+body[data-page="home"] .newsletter-copy>p:last-child{font-size:11px;color:#85838a}
+body[data-page="home"] .newsletter-expand summary{background:transparent!important;color:#343236!important;border:1px solid #d9d6d2!important;padding:10px 22px!important;font-size:10px!important;letter-spacing:.12em}
+body[data-page="home"] .newsletter-expand summary:hover{background:#f0eeeb!important}
+@media(max-width:650px){body[data-page="home"] .newsletter-copy h2{font-size:17px}body[data-page="home"] .newsletter-inner{gap:14px;padding:25px 0}}
 </style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main><section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
 <div class="container newsletter-inner">
 <div class="newsletter-copy"><h2 id="newsletter-heading">STAY UPDATED.</h2><p>Music, tabs &amp; concert updates.</p></div>
