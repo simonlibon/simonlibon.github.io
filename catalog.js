@@ -5,12 +5,12 @@ window.SIMON_SHOP_CATALOG = {
       "id": "zvxja",
       "title": "Test 3— Backing Track",
       "type": "backing",
-      "description": "Play along with [SONG TITLE] by Simon Libon.\nINCLUDED\nOfficial backing track without lead guitar\nDigital audio download",
+      "description": "Official backing track without lead guitar for Test 3— Backing Track. Digital audio download.",
       "includes": [
-        "Official backing track without lead guitar",
+        "Backing track without lead guitar",
         "Digital audio download"
       ],
-      "price": 5,
+      "price": 5.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/zvxja",
       "image": "https://public-files.gumroad.com/w3h3lhnhymirnqdzb1xls0h7nb28",
       "published": true,
