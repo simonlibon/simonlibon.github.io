@@ -2,7 +2,7 @@
 
 <html lang="en"><head>
 <link rel="icon" type="image/png" href="/favicon.png?v=black2"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=black2">
-<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=32" rel="stylesheet"/><style>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=33" rel="stylesheet"/><style>
 /* Compact responsive newsletter: horizontal on desktop, stacked on mobile. */
 .newsletter-section{background:#faf9f7;border-top:1px solid #e7e4e1;color:#18181a}
 .newsletter-inner{max-width:1080px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,4vw,55px);align-items:center;padding-top:36px;padding-bottom:38px}
@@ -38,6 +38,25 @@ body[data-page="home"] .home-stage p{color:#77757a}
 .home-explore a span:last-child{font-size:17px;font-weight:400}
 body[data-page="home"] .newsletter-section{border-top:0}
 @media(max-width:760px){body[data-page="home"] .home-stage-light{min-height:320px}body[data-page="home"] .home-stage-content{padding:80px 0}body[data-page="home"] .home-stage h1{font-size:clamp(44px,11vw,75px)}.home-explore-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.home-explore a{padding:22px 12px;font-size:10px;border-bottom:1px solid #e7e4e1}.home-explore a:nth-child(odd){border-left:1px solid #e7e4e1}}
+/* Home refresh: same warm-white background as the rest of the website. */
+body[data-page="home"]{background:#faf9f7;color:#18181a}
+body[data-page="home"] .home-stage{background:#faf9f7;color:#18181a;min-height:clamp(310px,48svh,560px);flex:0 0 auto;border-bottom:1px solid #e7e4e1}
+body[data-page="home"] .home-stage-photo,body[data-page="home"] .home-stage-overlay{display:none}
+body[data-page="home"] .home-stage-content{padding:clamp(65px,9vw,115px) 0}
+body[data-page="home"] .home-stage h1{font-size:clamp(47px,9vw,112px)}
+body[data-page="home"] .home-stage p{color:#77757a;letter-spacing:.18em;margin-top:16px}
+.home-shortcuts{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:40px}
+.home-shortcuts a{border:1px solid #d7d4d2;padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:.08em}
+.home-shortcuts a:hover{background:#18181a;color:#fff;border-color:#18181a}
+body[data-page="home"] .newsletter-section{background:#faf9f7;border-top:0}
+body[data-page="home"] .newsletter-inner{max-width:1080px;padding-top:50px;padding-bottom:60px}
+body[data-page="home"] > .footer{background:#faf9f7;color:#18181a;border-top:1px solid #e6e3e0}
+body[data-page="home"] .footer .socials a,body[data-page="home"] .footer-quicklinks a{color:#55535a}
+body[data-page="home"] .footer-bottom{border-top-color:#e6e3e0;color:#78757b}
+body[data-page="home"] .contact-panel{border-top-color:#e6e3e0}
+body[data-page="home"] .contact-address,body[data-page="home"] .contact-action{color:#18181a}
+body[data-page="home"] .contact-action{border-color:#bab6bc}
+@media(max-width:650px){body[data-page="home"] .home-stage{min-height:0}body[data-page="home"] .home-stage-content{padding:67px 0 53px}body[data-page="home"] .home-stage h1{font-size:clamp(43px,11vw,68px)}.home-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:29px}.home-shortcuts a{padding:13px 6px;font-size:9px}body[data-page="home"] .newsletter-inner{padding-top:35px;padding-bottom:43px}}
 </style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
 <section aria-label="Simon Libon" class="home-stage home-stage-light">
 <div aria-hidden="true" class="home-stage-photo"></div>
@@ -45,6 +64,7 @@ body[data-page="home"] .newsletter-section{border-top:0}
 <div class="container home-stage-content">
 <h1>SIMON LIBON</h1>
 <p>GUITARIST &amp; COMPOSER</p>
+<div class="home-shortcuts"><a href="music.html">MUSIC</a><a href="concerts.html">CONCERTS</a><a href="tabs.html">TABS &amp; BACKING TRACKS</a><a href="merch.html">MERCH</a></div>
 </div>
 </section>
 <section class="home-explore" aria-label="Explore the website">
