@@ -55,21 +55,24 @@ body[data-page="home"] .menu-toggle{display:flex}
 body[data-page="home"] .nav{display:none;height:auto;padding:10px 18px 21px;flex-direction:column;align-items:center;gap:11px}
 body[data-page="home"] .nav.open{display:flex}
 }
+
+/* Minimal homepage: remove redundant hero and compact newsletter. */
+body[data-page="home"] main{flex:1;min-height:clamp(80px,18vh,220px)}
+body[data-page="home"] .newsletter-section{background:#faf9f7;border-top:1px solid #e7e4e1}
+body[data-page="home"] .newsletter-inner{max-width:1080px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 0 20px}
+body[data-page="home"] .newsletter-copy{display:block}
+body[data-page="home"] .newsletter-copy h2{font-size:17px;letter-spacing:-.045em;margin:0 0 4px}
+body[data-page="home"] .newsletter-copy>p:last-child{font-size:10px;margin:0;color:#77757a}
+body[data-page="home"] .newsletter-expand summary{padding:12px 17px}
+@media(max-width:650px){body[data-page="home"] main{min-height:clamp(95px,19vh,190px)}body[data-page="home"] .newsletter-inner{padding:17px 0 19px;gap:12px}body[data-page="home"] .newsletter-copy h2{font-size:17px}body[data-page="home"] .newsletter-expand summary{padding:12px 13px}}
 </style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
-<section aria-label="Simon Libon" class="home-stage">
-<div class="container home-stage-content">
-<h1>SIMON LIBON</h1>
-<p>GUITARIST &amp; COMPOSER</p>
 
-
-</div>
-</section>
 
 
 
 </main><section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
 <div class="container newsletter-inner">
-<div class="newsletter-copy"><p class="newsletter-eyebrow">OFFICIAL UPDATES</p><h2 id="newsletter-heading">STAY UPDATED.</h2><p>New music, tabs, merchandise and concerts.</p></div>
+<div class="newsletter-copy"><h2 id="newsletter-heading">STAY UPDATED.</h2><p>Music, tabs &amp; concert updates.</p></div>
 <details class="newsletter-expand"><summary>SUBSCRIBE</summary><div class="newsletter-expanded"><p>Newsletter registration is coming soon.</p><p>You'll be able to subscribe with your email address and country.</p></div></details>
 </div></section><footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
 <a aria-label="YouTube" data-link="youtube" href="https://www.youtube.com/@simonlibon" rel="noopener noreferrer" title="YouTube"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="4" width="20" x="2" y="5"></rect><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="none"></path></svg></a>
