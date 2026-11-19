@@ -2,7 +2,7 @@
 
 <html lang="en"><head>
 <link rel="icon" type="image/png" href="/favicon.png?v=black2"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=black2">
-<meta charset="utf-8"/><meta http-equiv="Cache-Control" content="no-cache, must-revalidate"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=36" rel="stylesheet"/><style>
+<meta charset="utf-8"/><meta http-equiv="Cache-Control" content="no-cache, must-revalidate"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=39" rel="stylesheet"/><style>
 /* Compact responsive newsletter: horizontal on desktop, stacked on mobile. */
 .newsletter-section{background:#faf9f7;border-top:1px solid #e7e4e1;color:#18181a}
 .newsletter-inner{max-width:1080px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,4vw,55px);align-items:center;padding-top:36px;padding-bottom:38px}
@@ -118,7 +118,7 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 <label for="newsletter-country">COUNTRY</label><select id="newsletter-country" name="country" required><option value="">Select your country</option><option value="BE">Belgium</option><option value="FR">France</option><option value="NL">Netherlands</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="CA">Canada</option><option value="CH">Switzerland</option><option value="Other">Other</option></select>
 <label class="newsletter-consent"><input type="checkbox" required> I agree to receive email updates. I can unsubscribe at any time.</label>
 <p class="newsletter-setup">Subscriptions are not yet active.</p><button type="submit" disabled class="newsletter-submit">SUBSCRIBE</button>
-</form></div></dialog><script src="site.js?v=28"></script><script>
+</form></div></dialog><script src="site.js?v=31"></script><script>
 const newsletterDialog=document.getElementById('newsletter-dialog');
 document.querySelector('[data-newsletter-open]')?.addEventListener('click',function(e){e.preventDefault();newsletterDialog?.showModal();});
 newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterDialog)newsletterDialog.close();});
@@ -149,6 +149,22 @@ newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterD
   window.addEventListener('pageshow',function(){checkFreshVersion();});
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible') checkFreshVersion();
+  });
+})();
+</script><script>
+/* Newsletter works independently of cached shared scripts. */
+(function(){
+  function openNewsletter(e){
+    const trigger=e.target.closest('[data-newsletter-open]');
+    if(!trigger)return;
+    e.preventDefault();
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
+  }
+  document.addEventListener('click',openNewsletter);
+  document.addEventListener('click',function(e){
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && e.target===dialog)dialog.close();
   });
 })();
 </script></body></html>
