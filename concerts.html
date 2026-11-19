@@ -2,7 +2,7 @@
 
 <html lang="en"><head>
 <link rel="icon" type="image/png" href="/favicon.png?v=black2"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=black2">
-<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Concerts | Simon Libon</title><link href="style.css?v=37" rel="stylesheet"/>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Concerts | Simon Libon</title><link href="style.css?v=39" rel="stylesheet"/>
 <style>
   .concerts-page{min-height:clamp(460px,66svh,740px)}
   .concerts-page .page-title{border:0;text-align:center;padding:75px 0 28px}
@@ -62,4 +62,20 @@
 <label for="newsletter-country">COUNTRY</label><select id="newsletter-country" name="country" required><option value="">Select your country</option><option value="BE">Belgium</option><option value="FR">France</option><option value="NL">Netherlands</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="CA">Canada</option><option value="CH">Switzerland</option><option value="Other">Other</option></select>
 <label class="newsletter-consent"><input type="checkbox" required> I agree to receive email updates. I can unsubscribe at any time.</label>
 <p class="newsletter-setup">Subscriptions are not yet active.</p><button type="submit" disabled class="newsletter-submit">SUBSCRIBE</button>
-</form></div></dialog><script src="site.js?v=29"></script><script src="concerts.js?v=2" defer></script></body></html>
+</form></div></dialog><script src="site.js?v=31"></script><script src="concerts.js?v=2" defer></script><script>
+/* Newsletter works independently of cached shared scripts. */
+(function(){
+  function openNewsletter(e){
+    const trigger=e.target.closest('[data-newsletter-open]');
+    if(!trigger)return;
+    e.preventDefault();
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
+  }
+  document.addEventListener('click',openNewsletter);
+  document.addEventListener('click',function(e){
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && e.target===dialog)dialog.close();
+  });
+})();
+</script></body></html>
