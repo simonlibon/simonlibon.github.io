@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#faf9f7"/>
 <meta name="description" content="Press and media information for Simon Libon, guitarist, composer and producer based in Liège, Belgium."/>
 <title>Press / EPK | Simon Libon</title>
-<link rel="stylesheet" href="style.css?v=37"/>
+<link rel="stylesheet" href="style.css?v=39"/>
 <style>
 body[data-page="press"] .press-main{padding:58px 0 88px;min-height:calc(100svh - 118px)}
 .press-container{max-width:1050px}
@@ -88,5 +88,21 @@ body[data-page="press"] .press-main{padding:58px 0 88px;min-height:calc(100svh -
 <label for="newsletter-country">COUNTRY</label><select id="newsletter-country" name="country" required><option value="">Select your country</option><option value="BE">Belgium</option><option value="FR">France</option><option value="NL">Netherlands</option><option value="DE">Germany</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="CA">Canada</option><option value="CH">Switzerland</option><option value="Other">Other</option></select>
 <label class="newsletter-consent"><input type="checkbox" required> I agree to receive email updates. I can unsubscribe at any time.</label>
 <p class="newsletter-setup">Subscriptions are not yet active.</p><button type="submit" disabled class="newsletter-submit">SUBSCRIBE</button>
-</form></div></dialog><script src="site.js?v=29"></script>
-</body></html>
+</form></div></dialog><script src="site.js?v=31"></script>
+<script>
+/* Newsletter works independently of cached shared scripts. */
+(function(){
+  function openNewsletter(e){
+    const trigger=e.target.closest('[data-newsletter-open]');
+    if(!trigger)return;
+    e.preventDefault();
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
+  }
+  document.addEventListener('click',openNewsletter);
+  document.addEventListener('click',function(e){
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && e.target===dialog)dialog.close();
+  });
+})();
+</script></body></html>
