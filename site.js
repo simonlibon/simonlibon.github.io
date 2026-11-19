@@ -86,3 +86,6 @@ function init(){
   document.querySelectorAll('[data-year]').forEach(n=>n.textContent=new Date().getFullYear());
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+
+/* Shared newsletter dialog on every page. */
+(function(){const d=document.getElementById('newsletter-dialog');if(!d)return;document.querySelectorAll('[data-newsletter-open]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(!d.open)d.showModal();}));d.addEventListener('click',e=>{if(e.target===d)d.close();});})();
