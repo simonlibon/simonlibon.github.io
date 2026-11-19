@@ -11,7 +11,7 @@ const SITE={
 const goodUrl = v => {try{let u=new URL(v);return u.protocol==='https:'}catch{return false}};
 const safe = v => String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toast = msg => {let n=document.querySelector('.toast');if(!n){n=document.createElement('div');n.className='toast';n.setAttribute('role','status');document.body.appendChild(n)}n.textContent=msg;n.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>n.classList.remove('show'),2600)};
-function target(kind){let v=SITE.links[kind];if(kind==='email' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v||'')){location.href='mailto:'+v;return}if(goodUrl(v)){window.open(v,'_blank','noopener,noreferrer');return}toast('Link coming soon')}
+function target(kind){let v=SITE.links[kind];if(kind==='email' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v||'')){location.href='mailto:'+v;return}if(goodUrl(v)){window.location.assign(v);return}toast('Link coming soon')}
 function initLinks(){
   document.querySelectorAll('[data-link]').forEach(node=>{
     const key=node.dataset.link;
@@ -20,7 +20,7 @@ function initLinks(){
     if(isEmail){node.href='mailto:'+value;return}
     if(goodUrl(value)){
       node.href=value;
-      node.target='_blank';
+      node.removeAttribute('target');
       node.rel='noopener noreferrer';
       node.classList.remove('inactive');
       return;
@@ -30,10 +30,10 @@ function initLinks(){
     node.setAttribute('aria-disabled','true');
   });
 }
-function initRelease(){const r=SITE.release;document.querySelectorAll('[data-release-title]').forEach(n=>{if(r.title)n.textContent=r.title});if(goodUrl(r.coverImage)){document.querySelectorAll('[data-release-cover]').forEach(n=>{n.innerHTML='';const img=document.createElement('img');img.src=r.coverImage;img.alt=r.title?`${r.title} artwork`:'Release artwork';img.loading='lazy';n.append(img)})}if(goodUrl(r.listenUrl)){document.querySelectorAll('[data-listen]').forEach(n=>{n.href=r.listenUrl;n.target='_blank';n.rel='noopener noreferrer';n.textContent='LISTEN ↗'})}}
+function initRelease(){const r=SITE.release;document.querySelectorAll('[data-release-title]').forEach(n=>{if(r.title)n.textContent=r.title});if(goodUrl(r.coverImage)){document.querySelectorAll('[data-release-cover]').forEach(n=>{n.innerHTML='';const img=document.createElement('img');img.src=r.coverImage;img.alt=r.title?`${r.title} artwork`:'Release artwork';img.loading='lazy';n.append(img)})}if(goodUrl(r.listenUrl)){document.querySelectorAll('[data-listen]').forEach(n=>{n.href=r.listenUrl;n.removeAttribute('target');n.rel='noopener noreferrer';n.textContent='LISTEN ↗'})}}
 function initVideo(){const v=SITE.featuredVideo;if(v.title)document.querySelectorAll('[data-video-title]').forEach(n=>n.textContent=v.title);if(!/^[A-Za-z0-9_-]{11}$/.test(v.youtubeId||''))return;document.querySelectorAll('[data-video-player]').forEach(n=>{n.innerHTML='';let f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+v.youtubeId;f.title='Simon Libon guitar video';f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';f.referrerPolicy='strict-origin-when-cross-origin';f.allowFullscreen=true;n.append(f)})}
 let filter='all';function renderProducts(){let node=document.querySelector('[data-products]');if(!node)return;let mode=document.body.dataset.page;const visible=SITE.products.filter(p=>(mode==='merch'?p.type==='merch':p.type!=='merch')&&(filter==='all'||p.type===filter));node.innerHTML=visible.map(p=>{const live=goodUrl(p.url);const type=p.type==='tabs'?'TAB':p.type==='backing'?'WAV':'S/L';return `<article class="product"><div class="product-art ${safe(p.type)}"><span class="stub ${safe(p.type==='tabs'?'tab':p.type)}">${type}</span></div><div class="product-meta"><div><h3>${safe(p.title)}</h3><span>${live?(p.price?safe(p.price):'AVAILABLE'):'COMING SOON'}</span></div><button type="button" data-buy="${safe(p.id)}" ${live?'':'disabled'}>${live?'BUY ↗':'SOON'}</button></div></article>`}).join('');node.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{const p=SITE.products.find(p=>p.id===b.dataset.buy);if(p&&goodUrl(p.url))window.open(p.url,'_blank','noopener,noreferrer')}));document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)))}
-function initShows(){let node=document.querySelector('[data-shows]');if(!node)return;let today=new Date();today.setHours(0,0,0,0);const shows=SITE.shows.filter(e=>e.date&&new Date(e.date+'T00:00:00')>=today).sort((a,b)=>a.date.localeCompare(b.date));if(!shows.length){node.innerHTML='<div class="empty"><strong>NO SHOWS ANNOUNCED.</strong></div>';return}node.innerHTML=shows.map(e=>{const d=new Date(e.date+'T12:00:00');const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});return `<div class="event-row"><span class="date">${safe(ds)}</span><span>${safe(e.city)}</span><span class="venue">${safe(e.venue)}</span>${goodUrl(e.tickets)?`<a href="${safe(e.tickets)}" target="_blank" rel="noopener noreferrer">TICKETS ↗</a>`:'<span>SOON</span>'}</div>`}).join('')}
+function initShows(){let node=document.querySelector('[data-shows]');if(!node)return;let today=new Date();today.setHours(0,0,0,0);const shows=SITE.shows.filter(e=>e.date&&new Date(e.date+'T00:00:00')>=today).sort((a,b)=>a.date.localeCompare(b.date));if(!shows.length){node.innerHTML='<div class="empty"><strong>NO SHOWS ANNOUNCED.</strong></div>';return}node.innerHTML=shows.map(e=>{const d=new Date(e.date+'T12:00:00');const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});return `<div class="event-row"><span class="date">${safe(ds)}</span><span>${safe(e.city)}</span><span class="venue">${safe(e.venue)}</span>${goodUrl(e.tickets)?`<a href="${safe(e.tickets)}" rel="noopener noreferrer">TICKETS ↗</a>`:'<span>SOON</span>'}</div>`}).join('')}
 function initContact(){
   const trigger=document.querySelector('[data-contact-trigger]');
   const panel=document.getElementById('contact-panel');
