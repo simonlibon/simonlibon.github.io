@@ -619,3 +619,6 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 .nav-tabs-full{display:none}
 .nav-tabs-short{display:inline}
 }
+
+/* Mobile header aligned with desktop: no divider between wordmark and navigation. */
+@media(max-width:650px){.header-inner{height:67px!important}.nav,.nav.open{border-top:0!important;height:45px!important}.header{border-bottom:1px solid #e7e4e1!important}}
