@@ -2,7 +2,7 @@
 
 <html lang="en"><head>
 <link rel="icon" type="image/png" href="/favicon.png?v=black2"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=black2">
-<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=35" rel="stylesheet"/><style>
+<meta charset="utf-8"/><meta http-equiv="Cache-Control" content="no-cache, must-revalidate"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=35" rel="stylesheet"/><style>
 /* Compact responsive newsletter: horizontal on desktop, stacked on mobile. */
 .newsletter-section{background:#faf9f7;border-top:1px solid #e7e4e1;color:#18181a}
 .newsletter-inner{max-width:1080px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,4vw,55px);align-items:center;padding-top:36px;padding-bottom:38px}
@@ -101,4 +101,9 @@ body[data-page="home"] .contact-action{border-color:#bab6bc}
     select.appendChild(option);
   });
 })();
+</script><script>
+/* Refresh a restored homepage after browser back/forward navigation. */
+window.addEventListener('pageshow',function(event){
+  if(event.persisted){window.location.reload();}
+});
 </script></body></html>
