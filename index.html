@@ -2,7 +2,27 @@
 
 <html lang="en"><head>
 <link rel="icon" type="image/png" href="/favicon.png?v=black2"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=black2">
-<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=32" rel="stylesheet"/></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#faf9f7" name="theme-color"/><meta content="Simon Libon — Guitarist &amp; Composer. Official website." name="description"/><title>Official Website | Simon Libon</title><link href="style.css?v=32" rel="stylesheet"/><style>
+/* Newsletter: intentionally inactive until a provider-backed consent form is connected. */
+.newsletter-section{background:#faf9f7;border-top:1px solid #e7e4e1;color:#18181a}
+.newsletter-inner{max-width:1080px;display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(36px,6vw,90px);align-items:start;padding-top:75px;padding-bottom:80px}
+.newsletter-eyebrow{font-size:10px;letter-spacing:.19em;font-weight:700;color:#77757a;margin:0 0 15px}
+.newsletter-copy h2{font:700 clamp(36px,5vw,62px)/1.04 'Space Grotesk',Arial,sans-serif;letter-spacing:-.075em;margin:0 0 17px}
+.newsletter-copy>p:last-child{font-size:13px;line-height:1.8;color:#77757a;max-width:350px;margin:0}
+.newsletter-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.newsletter-field{display:flex;flex-direction:column;gap:9px;font-size:10px;font-weight:700;letter-spacing:.11em}
+.newsletter-field input,.newsletter-field select{border:1px solid #d1ced0;border-radius:0;background:#fff;color:#18181a;min-width:0;width:100%;height:48px;padding:0 12px;font:500 13px 'DM Sans',Arial,sans-serif;letter-spacing:0}
+.newsletter-field input:disabled,.newsletter-field select:disabled{background:#f3f1ee;color:#77757a;opacity:1}
+.newsletter-field input::placeholder{color:#99959b}
+.newsletter-consent{display:flex;gap:10px;align-items:flex-start;margin:18px 0 17px;font-size:12px;line-height:1.5;color:#66636a}
+.newsletter-consent input{flex:none;margin:3px 0 0;accent-color:#18181a}
+.newsletter-submit{border:0;width:100%;min-height:47px;background:#1a191d;color:#fff;font-size:10px;letter-spacing:.15em;font-weight:700;cursor:default}
+.newsletter-submit:disabled{opacity:.58}
+.newsletter-status,.newsletter-legal{font-size:11px;line-height:1.65;color:#827f86;margin:12px 0 0}
+.newsletter-legal a{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:760px){.newsletter-inner{grid-template-columns:1fr;gap:28px;padding-top:56px;padding-bottom:56px}}
+@media(max-width:400px){.newsletter-fields{grid-template-columns:1fr}}
+</style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
 <section aria-label="Simon Libon" class="home-stage">
 <div aria-hidden="true" class="home-stage-photo"></div>
 <div aria-hidden="true" class="home-stage-overlay"></div>
@@ -10,6 +30,31 @@
 <h1>SIMON LIBON</h1>
 <p>GUITARIST &amp; COMPOSER</p>
 </div>
+</section>
+<section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
+  <div class="container newsletter-inner">
+    <div class="newsletter-copy">
+      <p class="newsletter-eyebrow">OFFICIAL UPDATES</p>
+      <h2 id="newsletter-heading">STAY UPDATED.</h2>
+      <p>New music, official tabs, merchandise and concert announcements in your country. No spam.</p>
+    </div>
+    <form class="newsletter-form" id="newsletter-form" aria-describedby="newsletter-status">
+      <div class="newsletter-fields">
+        <label class="newsletter-field" for="newsletter-email">EMAIL ADDRESS
+          <input id="newsletter-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required disabled>
+        </label>
+        <label class="newsletter-field" for="newsletter-country">COUNTRY
+          <select id="newsletter-country" name="country" autocomplete="country" required disabled>
+            <option value="">Select your country</option>
+          </select>
+        </label>
+      </div>
+      <label class="newsletter-consent"><input type="checkbox" name="marketing_consent" required disabled> I agree to receive news about new music, products, merchandise and concerts in my selected country.</label>
+      <button class="newsletter-submit" type="submit" disabled>SUBSCRIBE</button>
+      <p class="newsletter-status" id="newsletter-status" role="status">Newsletter subscriptions are not open yet.</p>
+      <p class="newsletter-legal">You can unsubscribe at any time. <a href="privacy.html">Privacy Policy</a>.</p>
+    </form>
+  </div>
 </section>
 </main><footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
 <a aria-label="YouTube" data-link="youtube" href="https://www.youtube.com/@simonlibon" rel="noopener noreferrer" title="YouTube"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="4" width="20" x="2" y="5"></rect><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="none"></path></svg></a>
@@ -22,4 +67,17 @@
 <button class="contact-action" data-copy-email="simonlibon.music@gmail.com" type="button">COPY EMAIL</button>
 </div>
 <p aria-live="polite" class="contact-feedback" data-contact-feedback=""></p>
-</section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer><script src="site.js?v=27"></script></body></html>
+</section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer><script src="site.js?v=27"></script><script>
+(function(){
+  const select=document.getElementById('newsletter-country');
+  if(!select)return;
+  const codes='AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
+  const names=typeof Intl.DisplayNames==='function'?new Intl.DisplayNames(['en'],{type:'region'}):null;
+  codes.map(code=>({code,name:names?names.of(code):code})).sort((a,b)=>a.name.localeCompare(b.name,'en')).forEach(({code,name})=>{
+    const option=document.createElement('option');
+    option.value=code;
+    option.textContent=name;
+    select.appendChild(option);
+  });
+})();
+</script></body></html>
