@@ -23,14 +23,37 @@
 .newsletter-legal a{text-decoration:underline;text-underline-offset:2px}
 @media(max-width:760px){.newsletter-inner{grid-template-columns:minmax(0,1fr);gap:16px;padding-top:30px;padding-bottom:32px}.newsletter-copy h2{font-size:30px}.newsletter-copy>p:last-child{max-width:none}.newsletter-fields{gap:9px}}
 @media(max-width:370px){.newsletter-field input,.newsletter-field select{font-size:11px;padding:0 6px}}
+/* Homepage — unified light visual direction */
+body[data-page="home"],body[data-page="home"] main{background:#faf9f7;color:#18181a}
+body[data-page="home"] .home-stage-light{background:#faf9f7;color:#18181a;min-height:clamp(280px,43vh,520px);flex:0 0 auto;border-bottom:1px solid #e7e4e1}
+body[data-page="home"] .home-stage-photo,body[data-page="home"] .home-stage-overlay{display:none}
+body[data-page="home"] .home-stage-content{padding:clamp(72px,10vw,125px) 0}
+body[data-page="home"] .home-stage h1{font-size:clamp(52px,10vw,135px)}
+body[data-page="home"] .home-stage p{color:#77757a}
+.home-explore{background:#faf9f7}
+.home-explore-inner{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid #e7e4e1}
+.home-explore a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:26px 15px;text-decoration:none;color:#18181a;font:700 11px 'DM Sans',Arial,sans-serif;letter-spacing:.07em;border-right:1px solid #e7e4e1;transition:background .2s}
+.home-explore a:first-child{border-left:1px solid #e7e4e1}
+.home-explore a:hover,.home-explore a:focus-visible{background:#eeece9}
+.home-explore a span:last-child{font-size:17px;font-weight:400}
+body[data-page="home"] .newsletter-section{border-top:0}
+@media(max-width:760px){body[data-page="home"] .home-stage-light{min-height:320px}body[data-page="home"] .home-stage-content{padding:80px 0}body[data-page="home"] .home-stage h1{font-size:clamp(44px,11vw,75px)}.home-explore-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.home-explore a{padding:22px 12px;font-size:10px;border-bottom:1px solid #e7e4e1}.home-explore a:nth-child(odd){border-left:1px solid #e7e4e1}}
 </style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
-<section aria-label="Simon Libon" class="home-stage">
+<section aria-label="Simon Libon" class="home-stage home-stage-light">
 <div aria-hidden="true" class="home-stage-photo"></div>
 <div aria-hidden="true" class="home-stage-overlay"></div>
 <div class="container home-stage-content">
 <h1>SIMON LIBON</h1>
 <p>GUITARIST &amp; COMPOSER</p>
 </div>
+</section>
+<section class="home-explore" aria-label="Explore the website">
+  <div class="container home-explore-inner">
+    <a href="music.html"><span>MUSIC</span><span aria-hidden="true">↗</span></a>
+    <a href="concerts.html"><span>CONCERTS</span><span aria-hidden="true">↗</span></a>
+    <a href="tabs.html"><span>TABS &amp; BACKING TRACKS</span><span aria-hidden="true">↗</span></a>
+    <a href="merch.html"><span>MERCH</span><span aria-hidden="true">↗</span></a>
+  </div>
 </section>
 <section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
   <div class="container newsletter-inner">
