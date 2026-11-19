@@ -1,0 +1,25 @@
+/* Simon Libon — post-purchase information pages */
+.purchase-page{background:#faf9f7;color:#18181a;min-height:62vh;padding:68px 0 100px}
+.purchase-page .container{max-width:1120px}
+.purchase-overline{font-size:11px;letter-spacing:.16em;font-weight:700;color:#7f7b82;text-transform:uppercase;margin:0 0 17px}
+.purchase-heading{font-family:"Space Grotesk","DM Sans",Arial,sans-serif;font-size:clamp(44px,7.2vw,93px);line-height:1.04;letter-spacing:-.065em;margin:0 0 22px;font-weight:700;max-width:900px}
+.purchase-intro{font-size:clamp(16px,1.5vw,19px);color:#605c64;line-height:1.75;max-width:680px;margin:0}
+.purchase-panel{margin-top:44px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:24px}
+.purchase-card{padding:34px;border:1px solid #e1ddda;background:#fff;min-width:0}
+.purchase-card h2{font-family:"Space Grotesk","DM Sans",Arial,sans-serif;font-size:23px;letter-spacing:-.045em;margin:0 0 17px}
+.purchase-card p{line-height:1.75;font-size:14px;color:#655f68;margin:0 0 19px}
+.purchase-card .purchase-steps{margin:0 0 24px;padding:0 0 0 22px;font-size:14px;color:#443f46;line-height:1.85}
+.purchase-steps li{padding-left:7px;margin:0 0 8px}
+.purchase-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.purchase-button{display:inline-flex;min-height:46px;align-items:center;justify-content:center;padding:13px 19px;border:1px solid #18181a;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center;transition:background .18s,color .18s}
+.purchase-button.primary{background:#18181a;color:#fff}
+.purchase-button:hover{background:#d9d5db;color:#17151a}
+.purchase-button.primary:hover{background:#38343e;color:white}
+.purchase-rule{border-top:1px solid #dfdbd8;padding-top:20px;margin-top:26px;color:#777078;font-size:12px;line-height:1.7}
+.purchase-return{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.085em;margin-bottom:32px}
+.purchase-return span{font-size:23px;font-weight:400;line-height:1}
+.purchase-help{margin-top:18px;font-size:13px;color:#68636b;line-height:1.7}
+.purchase-help a{text-decoration:underline;text-underline-offset:3px}
+.purchase-note{font-size:12px;line-height:1.7;color:#827c85}
+@media(max-width:820px){.purchase-panel{grid-template-columns:1fr}.purchase-card{padding:24px}.purchase-page{padding:42px 0 74px}}
+@media(max-width:560px){.purchase-page .container{width:calc(100% - 40px)}.purchase-heading{font-size:clamp(38px,11vw,57px)}.purchase-buttons{flex-direction:column}.purchase-button{width:100%}}
