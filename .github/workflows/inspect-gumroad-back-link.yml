@@ -1,0 +1,38 @@
+name: Inspect Gumroad content return link (read-only)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-gumroad-back-link.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Install Gumroad CLI
+        run: go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
+      - name: Inspect button block structure without changing anything
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os,subprocess,json
+          if not os.getenv("GUMROAD_ACCESS_TOKEN"):raise RuntimeError("Missing token")
+          cmd=[os.path.join(os.environ["HOME"],"go","bin","gumroad"),"products","content","get","zvxja","--json","--no-input","--quiet"]
+          p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=True)
+          o=json.loads(p.stdout)
+          print("root_type",type(o).__name__,"pages",len(o) if isinstance(o,list) else list(o))
+          def walk(node,path="root"):
+              if isinstance(node,dict):
+                  if any(isinstance(v,str) and ("BACK TO SIMON LIBON SHOP" in v or "simonlibon.github.io/tabs.html" in v) for v in node.values()):
+                      print("match at",path,"keys",list(node.keys()),"short",str({k: v[:130] if isinstance(v,str) else type(v).__name__ for k,v in node.items()})[:500])
+                  for k,v in node.items():walk(v,path+"."+str(k))
+              elif isinstance(node,list):
+                  for i,v in enumerate(node):walk(v,path+"["+str(i)+"]")
+          walk(o)
+          PY
