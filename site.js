@@ -106,10 +106,7 @@ function initShopTabReturn(){
       if(msg.action==='find-shop'&&safeSessionGet(originKey)===pending.token){
         // Confirm the original shop is still open before the return tab tries to close.
         channel.postMessage({action:'shop-found',token:pending.token});
-        try{window.focus()}catch{}
-        if(location.pathname.endsWith('/product.html')){
-          setTimeout(()=>{location.assign('tabs.html')},300);
-        }
+        // Keep the original tab exactly where the customer left it.
       }
     });
   }
@@ -144,7 +141,7 @@ function initShopTabReturn(){
     window.close();
     setTimeout(()=>{
       if(document.visibilityState==='visible'){
-        toast('Your original shop tab is open. You can close this extra tab.');
+        toast('YOUR SHOP IS ALREADY OPEN · CLOSE THIS EXTRA TAB WITH CTRL+W');
       }
     },600);
   };
