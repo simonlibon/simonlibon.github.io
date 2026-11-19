@@ -11,21 +11,20 @@ const euro=n=>Number(n||0).toLocaleString("en-IE",{style:"currency",currency:"EU
 const good=u=>{try{const x=new URL(u);return x.protocol==="https:"&&x.hostname==="simonlibonstore.gumroad.com"&&/^\/l\/[a-z0-9_-]+\/?$/i.test(x.pathname)}catch{return false}};
 const canPurchase=p=>!p?.demo&&good(p?.gumroadUrl);
 const live=p=>p?.published===true&&(p.demo===true||canPurchase(p));
-const pay=p=>{const u=new URL(p.gumroadUrl);u.searchParams.set("wanted","true");u.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");return u.href};
+const pay=p=>{const product=new URL(p.gumroadUrl).pathname.split("/").filter(Boolean).pop();const u=new URL("https://gumroad.com/checkout");u.searchParams.set("product",product);u.searchParams.set("quantity","1");u.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");return u.href};
 function art(p,cls){const box=el("div",cls),uri=String(p.image||"");if(uri&&(/^(https?:\/\/|data:image\/(png|jpeg|webp);base64,)/i.test(uri)||/^images\//i.test(uri))){const img=el("img");img.src=uri;img.alt="Cover artwork for "+p.title;img.loading="lazy";box.append(img)}else{box.classList.add("is-placeholder");const text=el("span","placeholder-text",titles[p.type]||"SIMON\nLIBON");text.style.whiteSpace="pre-line";box.append(text)}return box}
 function card(p){
  const item=el("article","shop-item"), purchasable=canPurchase(p),url=purchasable?pay(p):"";
  const cover=el(purchasable?"a":"div",purchasable?"shop-card-link":"shop-card-preview");
  if(purchasable){
-   cover.href=url;
-   cover.rel="noopener";
-   cover.target="_blank";
-   cover.setAttribute("aria-label","Buy "+p.title+" securely through Gumroad");
+   cover.href="product.html?id="+encodeURIComponent(p.id);
+   cover.setAttribute("aria-label","See details for "+p.title);
  }
  cover.append(art(p,"shop-item-image"));
  item.append(cover);
  const meta=el("div","shop-item-meta"),info=el("div");
- info.append(el("h3","shop-item-title",p.title),el("div","shop-item-type",names[p.type]||"Digital release"));
+ const heading=el("h3","shop-item-title");if(purchasable){const detail=el("a",null,p.title);detail.href="product.html?id="+encodeURIComponent(p.id);heading.append(detail)}else heading.textContent=p.title;
+ info.append(heading,el("div","shop-item-type",names[p.type]||"Digital release"));
  meta.append(info,el("span","shop-item-price",p.demo?"DEMO":euro(p.price)));
  item.append(meta);
  const actions=el("div","shop-item-actions");
