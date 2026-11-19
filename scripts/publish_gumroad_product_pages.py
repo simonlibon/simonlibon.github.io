@@ -116,7 +116,16 @@ def main():
             continue
         key = urllib.parse.quote(str(identifier), safe="")
         product = request(token, "products/" + key).get("product") or {}
-        permalink = product.get("custom_permalink") or product.get("permalink") or entry.get("custom_permalink") or entry.get("permalink") or "unknown"
+        permalink = product.get("custom_permalink") or product.get("permalink") or entry.get("custom_permalink") or entry.get("permalink")
+        if not permalink:
+            for url in (product.get("short_url"), product.get("url"), entry.get("short_url"), entry.get("url")):
+                if isinstance(url, str) and "/l/" in url:
+                    permalink = urllib.parse.urlsplit(url).path.rsplit("/l/", 1)[-1].split("/")[0]
+                    if permalink:
+                        break
+        if not permalink:
+            print("WARNING: product permalink could not be identified; skipping to protect cover art")
+            continue
         name = product.get("name") or entry.get("name")
         old = request(token, "products/" + key + "/custom_html").get("custom_html") or ""
         if old and MARKER not in old:
@@ -125,6 +134,9 @@ def main():
         if not product.get("permalink") and not product.get("custom_permalink"):
             product["permalink"] = permalink
         new_page = build(product)
+        if permalink in FALLBACK_COVERS and "<img " not in new_page:
+            raise RuntimeError("Expected an image cover for the known test product")
+        print(f"COVER CHECK {permalink}: image={'<img ' in new_page}")
         if len(new_page) > 150000:
             raise RuntimeError("Product HTML unexpectedly large")
         preview = request(token, "products/" + key + "/preview_custom_html", "POST", {"custom_html": new_page})
