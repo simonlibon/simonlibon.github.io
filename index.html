@@ -121,8 +121,31 @@ body[data-page="home"] .socials .newsletter-social-link{display:inline-flex;alig
 const newsletterDialog=document.getElementById('newsletter-dialog');
 document.querySelector('[data-newsletter-open]')?.addEventListener('click',function(e){e.preventDefault();newsletterDialog?.showModal();});
 newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterDialog)newsletterDialog.close();});
-/* Refresh a restored homepage after browser back/forward navigation. */
-window.addEventListener('pageshow',function(event){
-  if(event.persisted){window.location.reload();}
-});
+/* Check for new published HTML when returning to the site, including iOS Safari. */
+(function(){
+  const pageVersion='home-20261119-850b8546';
+  let checking=false;
+  async function checkFreshVersion(){
+    if(checking || document.visibilityState==='hidden') return;
+    checking=true;
+    try{
+      const url=new URL(window.location.pathname,window.location.origin);
+      url.searchParams.set('_site_refresh',Date.now().toString());
+      const response=await fetch(url.toString(),{cache:'no-store'});
+      if(!response.ok) return;
+      const html=await response.text();
+      const marker=html.match(/const pageVersion='([^']+)'/);
+      if(marker && marker[1]!==pageVersion){
+        window.location.replace(url.toString());
+      }
+    }catch(_error){/* Keep the page usable when offline. */}
+    finally{checking=false;}
+  }
+  window.addEventListener('pageshow',function(event){
+    if(event.persisted) checkFreshVersion();
+  });
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') checkFreshVersion();
+  });
+})();
 </script></body></html>
