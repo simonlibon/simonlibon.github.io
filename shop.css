@@ -284,3 +284,8 @@ body[data-page="tabs"] .shop-payment-note svg{flex-shrink:0}
     overflow-wrap:anywhere;
   }
 }
+
+/* Link to purchase access instructions, always on the Simon Libon domain. */
+.shop-library-link{font-size:10px;font-weight:700;letter-spacing:.105em;color:#625e66;white-space:nowrap;text-decoration:none}
+.shop-library-link:hover,.shop-library-link:focus-visible{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:520px){.shop-catalog-actions{gap:10px;flex-wrap:wrap}.shop-library-link{font-size:10px}}
