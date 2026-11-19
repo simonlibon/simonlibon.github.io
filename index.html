@@ -67,8 +67,8 @@ body[data-page="home"] .newsletter-expand summary{padding:12px 17px}
 @media(max-width:650px){body[data-page="home"] main{min-height:clamp(95px,19vh,190px)}body[data-page="home"] .newsletter-inner{padding:17px 0 19px;gap:12px}body[data-page="home"] .newsletter-copy h2{font-size:17px}body[data-page="home"] .newsletter-expand summary{padding:12px 13px}}
 
 /* Center the newsletter in the open homepage, without separator lines. */
-body[data-page="home"] main{flex:1;min-height:clamp(300px,55svh,700px)}
-body[data-page="home"] .newsletter-section{flex:1;display:flex;align-items:center;justify-content:center;border:0!important;background:#faf9f7}
+body[data-page="home"] main{flex:1;display:flex;min-height:clamp(300px,55svh,700px)}
+body[data-page="home"] main > .newsletter-section{flex:1;display:flex;align-items:center;justify-content:center;border:0!important;background:#faf9f7}
 body[data-page="home"] .newsletter-inner{width:min(100% - 36px,520px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:55px 0}
 body[data-page="home"] .newsletter-copy h2{font-size:clamp(30px,5vw,46px);letter-spacing:-.065em;margin:0 0 12px}
 body[data-page="home"] .newsletter-copy>p:last-child{font-size:12px;line-height:1.6}
@@ -76,16 +76,11 @@ body[data-page="home"] .newsletter-expand{width:auto}
 body[data-page="home"] .newsletter-expand summary{padding:15px 34px}
 body[data-page="home"] .newsletter-expanded{left:50%;right:auto;transform:translateX(-50%);text-align:left}
 @media(max-width:650px){body[data-page="home"] main{min-height:clamp(340px,55svh,660px)}body[data-page="home"] .newsletter-inner{padding:60px 0}body[data-page="home"] .newsletter-copy h2{font-size:34px}}
-</style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
-
-
-
-
-</main><section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
+</style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main><section class="newsletter-section" id="newsletter" aria-labelledby="newsletter-heading">
 <div class="container newsletter-inner">
 <div class="newsletter-copy"><h2 id="newsletter-heading">STAY UPDATED.</h2><p>Music, tabs &amp; concert updates.</p></div>
 <details class="newsletter-expand"><summary>SUBSCRIBE</summary><div class="newsletter-expanded"><p>Newsletter registration is coming soon.</p><p>You'll be able to subscribe with your email address and country.</p></div></details>
-</div></section><footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
+</div></section></main><footer class="footer"><div class="container footer-inner"><div aria-label="Social media" class="socials">
 <a aria-label="YouTube" data-link="youtube" href="https://www.youtube.com/@simonlibon" rel="noopener noreferrer" title="YouTube"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="4" width="20" x="2" y="5"></rect><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="none"></path></svg></a>
 <a aria-label="Instagram" data-link="instagram" href="https://www.instagram.com/simon.libon/" rel="noopener noreferrer" title="Instagram"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="18" rx="5" width="18" x="3" y="3"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" fill="currentColor" r="1" stroke="none"></circle></svg></a>
 <a aria-label="TikTok" data-link="tiktok" href="https://www.tiktok.com/@simonlibon.music" rel="noopener noreferrer" title="TikTok"><svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24"><path d="M15.3 2c.2 2.1 1.4 3.6 3.6 3.8v3.1c-1.4 0-2.6-.4-3.8-1.2v6.5c0 4.3-2.6 6.7-6.5 6.7-3.2 0-5.7-2.5-5.7-5.7 0-3.9 3.1-6.2 7-6v3.2c-2-.4-3.7.9-3.7 2.8 0 1.5 1.1 2.6 2.6 2.6 1.8 0 2.8-1.2 2.8-3.2V2h3.7Z"></path></svg></a>
