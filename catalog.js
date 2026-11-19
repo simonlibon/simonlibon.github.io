@@ -2,19 +2,19 @@ window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Tracks",
   "products": [
     {
-      "id": "zvxja",
-      "title": "Test 3— Backing Track",
-      "type": "backing",
-      "description": "Play along with [SONG TITLE] by Simon Libon.\nINCLUDED\nOfficial backing track without lead guitar\nDigital audio download",
+      "id": "lfqdj",
+      "title": "Test finale  — Tabs + Backing Track",
+      "type": "bundle",
+      "description": "The complete collection for the upcoming EP by Simon Libon.\n INCLUDED \nGuitar tablatures (PDF) for every track\nOfficial backing tracks for every track\n Digital download.",
       "includes": [
-        "Official backing track without lead guitar",
-        "Digital audio download"
+        "Tabs and backing tracks",
+        "Digital download"
       ],
-      "price": 5,
-      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/zvxja",
-      "image": "https://public-files.gumroad.com/w3h3lhnhymirnqdzb1xls0h7nb28",
+      "price": 30.0,
+      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/lfqdj",
+      "image": "https://public-files.gumroad.com/kejemdzck3vbspdvl69zvxn2188i",
       "published": true,
-      "releaseDate": "2026-11-18"
+      "releaseDate": "2026-11-19"
     }
   ]
 };
