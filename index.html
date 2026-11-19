@@ -65,6 +65,17 @@ body[data-page="home"] .newsletter-copy h2{font-size:17px;letter-spacing:-.045em
 body[data-page="home"] .newsletter-copy>p:last-child{font-size:10px;margin:0;color:#77757a}
 body[data-page="home"] .newsletter-expand summary{padding:12px 17px}
 @media(max-width:650px){body[data-page="home"] main{min-height:clamp(95px,19vh,190px)}body[data-page="home"] .newsletter-inner{padding:17px 0 19px;gap:12px}body[data-page="home"] .newsletter-copy h2{font-size:17px}body[data-page="home"] .newsletter-expand summary{padding:12px 13px}}
+
+/* Center the newsletter in the open homepage, without separator lines. */
+body[data-page="home"] main{flex:1;min-height:clamp(300px,55svh,700px)}
+body[data-page="home"] .newsletter-section{flex:1;display:flex;align-items:center;justify-content:center;border:0!important;background:#faf9f7}
+body[data-page="home"] .newsletter-inner{width:min(100% - 36px,520px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:55px 0}
+body[data-page="home"] .newsletter-copy h2{font-size:clamp(30px,5vw,46px);letter-spacing:-.065em;margin:0 0 12px}
+body[data-page="home"] .newsletter-copy>p:last-child{font-size:12px;line-height:1.6}
+body[data-page="home"] .newsletter-expand{width:auto}
+body[data-page="home"] .newsletter-expand summary{padding:15px 34px}
+body[data-page="home"] .newsletter-expanded{left:50%;right:auto;transform:translateX(-50%);text-align:left}
+@media(max-width:650px){body[data-page="home"] main{min-height:clamp(340px,55svh,660px)}body[data-page="home"] .newsletter-inner{padding:60px 0}body[data-page="home"] .newsletter-copy h2{font-size:34px}}
 </style></head><body data-page="home"><header class="header"><div class="container header-inner"><a class="wordmark" href="index.html">SIMON LIBON</a><button aria-controls="site-nav" aria-expanded="false" class="menu-toggle" type="button">MENU</button></div><nav aria-label="Main navigation" class="nav" id="site-nav"><a class="" href="music.html">Music</a><a class="" href="concerts.html">Concerts</a><a class="" href="tabs.html">Tabs &amp; Backing Tracks</a><a class="" href="merch.html">Merch</a></nav></header><main>
 
 
