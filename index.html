@@ -124,7 +124,7 @@ document.querySelector('[data-newsletter-open]')?.addEventListener('click',funct
 newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterDialog)newsletterDialog.close();});
 /* Check for new published HTML when returning to the site, including iOS Safari. */
 (function(){
-  const pageVersion='home-20261119-850b8546';
+  const pageVersion='home-20261119-footer-ff2b9ffc';
   let checking=false;
   async function checkFreshVersion(){
     if(checking || document.visibilityState==='hidden') return;
@@ -137,14 +137,16 @@ newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterD
       const html=await response.text();
       const marker=html.match(/const pageVersion='([^']+)'/);
       if(marker && marker[1]!==pageVersion){
-        window.location.replace(url.toString());
+        const key='homepage-refresh-'+marker[1];
+        if(sessionStorage.getItem(key)!=='done'){
+          sessionStorage.setItem(key,'done');
+          window.location.replace(url.toString());
+        }
       }
     }catch(_error){/* Keep the page usable when offline. */}
     finally{checking=false;}
   }
-  window.addEventListener('pageshow',function(event){
-    if(event.persisted) checkFreshVersion();
-  });
+  window.addEventListener('pageshow',function(){checkFreshVersion();});
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible') checkFreshVersion();
   });
