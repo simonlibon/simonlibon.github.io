@@ -1,0 +1,35 @@
+name: Inspect public Gumroad shop favicon
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/find-gumroad-favicon.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read public storefront favicon and images
+        run: |
+          python3 - <<'PY'
+          import html.parser, urllib.request
+          u="https://simonlibonstore.gumroad.com/"
+          class P(html.parser.HTMLParser):
+            def handle_starttag(self,tag,attrs):
+              attrs=dict(attrs)
+              if tag=="link" and ("icon" in attrs.get("rel","").lower() or "apple-touch-icon" in attrs.get("rel","").lower()):
+                print("ICON:",attrs.get("rel"),attrs.get("href"))
+              if tag=="meta" and attrs.get("property","") in ("og:image","og:image:secure_url") :
+                print("OG_IMAGE:",attrs.get("content"))
+              if tag=="meta" and attrs.get("name","") in ("twitter:image",):
+                print("TWITTER_IMAGE:",attrs.get("content"))
+          try:
+            req=urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"})
+            with urllib.request.urlopen(req,timeout=30) as r:
+              h=r.read(450000).decode("utf-8","replace")
+              print("STATUS:",r.status,"HTML_BYTES:",len(h))
+            P().feed(h)
+          except Exception as e:
+            print("STOREFRONT_FETCH_ERROR:",str(e)[:220])
+          PY
