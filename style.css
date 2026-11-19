@@ -594,3 +594,36 @@ body[data-page="concerts"] main.unified-empty-page .unified-status-text[hidden] 
     padding:29px 8px 0;
   }
 }
+
+
+/* V31 — Fixed navigation geometry on every page.
+   Reserve scrollbar space for short and long pages alike, preventing a
+   side-to-side jump when switching between Music, Concerts, Shop and Merch. */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+@media (min-width:651px) {
+  .header .header-inner { height:74px; }
+  .header .nav {
+    height:44px;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(19px,2.7vw,38px);
+  }
+  .header .nav a {
+    display:block;
+    flex-shrink:0;
+    white-space:nowrap;
+    line-height:1.3;
+    padding:0;
+  }
+}
+@media (min-width:651px) and (max-width:880px) {
+  .header .nav { gap:21px; }
+  .header .nav a { font-size:10px; }
+}
+@media (max-width:650px) {
+  .header .header-inner { height:68px; }
+  .header .nav.open { align-items:center; }
+}
