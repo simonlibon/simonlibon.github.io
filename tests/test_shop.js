@@ -41,6 +41,13 @@ const checkout = new URL(model.checkout(catalog[1]));
 assert.equal(checkout.hostname, "simonlibonstore.gumroad.com");
 assert.equal(checkout.pathname, "/l/kinetic-pack");
 assert.equal(checkout.searchParams.get("wanted"), "true");
+assert.equal(checkout.searchParams.has("price"), false, "never preselect a price for paid products");
+for (const slug of ["mmxjjd", "ntapzm", "jghmyd"]) {
+  const free = product(slug, "TEST TRACK — Guitar Tab", "tabs", 0);
+  const url = new URL(model.checkout(free));
+  assert.equal(url.searchParams.get("price"), "0", "zero+ product must preselect free price");
+  assert.equal(url.searchParams.get("wanted"), "true", "zero+ product should request direct checkout");
+}
 assert.equal(model.build([]).tracks.length, 0, "empty shop is safe");
 
 const storePage = fs.readFileSync("tabs.html", "utf8");
