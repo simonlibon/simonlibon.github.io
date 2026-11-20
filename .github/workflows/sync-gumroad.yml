@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: gumroad-catalog-sync
@@ -49,6 +50,7 @@ jobs:
           python scripts/sync_gumroad.py
 
       - name: Publish catalogue only when changed
+        id: publish-catalog
         run: |
           if git diff --quiet -- catalog.js; then
             echo "No catalogue changes"
@@ -59,3 +61,15 @@ jobs:
           git add -- catalog.js
           git commit -m "Sync published Gumroad catalogue"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Immediately refresh Gumroad shop and product pages
+        if: steps.publish-catalog.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A commit made with GITHUB_TOKEN does not fire other push workflows.
+          # Workflow dispatch is the supported way to keep both sites in sync.
+          gh workflow run mirror-gumroad-pages.yml --ref main
+          gh workflow run gumroad-product-pages.yml --ref main
+          echo "Gumroad storefront and product-page refreshes dispatched"
