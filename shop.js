@@ -2,8 +2,24 @@
   "use strict";
   const model = window.SIMON_SHOP_MODEL;
   if (!model) return;
+  const preview = new URLSearchParams(window.location.search).get("demo") === "1";
   const products = Array.isArray(window.SIMON_SHOP_CATALOG?.products) ? window.SIMON_SHOP_CATALOG.products : [];
-  const grouped = model.build(products);
+  // A visual-only demonstration; the mock products never enter the real catalog.
+  const demoProducts = preview ? [
+    {id:"demo-tab",title:"DEMO TRACK — Guitar Tab",type:"tabs",published:true,
+      price:5,description:"Illustrative tab preview only.",releaseDate:"2026-11-21",
+      image:"https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
+      gumroadUrl:"https://simonlibonstore.gumroad.com/l/mmxjjd",includes:["Guitar tab (PDF)"]},
+    {id:"demo-pack",title:"DEMO TRACK — Guitar Tab + Backing Track",type:"pack",published:true,
+      price:9,description:"Illustrative tab and track preview only.",releaseDate:"2026-11-21",
+      image:"https://public-files.gumroad.com/me05sdxis06xvgyy5vlmgye8mqiu",
+      gumroadUrl:"https://simonlibonstore.gumroad.com/l/ntapzm",includes:["Guitar tab (PDF)","Backing track (WAV)"]},
+    {id:"demo-ep",title:"DEMO EP — Complete EP Bundle",type:"bundle",published:true,
+      price:25,description:"Visual bundle mock-up; no real EP files are available.",releaseDate:"2026-11-21",
+      image:"https://public-files.gumroad.com/n4sgr37s19z2py5nkrg0rnwlb5ys",
+      gumroadUrl:"https://simonlibonstore.gumroad.com/l/jghmyd",includes:["Visual demonstration only"]}
+  ] : [];
+  const grouped = model.build(preview ? demoProducts : products);
   const el = function (tag, cls, value) {
     const element = document.createElement(tag);
     if (cls) element.className = cls;
@@ -14,8 +30,9 @@
     return Number(value || 0).toLocaleString("en-IE", { style: "currency", currency: "EUR" });
   };
   function groupUrl(g) {
-    return g.kind === "bundle" ? "product.html?id=" + encodeURIComponent(g.id) :
-      "product.html?track=" + encodeURIComponent(g.key);
+    const query = preview ? "demo=1&" : "";
+    return g.kind === "bundle" ? "product.html?" + query + "id=" + encodeURIComponent(g.id) :
+      "product.html?" + query + "track=" + encodeURIComponent(g.key);
   }
   function art(group) {
     const container = el("div", "shop-item-image");
@@ -38,6 +55,7 @@
   }
   function card(group) {
     const item = el("article", "shop-item");
+    if (preview) item.classList.add("is-demo");
     const link = groupUrl(group);
     const cover = el("a", "shop-card-link");
     cover.href = link;
@@ -78,6 +96,10 @@
   };
   function initShop() {
     const search = document.getElementById("shop-search-input");
+    if (preview) {
+      const section = document.getElementById("shop-catalog");
+      if (section) section.insertBefore(el("p", "shop-demo-note", "VISUAL PREVIEW ONLY — NO PRODUCTS ARE AVAILABLE FOR PURCHASE"), section.querySelector(".shop-catalog-actions")?.parentElement?.nextSibling || section.firstChild);
+    }
     const sort = document.getElementById("shop-sort-select");
     const grid = document.getElementById("shop-grid");
     const bundlesGrid = document.getElementById("shop-bundle-grid");
