@@ -37,7 +37,13 @@ jobs:
           import json,sys
           data=json.load(open(sys.argv[1],encoding='utf-8'))
           user=data.get('user') or {}
-          assert user.get('username') == 'simonlibonstore', 'Connected Gumroad user is not the intended store'
+          identifiers=[str(user.get(x) or '') for x in ('id','user_id')]
+          usernames=[str(user.get(x) or '') for x in ('username','user_name')]
+          urls=[str(user.get(x) or '') for x in ('url','profile_url')]
+          valid=('2138284912808' in identifiers or 'simonlibonstore' in usernames or
+                 any(u.rstrip('/')=='https://simonlibonstore.gumroad.com' for u in urls))
+          print('Store identity fields:',{'id':identifiers,'username':usernames,'url':urls,'name':user.get('name')})
+          assert valid, 'Connected Gumroad account identity does not match the selected store'
           print('Connected to the correct Gumroad creator.')
           PY
       - name: Backup current storefront
