@@ -3,19 +3,21 @@
   const model = window.SIMON_SHOP_MODEL;
   if (!model) return;
   const preview = new URLSearchParams(window.location.search).get("demo") === "1";
+  // The explicit demo checkout is temporary and expires independently of the catalogue.
+  const demoCheckoutOpen = preview && Date.now() < Date.parse("2026-11-21T01:49:00+01:00");
   const products = Array.isArray(window.SIMON_SHOP_CATALOG?.products) ? window.SIMON_SHOP_CATALOG.products : [];
   // A visual-only demonstration; the mock products never enter the real catalog.
   const demoProducts = preview ? [
     {id:"demo-tab",title:"DEMO TRACK — Guitar Tab",type:"tabs",published:true,
-      price:5,description:"Illustrative tab preview only.",releaseDate:"2026-11-21",
+      price:0,description:"Free checkout test with synthetic PDF. Not an official release.",releaseDate:"2026-11-21",
       image:"https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
       gumroadUrl:"https://simonlibonstore.gumroad.com/l/mmxjjd",includes:["Guitar tab (PDF)"]},
     {id:"demo-pack",title:"DEMO TRACK — Guitar Tab + Backing Track",type:"pack",published:true,
-      price:9,description:"Illustrative tab and track preview only.",releaseDate:"2026-11-21",
+      price:0,description:"Free checkout test with synthetic PDF and WAV. Not an official release.",releaseDate:"2026-11-21",
       image:"https://public-files.gumroad.com/me05sdxis06xvgyy5vlmgye8mqiu",
       gumroadUrl:"https://simonlibonstore.gumroad.com/l/ntapzm",includes:["Guitar tab (PDF)","Backing track (WAV)"]},
     {id:"demo-ep",title:"DEMO EP — Complete EP Bundle",type:"bundle",published:true,
-      price:25,description:"Visual bundle mock-up; no real EP files are available.",releaseDate:"2026-11-21",
+      price:0,description:"Free bundle checkout test; includes one demo PDF and WAV, not an actual EP.",releaseDate:"2026-11-21",
       image:"https://public-files.gumroad.com/n4sgr37s19z2py5nkrg0rnwlb5ys",
       gumroadUrl:"https://simonlibonstore.gumroad.com/l/jghmyd",includes:["Visual demonstration only"]}
   ] : [];
@@ -98,7 +100,7 @@
     const search = document.getElementById("shop-search-input");
     if (preview) {
       const section = document.getElementById("shop-catalog");
-      if (section) section.insertBefore(el("p", "shop-demo-note", "VISUAL PREVIEW ONLY — NO PRODUCTS ARE AVAILABLE FOR PURCHASE"), section.querySelector(".shop-catalog-actions")?.parentElement?.nextSibling || section.firstChild);
+      if (section) section.insertBefore(el("p", "shop-demo-note", demoCheckoutOpen ? "TEMPORARY FREE CHECKOUT TEST — NO OFFICIAL MUSIC IS ON SALE" : "VISUAL PREVIEW ONLY — CHECKOUT TEST HAS ENDED"), section.querySelector(".shop-catalog-actions")?.parentElement?.nextSibling || section.firstChild);
     }
     const sort = document.getElementById("shop-sort-select");
     const grid = document.getElementById("shop-grid");
