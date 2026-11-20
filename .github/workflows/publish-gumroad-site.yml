@@ -1,0 +1,92 @@
+name: Publish full Gumroad storefront
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gumroad-site/profile.html'
+      - '.github/workflows/publish-gumroad-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gumroad-profile-publish
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+      - name: Install official Gumroad CLI
+        run: |
+          go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Authenticate and verify account
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          test -n "$GUMROAD_ACCESS_TOKEN" || { echo "::error::Missing GitHub secret GUMROAD_ACCESS_TOKEN"; exit 1; }
+          gumroad user --json --no-input > "$RUNNER_TEMP/gumroad-user.json"
+          python - "$RUNNER_TEMP/gumroad-user.json" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding='utf-8'))
+          user=data.get('user') or {}
+          assert user.get('username') == 'simonlibonstore', 'Connected Gumroad user is not the intended store'
+          print('Connected to the correct Gumroad creator.')
+          PY
+      - name: Backup current storefront
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/gumroad-backup"
+          if gumroad pages pull profile -o "$RUNNER_TEMP/gumroad-backup/profile-before.html" --json --no-input; then
+            echo "Backed up existing custom storefront HTML."
+          else
+            echo "No custom storefront to pull; attempting a snapshot of the standard profile."
+            gumroad pages scaffold profile -o "$RUNNER_TEMP/gumroad-backup/profile-before.html" --json --no-input
+          fi
+      - name: Store backup for rollback
+        uses: actions/upload-artifact@v4
+        with:
+          name: gumroad-profile-before
+          path: ${{ runner.temp }}/gumroad-backup/profile-before.html
+          if-no-files-found: error
+      - name: Preview and validate new complete website
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages preview gumroad-site/profile.html --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"
+          python - "$RUNNER_TEMP/gumroad-preview.json" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding='utf-8'))
+          if data.get('success') is False:
+              raise SystemExit('Gumroad profile preview failed: no live changes made')
+          html=data.get('custom_html') or ''
+          if not html:
+              raise SystemExit('Empty sanitized Gumroad profile: refusing to publish')
+          required=['SIMON LIBON','id="music"','id="concerts"','id="tabs"','id="merch"','id="newsletter"','gumroad-products','https://simonlibon.github.io/']
+          missing=[x for x in required if x.lower() not in html.lower()]
+          if missing:
+              raise SystemExit('Gumroad removed essential content: '+repr(missing))
+          print('Preview accepted: all main sections survived Gumroad sanitization.')
+          print('Sanitization report:',json.dumps(data.get('sanitization_report') or {})[:1000])
+          PY
+      - name: Publish complete branded Gumroad homepage
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages push profile gumroad-site/profile.html --json --no-input > "$RUNNER_TEMP/gumroad-published.json"
+          python - "$RUNNER_TEMP/gumroad-published.json" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding='utf-8'))
+          if data.get('success') is False:
+              raise SystemExit('Gumroad refused the page publication.')
+          print('Gumroad profile update submitted.')
+          print('Public profile:',data.get('profile_url') or 'https://simonlibonstore.gumroad.com')
+          PY
