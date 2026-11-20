@@ -89,3 +89,42 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* Shared newsletter dialog on every page. */
 (function(){const d=document.getElementById('newsletter-dialog');if(!d)return;document.querySelectorAll('[data-newsletter-open]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(!d.open)d.showModal();}));d.addEventListener('click',e=>{if(e.target===d)d.close();});})();
+
+(function initConcertCountryPicker() {
+  const dialog = document.getElementById('newsletter-dialog');
+  if (!dialog) return;
+  function mountPicker() {
+    const field = dialog.querySelector('[eo-label="Concert country"] [data-column-index][data-choices]');
+    if (!field || !field.querySelector('[role="combobox"]')) return false;
+    const select = document.createElement('select');
+    select.id = 'newsletter-concert-country';
+    select.add(new Option('Select your country', ''));
+    for (const choice of JSON.parse(field.dataset.choices)) {
+      select.add(new Option(choice.label, String(choice.value)));
+    }
+    const label = document.createElement('label');
+    label.htmlFor = select.id;
+    label.textContent = field.dataset.label;
+    // The embed reads named inputs into its request body.
+    const value = document.createElement('input');
+    value.type = 'hidden';
+    function sync() {
+      value.value = select.value;
+      if (select.value) value.name = 'field_' + field.dataset.columnIndex;
+      else value.removeAttribute('name');
+    }
+    select.addEventListener('change', sync);
+    field.closest('form').addEventListener('reset', () => setTimeout(sync, 0));
+    const wrapper = document.createElement('div');
+    wrapper.className = 'newsletter-country-picker';
+    wrapper.append(label, select, value);
+    field.style.display = 'none';
+    field.after(wrapper);
+    return true;
+  }
+  if (mountPicker()) return;
+  const observer = new MutationObserver(() => {
+    if (mountPicker()) observer.disconnect();
+  });
+  observer.observe(dialog, { childList: true, subtree: true });
+})();

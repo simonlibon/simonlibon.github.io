@@ -682,3 +682,7 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
   text-indent: 0;
 }
 #newsletter-dialog .mastfoot a { position: static; color: inherit; text-decoration: underline; }
+
+#newsletter-dialog .newsletter-country-picker { display: grid; gap: 6px; margin-top: 14px; }
+#newsletter-dialog .newsletter-country-picker label { font: 500 12px/1.4 'DM Sans', Arial, sans-serif; color: var(--ink); }
+#newsletter-dialog .newsletter-country-picker select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 46px; padding: 8px 12px; font: 400 16px/1.4 'DM Sans', Arial, sans-serif; background-color: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 0; }
