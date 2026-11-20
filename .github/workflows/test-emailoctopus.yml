@@ -34,11 +34,19 @@ jobs:
           fi
           echo "EmailOctopus authenticated the GitHub Actions secret."
           contact_id=$(printf %s 'simonlibon.music@gmail.com' | md5sum | cut -d' ' -f1)
-          status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
+          response_file=$(mktemp)
+          trap 'rm -f "$response_file"' EXIT
+          status=$(curl --silent --show-error --max-time 30 --output "$response_file" --write-out '%{http_code}' \
             --header "Authorization: Bearer ${token}" \
             --header 'Content-Type: application/json' \
             --data "{\"contact_id\":\"${contact_id}\"}" \
             'https://api.emailoctopus.com/automations/70b5faf8-e526-11f1-9ffa-5565b58f1bcc/queue')
+          if [[ "$status" != 204 ]]; then
+            # Only record the short, non-sensitive API error code; never echo a token or full response.
+            error_code=$(jq -r '.error.code // .code // "unknown"' "$response_file" 2>/dev/null || true)
+            if [[ ! "$error_code" =~ ^[A-Za-z0-9_-]{1,60}$ ]]; then error_code="unknown"; fi
+            echo "::notice::EmailOctopus queue response: HTTP $status; code $error_code"
+          fi
           if [[ "$status" == 403 ]]; then
             echo "::error::The EmailOctopus API token authenticated, but the automation-queue action was forbidden (HTTP 403). Verify that this automation is active, has the 'Manually via API' trigger, that the test contact is subscribed, and that the account is permitted to start automations."
             exit 1
