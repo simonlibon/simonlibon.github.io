@@ -32,6 +32,13 @@
     return Number(value || 0).toLocaleString("en-IE", { style: "currency", currency: "EUR" });
   };
   function groupUrl(g) {
+    // The Gumroad mirror links to its real Gumroad product landing pages.
+    // On the canonical website keep the track-details page and option selector.
+    if (window.location.hostname === "simonlibonstore.gumroad.com") {
+      const option = g.kind === "bundle" ? g.options[0] :
+        (g.options.find(function (o) { return o.kind === "pack"; }) || g.options[0]);
+      if (option && model.isLive(option.product)) return option.product.gumroadUrl;
+    }
     const query = preview ? "demo=1&" : "";
     return g.kind === "bundle" ? "product.html?" + query + "id=" + encodeURIComponent(g.id) :
       "product.html?" + query + "track=" + encodeURIComponent(g.key);
