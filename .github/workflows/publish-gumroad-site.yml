@@ -87,7 +87,7 @@ jobs:
           html=data.get('custom_html') or ''
           if not html:
               raise SystemExit('Empty sanitized Gumroad profile: refusing to publish')
-          required=['SIMON LIBON','data-page="home"','data-sl-mirror-css="style.css"','class="header"','class="footer"','data-newsletter-open','https://simonlibon.github.io/']
+          required=['SIMON LIBON','data-page="home"','data-sl-mirror-css="style.css"','class="header"','class="footer"','data-newsletter-open','https://simonlibonstore.gumroad.com/']
           missing=[x for x in required if x.lower() not in html.lower()]
           if missing:
               raise SystemExit('Gumroad removed essential content: '+repr(missing))
