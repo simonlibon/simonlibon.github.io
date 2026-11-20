@@ -31,13 +31,18 @@
   const euro = function (value) {
     return Number(value || 0).toLocaleString("en-IE", { style: "currency", currency: "EUR" });
   };
+  const gumroadMirror = window.location.hostname === "simonlibonstore.gumroad.com";
+  function gumroadCheckout(option) {
+    if (!option || !model.isLive(option.product) || (preview && !demoCheckoutOpen)) return "";
+    return model.checkout(option.product);
+  }
   function groupUrl(g) {
-    // The Gumroad mirror links to its real Gumroad product landing pages.
-    // On the canonical website keep the track-details page and option selector.
-    if (window.location.hostname === "simonlibonstore.gumroad.com") {
+    // On the Gumroad-hosted shop, a card opens checkout directly. The official
+    // website retains its own styled product detail / format selector.
+    if (gumroadMirror) {
       const option = g.kind === "bundle" ? g.options[0] :
         (g.options.find(function (o) { return o.kind === "pack"; }) || g.options[0]);
-      if (option && model.isLive(option.product)) return model.checkout(option.product);
+      return gumroadCheckout(option);
     }
     const query = preview ? "demo=1&" : "";
     return g.kind === "bundle" ? "product.html?" + query + "id=" + encodeURIComponent(g.id) :
@@ -67,8 +72,9 @@
     if (preview) item.classList.add("is-demo");
     const link = groupUrl(group);
     const cover = el("a", "shop-card-link");
-    cover.href = link;
-    cover.setAttribute("aria-label", "View " + group.title);
+    if (link) cover.href = link;
+    else cover.setAttribute("aria-disabled", "true");
+    cover.setAttribute("aria-label", (gumroadMirror ? "Checkout: " : "View ") + group.title);
     cover.append(art(group));
     item.append(cover);
 
@@ -76,7 +82,8 @@
     const info = el("div");
     const heading = el("h3", "shop-item-title");
     const title = el("a", null, group.title);
-    title.href = link;
+    if (link) title.href = link;
+    else title.setAttribute("aria-disabled", "true");
     heading.append(title);
     info.append(heading);
     info.append(el("div", "shop-item-type", group.kind === "bundle" ?
@@ -87,9 +94,22 @@
     item.append(meta);
 
     const actions = el("div", "shop-item-actions");
-    const action = el("a", "buy-quick", group.kind === "bundle" ? "VIEW BUNDLE" : "VIEW OPTIONS");
-    action.href = link;
-    actions.append(action);
+    if (gumroadMirror) {
+      // Offer every real format as a direct Gumroad checkout, never a second
+      // product page. For two formats there are two distinct payment links.
+      const labels = { tabs: "GUITAR TAB", pack: "TAB + TRACK", bundle: "BUY BUNDLE" };
+      group.options.forEach(function (option) {
+        const action = el("a", "buy-quick", labels[option.kind] || "BUY NOW");
+        const href = gumroadCheckout(option);
+        if (href) action.href = href;
+        else action.setAttribute("aria-disabled", "true");
+        actions.append(action);
+      });
+    } else {
+      const action = el("a", "buy-quick", group.kind === "bundle" ? "VIEW BUNDLE" : "VIEW OPTIONS");
+      action.href = link;
+      actions.append(action);
+    }
     item.append(actions);
     return item;
   }
