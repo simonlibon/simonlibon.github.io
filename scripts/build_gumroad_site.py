@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 from urllib.parse import quote, urlparse
 from zoneinfo import ZoneInfo
+from mirror_gumroad import mirror_profile
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "gumroad-site" / "profile.html"
@@ -96,7 +97,8 @@ def main():
     releases = json.loads((ROOT / "releases.json").read_text(encoding="utf-8"))["releases"]
     concerts = json.loads((ROOT / "concerts-data.json").read_text(encoding="utf-8"))["concerts"]
     today = dt.datetime.now(ZoneInfo("Europe/Brussels")).date()
-    generated = build(TEMPLATE.read_text(encoding="utf-8"), releases, concerts, today)
+    # Homepage: exact canonical HTML and styles; other sections remain on the official site.
+    generated = mirror_profile()
     destination = Path(args.output)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(generated, encoding="utf-8")
