@@ -91,8 +91,16 @@ jobs:
           for slug in music concerts tabs merch press privacy; do
             file="$RUNNER_TEMP/gumroad-pages/$slug.html"
             if jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug)' "$RUNNER_TEMP/existing.json" >/dev/null; then
-              if ! jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug and ((.custom_html // "") | contains("data-sl-mirror=")))' "$RUNNER_TEMP/existing.json" >/dev/null; then
-                echo "::warning::Page $slug was customized independently; leaving untouched"
+              # The pages list endpoint does not expose the full custom_html.
+              # Pull the actual current page to verify our own signature and
+              # keep a recoverable copy before replacing the creator's page.
+              old="$RUNNER_TEMP/previous-$slug.html"
+              if ! gumroad pages pull "$slug" -o "$old" --json --no-input > "$RUNNER_TEMP/pulled-$slug.json"; then
+                echo "::warning::Cannot back up $slug; leaving it untouched"
+                continue
+              fi
+              if ! grep -Fq "data-sl-mirror=\"official-page-$slug\"" "$old" && ! grep -Fq 'data-sl-mirror-css="style.css"' "$old"; then
+                echo "::warning::Page $slug is not one of our canonical mirrors; leaving untouched"
                 continue
               fi
               gumroad pages push "$slug" "$file" --json --no-input > "$RUNNER_TEMP/out-$slug.json"
@@ -115,6 +123,13 @@ jobs:
               raise SystemExit("Gumroad did not confirm page "+sys.argv[1])
           PY
           done
+      - name: Save previous pages for rollback
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gumroad-mirrored-pages-before
+          path: ${{ runner.temp }}/previous-*.html
+          if-no-files-found: warn
       - name: List resulting pages
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
