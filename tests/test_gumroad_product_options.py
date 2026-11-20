@@ -13,13 +13,23 @@ class ProductOptionTests(unittest.TestCase):
         html=options_html(tab,[tab,pack])
         self.assertIn('CHOOSE YOUR DOWNLOAD',html)
         self.assertIn('class="shop-option selected"',html)
-        self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm"',html)
+        self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?wanted=true"',html)
         self.assertIn('Guitar Tab (PDF)',html)
         self.assertIn('Tab + Backing Track',html)
         self.assertEqual(html.count('class="shop-option selected"') + html.count('class="shop-option"'), 2)
         output=build(tab,[tab,pack])
         self.assertIn("CHOOSE YOUR DOWNLOAD",output)
         self.assertIn('data-gumroad-action="buy"',output)
+
+    def test_free_demo_format_switch_bypasses_product_landing_page(self):
+        tab=row("TEST TRACK — Guitar Tab","mmxjjd",0)
+        pack=row("TEST TRACK — Guitar Tab + Backing Track","ntapzm",0)
+        free_switch=options_html(tab,[tab,pack])
+        self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?price=0&amp;wanted=true"',free_switch)
+        native_page=build({**tab,"price":0},[tab,pack])
+        self.assertIn('data-gumroad-action="buy" data-gumroad-price="0"',native_page)
+        paid_page=build({**tab,"price":500},[tab,pack])
+        self.assertNotIn('data-gumroad-price="0"',paid_page)
 
     def test_hide_options_if_only_draft_other_format(self):
         tab=row("Kinetic — Guitar Tab","kinetic-tab",500)
