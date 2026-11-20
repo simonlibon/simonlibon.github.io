@@ -99,3 +99,33 @@ def mirror_product(p, cover_html, type_label, price_fallback, includes):
     if any(marker not in out for marker in required) or len(out) > 150000:
         raise ValueError("Missing essential native product field or page too large")
     return out
+
+# Standalone pages use exactly the official DOM and the same shared styles.
+PAGE_SOURCES = {
+    "music": "music.html",
+    "concerts": "concerts.html",
+    "tabs": "tabs.html",
+    "merch": "merch.html",
+    "press": "press.html",
+    "privacy": "privacy.html",
+}
+
+def mirror_standalone(slug):
+    if slug not in PAGE_SOURCES:
+        raise ValueError("Unknown Simon Libon page")
+    source = (ROOT / PAGE_SOURCES[slug]).read_text(encoding="utf-8")
+    out = _inline_assets(source)
+    # The catalogue and schedule scripts fetch public data from the official
+    # host, never from Gumroad's unrelated /catalog.js path.
+    for filename in ("catalog.js", "shop-model.js", "shop.js",
+                     "concerts-data.json", "releases.json"):
+        out = out.replace("'" + filename + "?", "'" + SITE + filename + "?")
+        out = out.replace('"' + filename + '?', '"' + SITE + filename + '?')
+        out = out.replace("'" + filename + "'", "'" + SITE + filename + "'")
+        out = out.replace('"' + filename + '"', '"' + SITE + filename + '"')
+    out = out.replace("<body ", '<body data-sl-mirror="official-page-' + slug + '" ', 1)
+    if ('data-sl-mirror="official-page-' + slug + '"') not in out:
+        raise ValueError("Cannot mirror the " + slug + " page")
+    if 'data-sl-mirror-css="style.css"' not in out:
+        raise ValueError("No canonical stylesheet for " + slug)
+    return out
