@@ -1,20 +1,10 @@
 name: Mirror official site sections on Gumroad
 on:
+  # All official site commits refresh the Gumroad mirror. The catalogue
+  # synchronizer additionally dispatches this workflow because GitHub Actions
+  # does not propagate push triggers from the default GITHUB_TOKEN.
   push:
     branches: [main]
-    paths:
-      - 'music.html'
-      - 'concerts.html'
-      - 'tabs.html'
-      - 'merch.html'
-      - 'press.html'
-      - 'privacy.html'
-      - 'style.css'
-      - 'shop.css'
-      - 'site.js'
-      - 'scripts/mirror_gumroad.py'
-      - 'scripts/build_gumroad_mirror_pages.py'
-      - '.github/workflows/mirror-gumroad-pages.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -80,6 +70,19 @@ jobs:
           required=["SIMON LIBON",'class="header"','class="footer"','data-sl-mirror-css="style.css"']
           if payload.get("success") is False or not page or any(x.lower() not in page.lower() for x in required):
               raise SystemExit("Sanitizer stripped essential page elements: "+slug)
+          if slug=="tabs":
+              from scripts.render_gumroad_catalog import load_catalog, group_products
+              bundles,tracks=group_products(load_catalog())
+              expected=len(bundles)+len(tracks)
+              found=page.count('class="shop-item"')
+              if found!=expected:
+                  raise SystemExit(f"Gumroad dropped shop cards: expected {expected}, sanitized {found}")
+              for group in bundles+tracks:
+                  for option in group["options"]:
+                      slug_id=option["checkout"].split("/l/")[-1].split("?")[0]
+                      if "/l/"+slug_id not in page:
+                          raise SystemExit("Gumroad dropped a live checkout link: "+slug_id)
+              print(f"SHOP CARD CHECK OK: {expected} groups, {sum(len(x['options']) for x in bundles+tracks)} purchase options")
           print("PREVIEW OK",slug,len(page),"chars")
           PY
           done
@@ -123,6 +126,28 @@ jobs:
               raise SystemExit("Gumroad did not confirm page "+sys.argv[1])
           PY
           done
+      - name: Verify updated Gumroad shop contains every official product
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages pull tabs -o "$RUNNER_TEMP/tabs-live.html" --json --no-input > "$RUNNER_TEMP/tabs-live.json"
+          python - "$RUNNER_TEMP/tabs-live.html" <<'PY'
+          from pathlib import Path
+          import sys
+          from scripts.render_gumroad_catalog import load_catalog,group_products
+          cards=Path(sys.argv[1]).read_text(encoding="utf-8")
+          bundles,tracks=group_products(load_catalog())
+          expected=len(bundles)+len(tracks)
+          actual=cards.count('class="shop-item"')
+          if expected!=actual:
+              raise SystemExit(f"Published Gumroad shop incomplete: {actual} cards vs {expected} on official site")
+          for group in bundles+tracks:
+              for item in group["options"]:
+                  slug=item["checkout"].split("/l/")[-1].split("?")[0]
+                  if "/l/"+slug not in cards:
+                      raise SystemExit("Missing published Gumroad checkout link: "+slug)
+          print(f"Published Gumroad shop verified: {actual} release cards, same as official catalogue")
+          PY
       - name: Save previous pages for rollback
         if: always()
         uses: actions/upload-artifact@v4
