@@ -38,10 +38,9 @@ assert(!model.isLive(catalog[6]), "template cannot be purchased");
 assert(!model.isLive(catalog[7]), "untrusted checkout host cannot be purchased");
 assert.equal(model.checkout(catalog[4]), "", "draft has no checkout");
 const checkout = new URL(model.checkout(catalog[1]));
-assert.equal(checkout.hostname, "gumroad.com");
-assert.equal(checkout.pathname, "/checkout");
-assert.equal(checkout.searchParams.get("product"), "kinetic-pack");
-assert.equal(checkout.searchParams.get("quantity"), "1");
+assert.equal(checkout.hostname, "simonlibonstore.gumroad.com");
+assert.equal(checkout.pathname, "/l/kinetic-pack");
+assert.equal(checkout.searchParams.get("wanted"), "true");
 assert.equal(model.build([]).tracks.length, 0, "empty shop is safe");
 
 const storePage = fs.readFileSync("tabs.html", "utf8");
