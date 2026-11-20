@@ -9,6 +9,7 @@ import argparse
 import html
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -84,7 +85,78 @@ def product_type(p):
     return "GUITAR TAB"
 
 
-def build(p):
+
+def tab_format(name):
+    """A tab and the corresponding tab+track share one canonical song title."""
+    if not isinstance(name, str) or re.search(r"\b(ep|album|bundle)\b", name, flags=re.I):
+        return None
+    suffix = re.search(
+        r"\s*[-—–:]\s*(?:guitar\s+)?tabs?"
+        r"(?:\s*(?:\+|&|and)\s*backing\s+tracks?)?\s*$",
+        name, flags=re.I,
+    )
+    if not suffix:
+        return None
+    title = name[:suffix.start()].strip().casefold()
+    if not title:
+        return None
+    kind = "pack" if re.search(r"\bbacking\s+tracks?\b", suffix.group(), re.I) else "tabs"
+    return title, kind
+
+
+def options_html(current, catalog):
+    """Match only verified published sibling products; never synthesize checkout."""
+    own = tab_format(current.get("name"))
+    if own is None:
+        return ""
+    candidates = {}
+    for row in catalog:
+        if not isinstance(row, dict) or row.get("published") is not True:
+            continue
+        match = tab_format(row.get("name"))
+        if match is None or match[0] != own[0] or match[1] in candidates:
+            continue
+        code = row.get("permalink") or row.get("custom_permalink")
+        if not isinstance(code, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+", code):
+            url = str(row.get("url") or row.get("short_url") or "")
+            parsed = urllib.parse.urlparse(url)
+            parts = parsed.path.split("/")
+            if parsed.scheme != "https" or parsed.netloc != "simonlibonstore.gumroad.com" or len(parts) < 3 or parts[1] != "l":
+                continue
+            code = parts[2]
+        if not re.fullmatch(r"[a-zA-Z0-9_-]+", code):
+            continue
+        cents = row.get("price_cents", row.get("price"))
+        if isinstance(cents, bool) or not isinstance(cents, (int, float)) or cents < 0:
+            continue
+        candidates[match[1]] = {
+            "code": code,
+            "price": f"€{cents / 100:.2f}",
+        }
+    if not all(kind in candidates for kind in ("tabs", "pack")):
+        return ""
+    own_id = current.get("permalink") or current.get("custom_permalink")
+    if not own_id:
+        own_id = next((x["code"] for k,x in candidates.items() if k == own[1]), "")
+    labels = {"tabs": "Guitar Tab (PDF)", "pack": "Tab + Backing Track"}
+    fields = ['<fieldset class="shop-purchase-options"><legend>CHOOSE YOUR DOWNLOAD</legend>']
+    for kind in ("tabs", "pack"):
+        option = candidates[kind]
+        selected = own[1] == kind and option["code"] == own_id
+        tag = "span" if selected else "a"
+        cls = "shop-option selected" if selected else "shop-option"
+        href = "" if selected else ' href="https://simonlibonstore.gumroad.com/l/' + option["code"] + '"'
+        fields.append(
+            f'<{tag} class="{cls}"{href}>'
+            f'<span class="shop-option-name">{html.escape(labels[kind])}</span>'
+            f'<strong class="shop-option-price">{option["price"]}</strong>'
+            f'</{tag}>'
+        )
+    fields.append("</fieldset>")
+    return "".join(fields)
+
+
+def build(p, catalog=None):
     permalink = p.get("permalink") or p.get("custom_permalink") or ""
     name = p.get("name") or "Digital product"
     url = cover_url(p, permalink)
@@ -106,7 +178,14 @@ def build(p):
     else:
         includes = ["Guitar tab (PDF)", "Digital download"]
         label = "INDIVIDUAL TRACK"
-    return mirror_product(p, cover, label, fallback, includes)
+    result = mirror_product(p, cover, label, fallback, includes)
+    options = options_html(p, catalog or [])
+    if options:
+        anchor = '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy">'
+        if result.count(anchor) != 1:
+            raise ValueError("Missing Gumroad buy button for format selector")
+        result = result.replace(anchor, options + anchor, 1)
+    return result
 
 
 def main():
@@ -147,7 +226,7 @@ def main():
             print("Replacing the known legacy DEMO EP page with the canonical layout.")
         if not product.get("permalink") and not product.get("custom_permalink"):
             product["permalink"] = permalink
-        new_page = build(product)
+        new_page = build(product, pages)
         if permalink in FALLBACK_COVERS and "<img " not in new_page:
             raise RuntimeError("Expected an image cover for the known test product")
         print(f"COVER CHECK {permalink}: image={'<img ' in new_page}")
