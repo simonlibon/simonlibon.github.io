@@ -20,9 +20,15 @@ jobs:
             echo "::error::Configure EMAILOCTOPUS_API_KEY before running the private test."
             exit 1
           fi
+          # Key downloads can include a trailing line ending.
+          token=$(printf '%s' "$EMAILOCTOPUS_API_KEY" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | sed '/^$/d')
+          if [[ ! "$token" =~ ^[A-Za-z0-9._~+/=-]+$ ]]; then
+            echo "::error::The stored value is not a single bearer token. Replace the repository secret."
+            exit 1
+          fi
           contact_id=$(printf %s 'simonlibon.music@gmail.com' | md5sum | cut -d' ' -f1)
           status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
-            --header "Authorization: Bearer ${EMAILOCTOPUS_API_KEY}" \
+            --header "Authorization: Bearer ${token}" \
             --header 'Content-Type: application/json' \
             --data "{\"contact_id\":\"${contact_id}\"}" \
             'https://api.emailoctopus.com/automations/70b5faf8-e526-11f1-9ffa-5565b58f1bcc/queue')
