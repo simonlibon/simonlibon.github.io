@@ -1,0 +1,56 @@
+/* Safe, offline storefront tests. No API tokens, no orders, no product publishing. */
+"use strict";
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const vm = require("node:vm");
+const modelFile = fs.readFileSync("shop-model.js", "utf8");
+const sandbox = { window: {}, URL, URLSearchParams };
+vm.runInNewContext(modelFile, sandbox, { filename: "shop-model.js" });
+const model = sandbox.window.SIMON_SHOP_MODEL;
+assert(model && typeof model.build === "function");
+
+function product(id, title, type, price, published = true, url = "https://simonlibonstore.gumroad.com/l/" + id) {
+  return { id, title, type, price, published, gumroadUrl: url, image: "" };
+}
+const catalog = [
+  product("kinetic-tab", "Kinetic — Guitar Tab", "tabs", 5),
+  product("kinetic-pack", "Kinetic — Guitar Tab + Backing Track", "pack", 9),
+  product("dababy-tab", "Dababy — Guitar Tab", "tabs", 5),
+  product("ep-bundle", "My EP — Complete EP Bundle", "bundle", 25),
+  product("draft", "Sidechain — Guitar Tab", "tabs", 5, false),
+  product("backing", "Dababy — Backing Track", "backing", 7),
+  product("template", "[SONG TITLE] — Guitar Tab", "tabs", 5),
+  product("evil", "Unsafe — Guitar Tab", "tabs", 5, true, "https://not-gumroad.example/l/evil")
+];
+const grouped = model.build(catalog);
+assert.equal(grouped.bundles.length, 1, "exactly one EP bundle");
+assert.equal(grouped.tracks.length, 2, "two songs, no unpublished/template/audio-only products");
+const kinetic = grouped.tracks.find(x => x.title === "Kinetic");
+assert(kinetic, "Kinetic grouped into one card");
+assert.equal(kinetic.options.length, 2);
+assert.equal(kinetic.options[0].kind, "tabs");
+assert.equal(kinetic.options[1].kind, "pack");
+assert.equal(kinetic.options[0].product.price, 5);
+assert.equal(kinetic.options[1].product.price, 9);
+assert.equal(grouped.tracks.find(x => x.title === "Dababy").options.length, 1);
+assert(!model.isLive(catalog[4]), "draft cannot be purchased");
+assert(!model.isLive(catalog[6]), "template cannot be purchased");
+assert(!model.isLive(catalog[7]), "untrusted checkout host cannot be purchased");
+assert.equal(model.checkout(catalog[4]), "", "draft has no checkout");
+const checkout = new URL(model.checkout(catalog[1]));
+assert.equal(checkout.hostname, "gumroad.com");
+assert.equal(checkout.pathname, "/checkout");
+assert.equal(checkout.searchParams.get("product"), "kinetic-pack");
+assert.equal(checkout.searchParams.get("quantity"), "1");
+assert.equal(model.build([]).tracks.length, 0, "empty shop is safe");
+
+const storePage = fs.readFileSync("tabs.html", "utf8");
+const detailPage = fs.readFileSync("product.html", "utf8");
+assert(storePage.includes('id="shop-bundle-grid"'));
+assert(storePage.includes('id="shop-grid"'));
+assert(storePage.includes('shop-model.js'));
+assert(storePage.includes('shop.js'));
+assert(detailPage.includes('product.js'));
+new vm.Script(fs.readFileSync("shop.js", "utf8"), { filename: "shop.js" });
+new vm.Script(fs.readFileSync("product.js", "utf8"), { filename: "product.js" });
+console.log("Storefront tests passed: grouping, templates, drafts, checkout links, page references.");
