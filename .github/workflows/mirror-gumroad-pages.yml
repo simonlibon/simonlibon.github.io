@@ -1,0 +1,112 @@
+name: Mirror official site sections on Gumroad
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'music.html'
+      - 'concerts.html'
+      - 'tabs.html'
+      - 'merch.html'
+      - 'press.html'
+      - 'privacy.html'
+      - 'style.css'
+      - 'shop.css'
+      - 'site.js'
+      - 'scripts/mirror_gumroad.py'
+      - 'scripts/build_gumroad_mirror_pages.py'
+      - '.github/workflows/mirror-gumroad-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gumroad-standalone-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate exact canonical HTML/CSS mirrors
+        run: python3 scripts/build_gumroad_mirror_pages.py --output-dir "$RUNNER_TEMP/gumroad-pages"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+      - name: Install Gumroad CLI
+        run: |
+          go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Validate seller and read existing pages
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GUMROAD_ACCESS_TOKEN"
+          gumroad user --json --no-input > "$RUNNER_TEMP/user.json"
+          python - "$RUNNER_TEMP/user.json" <<'PY'
+          import json,sys
+          user=json.load(open(sys.argv[1],encoding="utf-8")).get("user") or {}
+          ids=[str(user.get(x) or '') for x in ('id','user_id')]
+          names=[str(user.get(x) or '') for x in ('username','user_name')]
+          urls=[str(user.get(x) or '') for x in ('url','profile_url')]
+          assert ('2138284912808' in ids or 'simonlibonstore' in names or
+                  any(u.rstrip('/')=='https://simonlibonstore.gumroad.com' for u in urls)), 'Wrong Gumroad seller'
+          PY
+          gumroad pages list --json --no-input > "$RUNNER_TEMP/existing.json"
+          jq -e '.pages | type == "array"' "$RUNNER_TEMP/existing.json" > /dev/null
+      - name: Preview every page before any change
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for slug in music concerts tabs merch press privacy; do
+            gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"
+            python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
+          import json,sys
+          slug=sys.argv[1]
+          payload=json.load(open(sys.argv[2],encoding="utf-8"))
+          page=payload.get("custom_html") or ""
+          required=["SIMON LIBON",'class="header"','class="footer"','data-sl-mirror-css="style.css"']
+          if payload.get("success") is False or not page or any(x.lower() not in page.lower() for x in required):
+              raise SystemExit("Sanitizer stripped essential page elements: "+slug)
+          print("PREVIEW OK",slug,len(page),"chars")
+          PY
+          done
+      - name: Publish only missing or previously mirrored pages
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for slug in music concerts tabs merch press privacy; do
+            file="$RUNNER_TEMP/gumroad-pages/$slug.html"
+            if jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug)' "$RUNNER_TEMP/existing.json" >/dev/null; then
+              if ! jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug and ((.custom_html // "") | contains("data-sl-mirror=")))' "$RUNNER_TEMP/existing.json" >/dev/null; then
+                echo "::warning::Page $slug was customized independently; leaving untouched"
+                continue
+              fi
+              gumroad pages push "$slug" "$file" --json --no-input > "$RUNNER_TEMP/out-$slug.json"
+              echo "UPDATED $slug"
+            else
+              case "$slug" in
+                music) title="Music";;
+                concerts) title="Concerts";;
+                tabs) title="Tabs & Backing Tracks";;
+                merch) title="Merch";;
+                press) title="Press / EPK";;
+                privacy) title="Privacy Policy";;
+              esac
+              gumroad pages create --title "$title" --slug "$slug" "$file" --json --no-input > "$RUNNER_TEMP/out-$slug.json"
+              echo "CREATED $slug"
+            fi
+            python - "$slug" "$RUNNER_TEMP/out-$slug.json" <<'PY'
+          import json,sys
+          if json.load(open(sys.argv[2],encoding="utf-8")).get("success") is False:
+              raise SystemExit("Gumroad did not confirm page "+sys.argv[1])
+          PY
+          done
+      - name: List resulting pages
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages list --json --no-input > "$RUNNER_TEMP/after.json"
+          jq -r '.pages[] | select(.slug == "music" or .slug == "concerts" or .slug == "tabs" or .slug == "merch" or .slug == "press" or .slug == "privacy") | .slug' "$RUNNER_TEMP/after.json"
