@@ -10,7 +10,11 @@
     } catch (_) { return false; }
   };
   const isLive = function (p) {
-    return !!p && p.published === true && p.demo !== true && safeUrl(p.gumroadUrl);
+    // A published template is not a finished product; never promote placeholders.
+    const title = String(p?.title || "");
+    const template = /\[(?:song|ep|release)\s+title\]/i.test(title);
+    return !!p && p.published === true && p.demo !== true &&
+      !template && safeUrl(p.gumroadUrl);
   };
   const classify = function (p) {
     const title = String(p.title || "").toLowerCase();
@@ -28,7 +32,7 @@
     if (typeof p.songTitle === "string" && p.songTitle.trim()) return p.songTitle.trim();
     const name = String(p.title || "").trim();
     const suffix = "(?:(?:official\\s+)?(?:guitar\\s+)?tabs?(?:\\s*\\(pdf\\))?|(?:guitar\\s+)?tablatures?|backing\\s*tracks?|(?:guitar\\s+)?tabs?\\s*(?:\\+|&|and)\\s*backing\\s*tracks?|tabs?\\s*(?:\\+|&|and)\\s*tracks?)";
-    const without = name.replace(new RegExp("\\s*[-–—|:]\\s*" + suffix + "\\s*$", "i"), "").trim();
+    const without = name.replace(new RegExp("(?:\\s*[-–—|:]\\s*|\\s+)" + suffix + "\\s*$", "i"), "").trim();
     return without || name;
   };
   const trackKey = function (title) {
@@ -41,6 +45,8 @@
     const tracksMap = new Map();
     (Array.isArray(allProducts) ? allProducts : []).filter(isLive).forEach(function (p) {
       const kind = classify(p);
+      // The storefront sells a tab or a tab+audio pack, never audio by itself.
+      if (kind === "backing") return;
       if (kind === "bundle") {
         bundles.push({ kind: "bundle", id: p.id, title: p.title, options: [{ kind: "bundle", product: p }], image: p.image || "", date: p.releaseDate || "" });
         return;
