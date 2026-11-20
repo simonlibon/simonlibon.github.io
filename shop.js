@@ -1,50 +1,118 @@
-(function(){
-"use strict";
-const list=Array.isArray(window.SIMON_SHOP_CATALOG?.products)?window.SIMON_SHOP_CATALOG.products:[];
-// The catalogue lists newly added releases first. Keep that order for same-day releases.
-const releaseIndex=new Map(list.map((p,i)=>[p.id,i]));
-const names={tabs:"Guitar tabs",backing:"Backing tracks",bundle:"Bundles"};
-const titles={tabs:"GUITAR\nTABS",backing:"BACKING\nTRACK",bundle:"EP / ALBUM\nBUNDLE"};
-const arrow='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
-const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
-const euro=n=>Number(n||0).toLocaleString("en-IE",{style:"currency",currency:"EUR"});
-const good=u=>{try{const x=new URL(u);return x.protocol==="https:"&&x.hostname==="simonlibonstore.gumroad.com"&&/^\/l\/[a-z0-9_-]+\/?$/i.test(x.pathname)}catch{return false}};
-const canPurchase=p=>!p?.demo&&good(p?.gumroadUrl);
-const live=p=>p?.published===true&&(p.demo===true||canPurchase(p));
-const pay=p=>{const product=new URL(p.gumroadUrl).pathname.split("/").filter(Boolean).pop();const u=new URL("https://gumroad.com/checkout");u.searchParams.set("product",product);u.searchParams.set("quantity","1");u.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");return u.href};
-function art(p,cls){const box=el("div",cls),uri=String(p.image||"");if(uri&&(/^(https?:\/\/|data:image\/(png|jpeg|webp);base64,)/i.test(uri)||/^images\//i.test(uri))){const img=el("img");img.src=uri;img.alt="Cover artwork for "+p.title;img.loading="lazy";box.append(img)}else{box.classList.add("is-placeholder");const text=el("span","placeholder-text",titles[p.type]||"SIMON\nLIBON");text.style.whiteSpace="pre-line";box.append(text)}return box}
-function card(p){
- const item=el("article","shop-item"), purchasable=canPurchase(p),url=purchasable?pay(p):"";
- const cover=el(purchasable?"a":"div",purchasable?"shop-card-link":"shop-card-preview");
- if(purchasable){
-   cover.href="product.html?id="+encodeURIComponent(p.id);
-   cover.setAttribute("aria-label","See details for "+p.title);
- }
- cover.append(art(p,"shop-item-image"));
- item.append(cover);
- const meta=el("div","shop-item-meta"),info=el("div");
- const heading=el("h3","shop-item-title");if(purchasable){const detail=el("a",null,p.title);detail.href="product.html?id="+encodeURIComponent(p.id);heading.append(detail)}else heading.textContent=p.title;
- info.append(heading,el("div","shop-item-type",names[p.type]||"Digital release"));
- meta.append(info,el("span","shop-item-price",p.demo?"DEMO":euro(p.price)));
- item.append(meta);
- const actions=el("div","shop-item-actions");
- if(purchasable){
-   const buy=el("a","buy-quick","BUY ON GUMROAD");
-   buy.href=url;
-   buy.rel="noopener";
-   buy.target="_blank";
-   buy.insertAdjacentHTML("beforeend",arrow);
-   actions.append(buy);
- } else {
-   actions.append(el("span","shop-item-type","DEMO · NOT FOR SALE"));
- }
- item.append(actions);
- return item;
-}
-function catalogue(){const grid=document.getElementById("shop-grid");if(!grid)return;const search=document.getElementById("shop-search-input"),sort=document.getElementById("shop-sort-select"),empty=document.getElementById("shop-empty"),count=document.getElementById("shop-count"),filterButtons=[...document.querySelectorAll("[data-shop-filter]")],coll=new Intl.Collator("en",{sensitivity:"base",numeric:true}),all=list.filter(live);let active="all";
-function render(){const q=search.value.trim().toLocaleLowerCase();const filtered=all.filter(p=>(active==="all"||p.type===active)&&(!q||(p.title+" "+p.description+" "+(names[p.type]||"")).toLocaleLowerCase().includes(q)));const order=sort.value;filtered.sort((a,b)=>order==="az"?coll.compare(a.title,b.title):order==="za"?coll.compare(b.title,a.title):(((new Date(b.releaseDate).getTime()||0)-(new Date(a.releaseDate).getTime()||0))||((releaseIndex.get(a.id)??0)-(releaseIndex.get(b.id)??0)))*(order==="new"?1:-1));grid.replaceChildren(...filtered.map(card));empty.hidden=filtered.length>0;empty.querySelector("h3").textContent=all.length?"NO MATCHES.":"COMING SOON.";empty.querySelector("p").textContent=all.length?"Try a different search or category.":"Official tabs, backing tracks and bundles will appear here when released.";count.textContent=all.length+" "+(all.length===1?"RELEASE":"RELEASES");filterButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shopFilter===active)))}
-filterButtons.forEach(b=>b.addEventListener("click",()=>{active=b.dataset.shopFilter;render()}));document.querySelectorAll("[data-shop-category]").forEach(b=>b.addEventListener("click",()=>{active=b.dataset.shopCategory;render();document.getElementById("shop-catalog").scrollIntoView({behavior:"smooth"})}));search.addEventListener("input",render);sort.addEventListener("change",render);render()}
-// Checkout links open Gumroad in a separate tab. Keep the storefront on this site.
-function initShop(){ catalogue(); }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initShop);else initShop();
+(function () {
+  "use strict";
+  const model = window.SIMON_SHOP_MODEL;
+  if (!model) return;
+  const products = Array.isArray(window.SIMON_SHOP_CATALOG?.products) ? window.SIMON_SHOP_CATALOG.products : [];
+  const grouped = model.build(products);
+  const el = function (tag, cls, value) {
+    const element = document.createElement(tag);
+    if (cls) element.className = cls;
+    if (value !== undefined) element.textContent = value;
+    return element;
+  };
+  const euro = function (value) {
+    return Number(value || 0).toLocaleString("en-IE", { style: "currency", currency: "EUR" });
+  };
+  function groupUrl(g) {
+    return g.kind === "bundle" ? "product.html?id=" + encodeURIComponent(g.id) :
+      "product.html?track=" + encodeURIComponent(g.key);
+  }
+  function art(group) {
+    const container = el("div", "shop-item-image");
+    const uri = String(group.image || "");
+    if (/^https:\/\//i.test(uri)) {
+      const img = el("img");
+      img.src = uri;
+      img.alt = "Cover artwork for " + group.title;
+      img.loading = "lazy";
+      container.append(img);
+    } else {
+      container.classList.add("is-placeholder");
+      container.append(el("span", "placeholder-text", "SIMON\nLIBON"));
+      container.querySelector("span").style.whiteSpace = "pre-line";
+    }
+    return container;
+  }
+  function lowestPrice(g) {
+    return Math.min.apply(null, g.options.map(function (x) { return Number(x.product.price || 0); }));
+  }
+  function card(group) {
+    const item = el("article", "shop-item");
+    const link = groupUrl(group);
+    const cover = el("a", "shop-card-link");
+    cover.href = link;
+    cover.setAttribute("aria-label", "View " + group.title);
+    cover.append(art(group));
+    item.append(cover);
+
+    const meta = el("div", "shop-item-meta");
+    const info = el("div");
+    const heading = el("h3", "shop-item-title");
+    const title = el("a", null, group.title);
+    title.href = link;
+    heading.append(title);
+    info.append(heading);
+    info.append(el("div", "shop-item-type", group.kind === "bundle" ?
+      "Complete collection" : "Guitar tabs & tracks"));
+    meta.append(info);
+    meta.append(el("span", "shop-item-price",
+      (group.kind === "track" && group.options.length > 1 ? "FROM " : "") + euro(lowestPrice(group))));
+    item.append(meta);
+
+    const actions = el("div", "shop-item-actions");
+    const action = el("a", "buy-quick", group.kind === "bundle" ? "VIEW BUNDLE" : "VIEW OPTIONS");
+    action.href = link;
+    actions.append(action);
+    item.append(actions);
+    return item;
+  }
+  const sortGroups = function (groups, sortValue) {
+    const coll = new Intl.Collator("en", { sensitivity: "base", numeric: true });
+    groups.sort(function (a, b) {
+      if (sortValue === "az") return coll.compare(a.title, b.title);
+      if (sortValue === "za") return coll.compare(b.title, a.title);
+      const diff = String(b.date || "").localeCompare(String(a.date || ""));
+      return (diff || coll.compare(a.title, b.title)) * (sortValue === "old" ? -1 : 1);
+    });
+    return groups;
+  };
+  function initShop() {
+    const search = document.getElementById("shop-search-input");
+    const sort = document.getElementById("shop-sort-select");
+    const grid = document.getElementById("shop-grid");
+    const bundlesGrid = document.getElementById("shop-bundle-grid");
+    const bundleSection = document.getElementById("shop-ep-section");
+    const trackHeading = document.getElementById("shop-track-heading");
+    const empty = document.getElementById("shop-empty");
+    const count = document.getElementById("shop-count");
+    if (!search || !sort || !grid || !bundlesGrid || !bundleSection || !trackHeading || !empty || !count) return;
+
+    function matches(g, q) {
+      return !q || (g.title + " " + g.options.map(function (option) {
+        return String(option.product.description || "");
+      }).join(" ")).toLocaleLowerCase().includes(q);
+    }
+    function render() {
+      const query = search.value.trim().toLocaleLowerCase();
+      const order = sort.value;
+      const bundles = sortGroups(grouped.bundles.filter(function (g) { return matches(g, query); }), order);
+      const tracks = sortGroups(grouped.tracks.filter(function (g) { return matches(g, query); }), order);
+      bundlesGrid.replaceChildren(...bundles.map(card));
+      grid.replaceChildren(...tracks.map(card));
+      bundleSection.hidden = bundles.length === 0;
+      trackHeading.hidden = tracks.length === 0;
+      const overall = grouped.bundles.length + grouped.tracks.length;
+      empty.hidden = (bundles.length + tracks.length) > 0;
+      empty.querySelector("h3").textContent = overall ? "NO MATCHES." : "COMING SOON.";
+      empty.querySelector("p").textContent = overall ?
+        "Try a different search." :
+        "Official tabs, backing tracks and EP bundles will appear here when released.";
+      count.textContent = overall + " " + (overall === 1 ? "RELEASE" : "RELEASES");
+    }
+    search.addEventListener("input", render);
+    sort.addEventListener("change", render);
+    render();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initShop);
+  else initShop();
 })();
