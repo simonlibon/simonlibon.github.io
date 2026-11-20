@@ -60,5 +60,9 @@ assert(shopScript.includes('const grouped = model.build(preview ? demoProducts :
 assert(productScript.includes('DEMO ONLY — NOT FOR SALE'), "Demo detail must disable checkout");
 assert(productScript.includes('buy.removeAttribute("href")'), "Demo detail must not retain checkout URLs");
 assert(gumroadProfile.includes('var isDemo=new URLSearchParams(location.search).get("demo")==="1"'), "Gumroad demo mode must be opt-in");
-assert(gumroadProfile.includes('if(!isDemo){a.href='), "Gumroad demo links must not be purchasable");
-console.log("Storefront tests passed: grouping, templates, drafts, checkout links, preview isolation, page references.");
+assert(gumroadProfile.includes('if(!isDemo||demoCheckoutOpen){a.href='), "Gumroad demo checkout is open only during an explicit temporary window");
+assert(gumroadProfile.includes('2026-11-21T01:49:00+01:00'), "Gumroad demo must expire");
+assert(productScript.includes('const testPermalinks = new Set(["mmxjjd", "ntapzm", "jghmyd"])'), "Only three approved products can checkout");
+assert(productScript.includes('if (preview && !approvedDemo)'), "Expired or unapproved demo must disable checkout");
+assert(productScript.includes('2026-11-21T01:49:00+01:00'), "Product demo must expire");
+console.log("Storefront tests passed: grouping, drafts, checkout links, limited free demo checkout, expiry, page references.");
