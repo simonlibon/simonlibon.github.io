@@ -7,6 +7,7 @@ The Gumroad checkout, receipt and delivery are still Gumroad-owned.
 import html
 import re
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = "https://simonlibon.github.io/"
@@ -100,6 +101,48 @@ def mirror_product(p, cover_html, type_label, price_fallback, includes):
         raise ValueError("Missing essential native product field or page too large")
     return out
 
+
+def _compatible_music_images(document):
+    """Preserve logos but avoid SVG/large-image data URIs rejected by Gumroad."""
+    png_names = iter(("qobuz", "yandex-music"))
+    def replace_png(match):
+        try:
+            name = next(png_names)
+        except StopIteration:
+            raise ValueError("Unexpected number of embedded PNG logos") from None
+        src = SITE + "assets/music-logos/" + name + ".png"
+        return re.sub(r'src="data:image/png;base64,[^"]+"',
+                      'src="' + src + '"', match.group(0), count=1)
+    document, count = re.subn(r'<img\b[^>]*\bsrc="data:image/png;base64,[^"]+"[^>]*>',
+                             replace_png, document)
+    if count != 2:
+        raise ValueError("Expected exactly two PNG logos from the official music page")
+    def decode_svg(encoded):
+        decoded = unquote(encoded).strip()
+        if not decoded.startswith("<svg ") or not decoded.endswith("</svg>"):
+            raise ValueError("Invalid official SVG logo")
+        if "<script" in decoded.lower() or "onload=" in decoded.lower():
+            raise ValueError("Unexpected script in logo")
+        return decoded.replace("<svg ", '<svg class="sl-logo-inline" ', 1)
+    def embedded_svg(match):
+        return decode_svg(match.group(1))
+    document = re.sub(r'<img\b[^>]*\bsrc="data:image/svg\+xml,([^"]+)"[^>]*>',
+                      embedded_svg, document)
+    # Some external SVGs have an inline fallback of the same icon; reuse it as
+    # real inline SVG to avoid loading an unreviewable external SVG resource.
+    def remote_svg(match):
+        return decode_svg(match.group(1))
+    document = re.sub(
+        r'<img\b[^>]*\bsrc="https://[^"]+\.svg"[^>]*\bdata-fallback="data:image/svg\+xml,([^"]+)"[^>]*>',
+        remote_svg, document)
+    if "data:image/svg+xml" in document or "data:image/png;base64" in document:
+        raise ValueError("Embedded image URL remains in mirrored music page")
+    document = document.replace(
+        "</head>",
+        '<style>.music-service-mark svg.sl-logo-inline{width:42px;height:42px;position:absolute;inset:3px;'
+        'background:#fdfcfb;object-fit:contain}</style></head>', 1)
+    return document
+
 # Standalone pages use exactly the official DOM and the same shared styles.
 PAGE_SOURCES = {
     "music": "music.html",
@@ -115,6 +158,8 @@ def mirror_standalone(slug):
         raise ValueError("Unknown Simon Libon page")
     source = (ROOT / PAGE_SOURCES[slug]).read_text(encoding="utf-8")
     out = _inline_assets(source)
+    if slug == "music":
+        out = _compatible_music_images(out)
     # The catalogue and schedule scripts fetch public data from the official
     # host, never from Gumroad's unrelated /catalog.js path.
     for filename in ("catalog.js", "shop-model.js", "shop.js",
