@@ -182,6 +182,11 @@ def mirror_standalone(slug):
         raise ValueError("Unknown Simon Libon page")
     source = (ROOT / PAGE_SOURCES[slug]).read_text(encoding="utf-8")
     out = _store_navigation(_inline_assets(source))
+    if slug == "tabs":
+        # Two separate direct-buy links can wrap naturally on small phones.
+        out = out.replace("</head>", '<style>body[data-page="tabs"] .shop-item-actions{flex-wrap:wrap;row-gap:10px}'
+                          'body[data-page="tabs"] .shop-item-actions [aria-disabled="true"]{'
+                          'pointer-events:none;opacity:.55}</style></head>', 1)
     if slug == "music":
         out = _compatible_music_images(out)
     # The catalogue and schedule scripts fetch public data from the official
