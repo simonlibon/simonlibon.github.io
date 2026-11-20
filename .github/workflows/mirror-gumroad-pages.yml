@@ -60,7 +60,18 @@ jobs:
         run: |
           set -euo pipefail
           for slug in music concerts tabs merch press privacy; do
-            gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"
+            if ! gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
+              python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
+          import json,sys
+          try:
+              payload=json.load(open(sys.argv[2],encoding="utf-8"))
+              msg=str(payload.get("message") or payload.get("error") or payload.get("code") or "unknown Gumroad error")
+          except (OSError,ValueError):
+              msg="unknown Gumroad CLI failure"
+          print("PREVIEW FAILED",sys.argv[1],"reason:",msg[:400])
+          PY
+              exit 1
+            fi
             python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
           import json,sys
           slug=sys.argv[1]
