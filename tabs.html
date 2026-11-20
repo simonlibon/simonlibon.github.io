@@ -19,7 +19,11 @@
       <label class="shop-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m16 16 5 5"/></svg><span class="sr-only">Search products</span><input id="shop-search-input" type="search" placeholder="Search tabs or backing tracks..." autocomplete="off"></label>
       <label class="shop-sort"> <span>SORT BY</span><select id="shop-sort-select" aria-label="Sort products"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option></select></label>
     </div>
-    <div class="shop-filters" role="group" aria-label="Filter by product type"><button type="button" data-shop-filter="all" aria-pressed="true">ALL</button><button type="button" data-shop-filter="tabs" aria-pressed="false">TABS</button><button type="button" data-shop-filter="backing" aria-pressed="false">BACKING TRACKS</button><button type="button" data-shop-filter="bundle" aria-pressed="false">BUNDLES</button></div>
+    <section id="shop-ep-section" class="shop-group-section" hidden aria-labelledby="shop-ep-heading">
+      <h2 id="shop-ep-heading" class="shop-list-heading">EP COLLECTION</h2>
+      <div id="shop-bundle-grid" class="shop-product-grid" aria-live="polite"></div>
+    </section>
+    <h2 id="shop-track-heading" class="shop-list-heading" hidden>INDIVIDUAL TRACKS</h2>
     <div id="shop-grid" class="shop-product-grid" aria-live="polite"></div>
     <div id="shop-empty" class="shop-empty" hidden><span class="shop-empty-label">THE NEXT RELEASE</span><h3>COMING SOON</h3><p>Official tabs, backing tracks and bundles will appear here when they are released.</p></div>
     <div class="shop-payment-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Payments and file delivery are handled securely by Gumroad.</span></div>
@@ -47,9 +51,18 @@
   const catalog = document.createElement('script');
   catalog.src = 'catalog.js?refresh=' + Date.now();
   catalog.onload = function(){
-    const store = document.createElement('script');
-    store.src = 'shop.js?v=19';
-    document.body.appendChild(store);
+    const model = document.createElement('script');
+    model.src = 'shop-model.js?v=1';
+    model.onload = function(){
+      const store = document.createElement('script');
+      store.src = 'shop.js?v=track-groups-1';
+      document.body.appendChild(store);
+    };
+    model.onerror = function(){
+      const empty = document.getElementById('shop-empty');
+      if (empty) { empty.hidden = false; empty.querySelector('h3').textContent = 'SHOP TEMPORARILY UNAVAILABLE'; }
+    };
+    document.body.appendChild(model);
   };
   catalog.onerror = function(){
     const empty = document.getElementById('shop-empty');
