@@ -123,10 +123,21 @@ a{color:inherit;text-decoration:none}a:hover{opacity:.72}a:focus-visible{outline
   var slot=document.getElementById("gumroad-products");
   var empty=document.getElementById("gumroad-empty");
   var data=document.getElementById("gumroad-data");
-  if(!slot||!empty||!data)return;
-  var payload;
-  try{payload=JSON.parse(data.textContent||"{}");}catch(e){return;}
-  var items=Array.isArray(payload.products)?payload.products:Array.isArray(payload.data&&payload.data.products)?payload.data.products:[];
+  var isDemo=new URLSearchParams(location.search).get("demo")==="1";
+  if(!slot||!empty||(!data&&!isDemo))return;
+  var payload={};
+  if(data){try{payload=JSON.parse(data.textContent||"{}");}catch(e){if(!isDemo)return;}}
+  var items=isDemo?[
+    {name:"DEMO TRACK — Guitar Tab",permalink:"mmxjjd"},
+    {name:"DEMO TRACK — Guitar Tab + Backing Track",permalink:"ntapzm"},
+    {name:"DEMO EP — Complete EP Bundle",permalink:"jghmyd"}
+  ]:Array.isArray(payload.products)?payload.products:Array.isArray(payload.data&&payload.data.products)?payload.data.products:[];
+  if(isDemo){
+    var note=document.createElement("p");
+    note.className="eyebrow";
+    note.textContent="VISUAL PREVIEW ONLY — ALL PURCHASE LINKS ARE DISABLED";
+    slot.before(note);
+  }
   var groups={};var order=[];
   function nameOf(p){return String(p.name||p.title||"").trim();}
   function permalink(p){
@@ -157,7 +168,10 @@ a{color:inherit;text-decoration:none}a:hover{opacity:.72}a:focus-visible{outline
     var title=document.createElement("h3");title.textContent=g.title;
     var actions=document.createElement("div");actions.className="choices";
     g.items.forEach(function(item){
-      var a=document.createElement("a");a.href="https://simonlibonstore.gumroad.com/l/"+item.code;a.textContent=item.label;actions.appendChild(a);
+      var a=document.createElement("a");
+      if(!isDemo){a.href="https://simonlibonstore.gumroad.com/l/"+item.code;}
+      else{a.setAttribute("aria-disabled","true");a.style.cursor="default";}
+      a.textContent=item.label+(isDemo?" — PREVIEW":"");actions.appendChild(a);
     });
     card.appendChild(label);card.appendChild(title);card.appendChild(actions);slot.appendChild(card);
   });
