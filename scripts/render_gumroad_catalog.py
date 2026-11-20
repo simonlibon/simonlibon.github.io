@@ -59,7 +59,8 @@ def safe_product(item):
     # Exactly the same direct checkout semantics as shop-model.js.
     checkout = target + ("?price=0&wanted=true" if price == 0 else "?wanted=true")
     return dict(title=title, kind=kind, price=price, image=item.get("image"),
-                date=str(item.get("releaseDate") or ""), checkout=checkout)
+                date=str(item.get("releaseDate") or ""), checkout=checkout,
+                description=str(item.get("description") or ""))
 
 
 def group_products(products):
@@ -84,9 +85,10 @@ def group_products(products):
             key = "track:" + re.sub(r"[^a-z0-9]+", "-", display.casefold()).strip("-")
         if key not in groups:
             groups[key] = {"kind": "bundle" if p["kind"] == "bundle" else "track",
-                           "title": display, "image": "", "date": "", "options": []}
+                           "title": display, "image": "", "date": "", "options": [], "search": ""}
         group = groups[key]
         group["options"].append(p)
+        group["search"] += " " + p["description"]
         if not group["image"] and isinstance(p["image"], str) and p["image"].startswith("https://"):
             group["image"] = p["image"]
         group["date"] = max(group["date"], p["date"])
@@ -112,7 +114,8 @@ def product_card(g):
                      '">' + labels.get(option["kind"], "BUY NOW") + '</a>')
     type_text = "Complete collection" if g["kind"] == "bundle" else "Guitar tabs & tracks"
     return ('<article class="shop-item" data-shop-release="' + esc(g["title"].casefold()) +
-            '" data-shop-date="' + esc(g["date"]) + '">'
+            '" data-shop-search="' + esc((g["title"] + " " + g["search"]).casefold()) +
+            '" data-shop-date="' + esc(g["date"]) + '">')
             '<a class="shop-card-link" href="' + esc(choice["checkout"]) +
             '" aria-label="Checkout: ' + esc(g["title"]) +
             '"><div class="shop-item-image">' + cover + '</div></a>'
@@ -123,6 +126,62 @@ def product_card(g):
             ("FROM " if g["kind"] == "track" and len(options) > 1 else "") +
             "€{:.2f}".format(price) + '</span></div>'
             '<div class="shop-item-actions">' + ''.join(links) + '</div></article>')
+
+
+# Progressive enhancement only. The markup works without JavaScript.
+FILTER_SCRIPT = r"""
+<script data-sl-static-filter="v1">
+(function(){
+  function init(){
+    var root=document.body;
+    if(!root||!root.hasAttribute('data-sl-static-catalog'))return;
+    var search=document.getElementById('shop-search-input');
+    var select=document.getElementById('shop-sort-select');
+    var bundle=document.getElementById('shop-bundle-grid');
+    var tracks=document.getElementById('shop-grid');
+    var bundleSection=document.getElementById('shop-ep-section');
+    var trackHeading=document.getElementById('shop-track-heading');
+    var empty=document.getElementById('shop-empty');
+    if(!search||!select||!bundle||!tracks||!empty)return;
+    var coll=new Intl.Collator('en',{sensitivity:'base',numeric:true});
+    var total=bundle.children.length+tracks.children.length;
+    function sortGrid(grid){
+      var cards=Array.from(grid.children);
+      var sort=select.value;
+      cards.sort(function(a,b){
+        var name=coll.compare(a.getAttribute('data-shop-release')||'',b.getAttribute('data-shop-release')||'');
+        var date=(a.getAttribute('data-shop-date')||'').localeCompare(b.getAttribute('data-shop-date')||'');
+        if(sort==='az')return name;
+        if(sort==='za')return -name;
+        return sort==='old'?(date||name):(-date||name);
+      });
+      cards.forEach(function(el){grid.appendChild(el)});
+    }
+    function render(){
+      var query=search.value.trim().toLocaleLowerCase();
+      var visible=0;
+      [bundle,tracks].forEach(function(grid){
+        sortGrid(grid);
+        Array.from(grid.children).forEach(function(card){
+          var matches=!query||(card.getAttribute('data-shop-search')||'').indexOf(query)!==-1;
+          card.hidden=!matches;
+          if(matches)visible++;
+        });
+      });
+      bundleSection.hidden=!Array.from(bundle.children).some(function(c){return !c.hidden});
+      trackHeading.hidden=!Array.from(tracks.children).some(function(c){return !c.hidden});
+      empty.hidden=visible>0;
+      empty.querySelector('h3').textContent=total?'NO MATCHES.':'COMING SOON.';
+    }
+    search.addEventListener('input',render);
+    select.addEventListener('change',render);
+    render();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+"""
 
 
 def render_shop(document, products):
@@ -168,5 +227,9 @@ def render_shop(document, products):
         )
     if 'data-sl-static-catalog="1"' not in document:
         raise ValueError("Cannot mark Gumroad catalogue as pre-rendered")
-    # Static cards remain visible even if Gumroad blocks every <script>.
+    # Search/sort improve the mirror when Gumroad permits inline scripts.
+    # The cards themselves remain visible even when scripts are stripped.
+    if document.count("</body>") != 1:
+        raise ValueError("Official shop body tag missing")
+    document = document.replace("</body>", FILTER_SCRIPT + "</body>", 1)
     return document
