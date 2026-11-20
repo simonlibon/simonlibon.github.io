@@ -46,50 +46,6 @@
 <p aria-live="polite" class="contact-feedback" data-contact-feedback=""></p>
 </section><div class="footer-bottom"><span>© <span data-year="">2026</span> SIMON LIBON</span><a href="privacy.html">PRIVACY POLICY</a><span>GUITARIST &amp; COMPOSER</span></div></div></footer>
 <script src="site.js?v=27"></script>
-<script>
-(function(){
-  "use strict";
-  const load=document.createElement("script");
-  const error=document.getElementById("product-error");
-  const showError=()=>{error.hidden=false;document.getElementById("product-layout").hidden=true};
-  load.src="catalog.js?refresh="+Date.now();
-  load.onload=function(){
-    const id=new URLSearchParams(location.search).get("id");
-    const products=Array.isArray(window.SIMON_SHOP_CATALOG?.products)?window.SIMON_SHOP_CATALOG.products:[];
-    const p=products.find(x=>x.id===id&&x.published===true);
-    if(!p){showError();return}
-    let target, productCode;
-    try{
-      const src=new URL(p.gumroadUrl);
-      if(src.protocol!=="https:"||src.hostname!=="simonlibonstore.gumroad.com"||!/^\/l\/[a-z0-9_-]+\/?$/i.test(src.pathname))throw Error("Invalid product");
-      productCode=src.pathname.split("/").filter(Boolean).pop();
-      target=new URL("https://gumroad.com/checkout");
-      target.searchParams.set("product",productCode);
-      target.searchParams.set("quantity","1");
-      target.searchParams.set("referrer","https://simonlibon.github.io/tabs.html");
-    }catch(e){showError();return}
-    const labels={tabs:"GUITAR TABS",backing:"BACKING TRACK",bundle:"BUNDLE"};
-    document.title=p.title+" | Simon Libon";
-    document.getElementById("product-title").textContent=p.title;
-    document.getElementById("product-type").textContent=labels[p.type]||"DIGITAL RELEASE";
-    document.getElementById("product-price").textContent=Number(p.price||0).toLocaleString("en-IE",{style:"currency",currency:"EUR"});
-    document.getElementById("product-description").textContent=p.description||"Official digital release by Simon Libon.";
-    document.getElementById("product-buy").href=target.href;
-    const cover=document.getElementById("product-cover");
-    if(typeof p.image==="string"&&/^https:\/\//i.test(p.image)){
-      const img=document.createElement("img");img.src=p.image;img.alt="Cover art for "+p.title;cover.append(img);
-    }else{cover.textContent=p.title;}
-    const includes=Array.isArray(p.includes)?p.includes:[];
-    if(includes.length){
-      const list=document.getElementById("product-included");
-      includes.forEach(s=>{const li=document.createElement("li");li.textContent=String(s);list.append(li)});
-      document.getElementById("product-included-section").hidden=false;
-    }
-    document.getElementById("product-layout").hidden=false;
-  };
-  load.onerror=showError;
-  document.body.append(load);
-})();
-</script>
+<script src="product.js?v=track-options-1" defer></script>
 </body>
 </html>
