@@ -138,8 +138,13 @@ def main():
         name = product.get("name") or entry.get("name")
         old = request(token, "products/" + key + "/custom_html").get("custom_html") or ""
         if old and not any(marker in old for marker in OWN_MARKERS):
-            print(f"SKIP {permalink}: independently customized page; no changes")
-            continue
+            # The DEMO EP page predates our marker. It is an explicit test fixture
+            # that the creator asked to harmonize, not an unrelated custom page.
+            known_demo_bundle = (permalink == "jghmyd" and str(name).startswith("DEMO EP"))
+            if not known_demo_bundle:
+                print(f"SKIP {permalink}: independently customized page; no changes")
+                continue
+            print("Replacing the known legacy DEMO EP page with the canonical layout.")
         if not product.get("permalink") and not product.get("custom_permalink"):
             product["permalink"] = permalink
         new_page = build(product)
