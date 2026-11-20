@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'gumroad-site/profile.html'
+      - 'scripts/build_gumroad_site.py'
+      - 'releases.json'
+      - 'concerts-data.json'
       - '.github/workflows/preview-gumroad-site.yml'
   workflow_dispatch:
 
@@ -16,6 +19,8 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Generate same page as the publish workflow
+        run: python3 scripts/build_gumroad_site.py --output "$RUNNER_TEMP/simon-gumroad-profile.html"
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25.x'
@@ -33,7 +38,7 @@ jobs:
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
-          gumroad pages preview ./gumroad-site/profile.html --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"
+          gumroad pages preview "$RUNNER_TEMP/simon-gumroad-profile.html" --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"
           python - "$RUNNER_TEMP/gumroad-preview.json" <<'PY'
           import json,sys
           preview=json.load(open(sys.argv[1],encoding='utf-8'))
