@@ -31,8 +31,23 @@
   function render() {
     const model = window.SIMON_SHOP_MODEL;
     if (!model) return showError();
+    const preview = new URLSearchParams(location.search).get("demo") === "1";
     const products = Array.isArray(window.SIMON_SHOP_CATALOG?.products) ? window.SIMON_SHOP_CATALOG.products : [];
-    const grouped = model.build(products);
+    const demoProducts = preview ? [
+      {id:"demo-tab",title:"DEMO TRACK — Guitar Tab",type:"tabs",published:true,
+        price:5,description:"Illustrative tab preview only.",releaseDate:"2026-11-21",
+        image:"https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
+        gumroadUrl:"https://simonlibonstore.gumroad.com/l/mmxjjd",includes:["Guitar tab (PDF)"]},
+      {id:"demo-pack",title:"DEMO TRACK — Guitar Tab + Backing Track",type:"pack",published:true,
+        price:9,description:"Illustrative tab and track preview only.",releaseDate:"2026-11-21",
+        image:"https://public-files.gumroad.com/me05sdxis06xvgyy5vlmgye8mqiu",
+        gumroadUrl:"https://simonlibonstore.gumroad.com/l/ntapzm",includes:["Guitar tab (PDF)","Backing track (WAV)"]},
+      {id:"demo-ep",title:"DEMO EP — Complete EP Bundle",type:"bundle",published:true,
+        price:25,description:"Visual bundle mock-up; no real EP files are available.",releaseDate:"2026-11-21",
+        image:"https://public-files.gumroad.com/n4sgr37s19z2py5nkrg0rnwlb5ys",
+        gumroadUrl:"https://simonlibonstore.gumroad.com/l/jghmyd",includes:["Visual demonstration only"]}
+    ] : [];
+    const grouped = model.build(preview ? demoProducts : products);
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
     const track = params.get("track");
@@ -46,7 +61,13 @@
     }
     if (!group || !group.options.length) return showError();
 
-    document.title = group.title + " | Simon Libon";
+    document.title = group.title + (preview ? " — PREVIEW" : "") + " | Simon Libon";
+    if (preview) {
+      const back = document.querySelector(".back-to-shop");
+      if (back) back.href = "tabs.html?demo=1";
+      const payment = document.querySelector(".sl-payment-copy");
+      if (payment) payment.textContent = "VISUAL DEMONSTRATION — CHECKOUT DISABLED";
+    }
     document.getElementById("product-title").textContent = group.title;
     document.getElementById("product-type").textContent =
       group.kind === "bundle" ? "EP COLLECTION" : "INDIVIDUAL TRACK";
@@ -71,7 +92,16 @@
       const product = option.product;
       const checkoutUrl = model.checkout(product);
       if (!checkoutUrl) return showError();
-      buy.href = checkoutUrl;
+      if (preview) {
+        buy.removeAttribute("href");
+        buy.removeAttribute("target");
+        buy.textContent = "DEMO ONLY — NOT FOR SALE";
+        buy.setAttribute("aria-disabled", "true");
+        buy.style.pointerEvents = "none";
+        buy.style.opacity = ".55";
+      } else {
+        buy.href = checkoutUrl;
+      }
       price.textContent = euro(product.price);
       description.textContent = product.description ||
         "Official digital download by Simon Libon.";
