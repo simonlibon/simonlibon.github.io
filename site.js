@@ -106,7 +106,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     const label = document.createElement('label');
     label.htmlFor = select.id;
-    label.textContent = field.dataset.label;
+    label.textContent = 'Concert country (optional)';
     // The embed reads named inputs into its request body.
     const value = document.createElement('input');
     value.type = 'hidden';
