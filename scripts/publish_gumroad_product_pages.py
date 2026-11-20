@@ -15,7 +15,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from mirror_gumroad import mirror_product
+if __package__:
+    from .mirror_gumroad import mirror_product
+else:
+    from mirror_gumroad import mirror_product
 
 API = "https://api.gumroad.com/v2/"
 MARKER = 'data-sl-product-template="v2"'
