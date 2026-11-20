@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#faf9f7">
+<meta name="description" content="Simon Libon — guitarist and composer. Official music, concerts, guitar tabs, backing tracks and merchandise.">
+<title>Simon Libon — Music, Tabs & More</title>
+<style>
+:root{--paper:#faf9f7;--ink:#18181a;--muted:#77757b;--line:#e5e2de;--accent:#bca0b3}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Helvetica Neue",Arial,sans-serif;line-height:1.55}
+a{color:inherit;text-decoration:none}a:hover{opacity:.72}a:focus-visible{outline:2px solid #9a79ae;outline-offset:4px}
+.container{width:min(1100px,calc(100% - 48px));margin:0 auto}
+.header{border-bottom:1px solid var(--line);background:var(--paper)}
+.wordmark{display:block;font-weight:800;font-size:29px;letter-spacing:-.075em;text-align:center;padding:21px 0 15px}
+.nav{display:flex;align-items:center;justify-content:center;gap:clamp(13px,4vw,50px);flex-wrap:wrap;padding:0 12px 18px}
+.nav a{text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.19em;font-weight:800;color:var(--muted)}
+.hero{padding:clamp(75px,11vw,154px) 0 clamp(85px,11vw,140px);text-align:center}
+.hero h1{font-weight:850;letter-spacing:-.105em;line-height:.88;font-size:clamp(76px,17vw,190px);margin:14px 0 22px}
+.hero p{font-size:clamp(14px,2vw,19px);color:var(--muted);margin:0 auto 29px;max-width:510px}
+.cta{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:14px 25px;border:1px solid var(--ink);font-size:11px;letter-spacing:.12em;font-weight:800;text-transform:uppercase}
+.cta.primary{background:var(--ink);color:var(--paper)}.cta.light{background:transparent}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.section{padding:82px 0;border-top:1px solid var(--line)}.section h2{font-size:clamp(46px,9vw,105px);line-height:.95;letter-spacing:-.085em;margin:13px 0 24px}
+.section p{max-width:650px;color:var(--muted);font-size:15px;line-height:1.75}
+.section-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,1fr);align-items:end;gap:36px}
+.tile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:35px}
+.tile{min-height:165px;border:1px solid #dcd8d4;display:flex;flex-direction:column;justify-content:space-between;padding:20px}
+.tile .type{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:750}
+.tile strong{font-size:clamp(20px,3vw,30px);font-weight:750;letter-spacing:-.055em}
+.tile span:last-child{font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.1em}
+.shop{background:#f3f1ee}.products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:35px}
+.product{background:var(--paper);border:1px solid #e0dcda;min-width:0;padding:17px}
+.product img{width:100%;aspect-ratio:1;object-fit:cover;margin-bottom:18px}
+.product h3{font-size:20px;line-height:1.16;letter-spacing:-.04em;margin:0 0 15px}
+.product .choices{display:grid;gap:8px}
+.product .choices a{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);padding:12px 10px;font-size:12px;font-weight:650}
+.product .choices a:after{content:"↗"}
+.empty{border:1px solid #d9d5d1;padding:28px;margin-top:30px;color:var(--muted);font-size:14px}
+.small{font-size:12px!important}.muted{color:var(--muted)}
+.socials{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px}
+.socials a{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.11em}
+.footer{background:#18181a;color:#faf9f7;padding:37px 0 24px}
+.footer-upper{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:46px}
+.footer .word{font-size:30px;font-weight:800;letter-spacing:-.07em}
+.footer-nav{display:flex;gap:22px;flex-wrap:wrap}
+.footer-nav a{font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+.footer-bottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid #3d3d41;padding-top:20px;font-size:11px;letter-spacing:.08em}
+@media(max-width:720px){.container{width:min(100% - 32px,1100px)}.wordmark{padding:19px 0 11px}.nav{gap:16px;padding-bottom:16px}.nav a{font-size:10px}.section{padding:65px 0}.section-grid{grid-template-columns:1fr;gap:14px}.products{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:470px){.tile-grid,.products{grid-template-columns:1fr}.hero h1{font-size:clamp(67px,21vw,105px)}.hero{padding:82px 0 99px}.tile{min-height:125px}.product h3{font-size:19px}.section h2{font-size:55px}}
+</style>
+</head>
+<body>
+<header class="header">
+<a class="wordmark" href="https://simonlibonstore.gumroad.com/">SIMON LIBON</a>
+<nav class="nav" aria-label="Main navigation">
+<a href="#music">Music</a><a href="#concerts">Concerts</a><a href="#tabs">Tabs &amp; Tracks</a><a href="#merch">Merch</a>
+</nav>
+</header>
+<main>
+<section class="hero container" aria-labelledby="hero-name">
+<div class="eyebrow">Guitarist &amp; composer</div>
+<h1 id="hero-name">SIMON<br>LIBON</h1>
+<p>Original guitar music. Electronic textures. An independent artistic universe.</p>
+<div class="actions"><a class="cta primary" href="https://simonlibon.github.io/music.html">Explore music</a><a class="cta light" href="#tabs">Explore tabs</a></div>
+</section>
+<section id="music" class="section"><div class="container section-grid"><div>
+<div class="eyebrow">01 — Music</div><h2>MUSIC.</h2>
+<p>Explore my music, new releases and listening links. All official streaming destinations are updated on the main website when releases become available.</p>
+<a class="cta primary" href="https://simonlibon.github.io/music.html">Listen / releases</a></div>
+<div class="tile"><span class="type">Official releases</span><strong>Music first.<br>Everything else follows.</strong><span>Independent artistry</span></div>
+</div></section>
+<section id="concerts" class="section"><div class="container section-grid"><div>
+<div class="eyebrow">02 — Live</div><h2>CONCERTS.</h2>
+<p>Concert announcements, dates and tickets are maintained on the official website.</p>
+<a class="cta primary" href="https://simonlibon.github.io/concerts.html">View concerts</a></div>
+<div class="tile"><span class="type">Live performances</span><strong>See the music<br>on stage.</strong><span>Dates &amp; tickets</span></div>
+</div></section>
+<section id="tabs" class="section shop"><div class="container">
+<div class="eyebrow">03 — Official digital downloads</div><h2>TABS &amp;<br>TRACKS.</h2>
+<p>Official guitar tablatures and backing tracks, organized by song. Choose the PDF alone or the combined tab and accompaniment pack when available. Secure checkout by Gumroad.</p>
+<div id="gumroad-products" class="products" aria-live="polite"></div>
+<div id="gumroad-empty" class="empty">The collection is being prepared. No downloads are currently on sale.</div>
+<div class="actions" style="justify-content:flex-start;margin-top:23px"><a class="cta primary" href="https://simonlibon.github.io/tabs.html">Official tabs shop</a></div>
+</div></section>
+<section id="merch" class="section"><div class="container section-grid"><div>
+<div class="eyebrow">04 — Merch</div><h2>MERCH.</h2>
+<p>Merchandise and collections, presented on the official shop. Product availability and checkout remain on the designated store.</p>
+<a class="cta primary" href="https://simonlibon.github.io/merch.html">Explore merch</a></div>
+<div class="tile"><span class="type">Official merchandise</span><strong>Designed for<br>the music.</strong><span>Merch collections</span></div>
+</div></section>
+<section id="press" class="section"><div class="container section-grid"><div>
+<div class="eyebrow">05 — Press &amp; contact</div><h2>PRESS.</h2>
+<p>Press material, EPK and professional enquiries are available on the official website.</p>
+<a class="cta primary" href="https://simonlibon.github.io/press.html">Open press / EPK</a></div>
+<div><div class="eyebrow">Connect</div><div class="socials">
+<a href="https://www.youtube.com/@simonlibon">YouTube</a>
+<a href="https://www.instagram.com/simon.libon/">Instagram</a>
+<a href="https://www.tiktok.com/@simonlibon.music">TikTok</a>
+<a href="https://www.facebook.com/profile.php?id=100070692266151">Facebook</a>
+</div>
+<p class="small">All official social links are grouped on the main website.</p>
+</div></div></section>
+<section id="newsletter" class="section"><div class="container section-grid"><div>
+<div class="eyebrow">Stay informed</div><h2>NEWSLETTER.</h2>
+<p>New music, important tab collections, selected merchandise and concert announcements. The official newsletter is managed through EmailOctopus.</p>
+<a class="cta primary" href="https://simonlibon.github.io/#newsletter">Join the newsletter</a>
+</div><div class="tile"><span class="type">Official updates</span><strong>Only the<br>important news.</strong><span>Music · tabs · shows</span></div></div></section>
+</main>
+<footer class="footer"><div class="container">
+<div class="footer-upper"><div><div class="word">SIMON LIBON</div><div class="socials">
+<a href="https://www.youtube.com/@simonlibon">YouTube</a><a href="https://www.instagram.com/simon.libon/">Instagram</a><a href="https://www.tiktok.com/@simonlibon.music">TikTok</a><a href="https://www.facebook.com/profile.php?id=100070692266151">Facebook</a></div></div>
+<div class="footer-nav"><a href="https://simonlibon.github.io/">Official website</a><a href="#newsletter">Newsletter</a><a href="https://simonlibon.github.io/press.html">Press / EPK</a><a href="https://simonlibon.github.io/privacy.html">Privacy</a></div>
+</div>
+<div class="footer-bottom"><span>© 2026 SIMON LIBON</span><span>Secure digital checkout powered by Gumroad</span></div>
+</div></footer>
+<script>
+(function(){
+  var slot=document.getElementById("gumroad-products");
+  var empty=document.getElementById("gumroad-empty");
+  var data=document.getElementById("gumroad-data");
+  if(!slot||!empty||!data)return;
+  var payload;
+  try{payload=JSON.parse(data.textContent||"{}");}catch(e){return;}
+  var items=Array.isArray(payload.products)?payload.products:Array.isArray(payload.data&&payload.data.products)?payload.data.products:[];
+  var groups={};var order=[];
+  function nameOf(p){return String(p.name||p.title||"").trim();}
+  function permalink(p){
+    var code=String(p.permalink||p.custom_permalink||"");
+    if(!code&&p.url){var m=/\/l\/([a-zA-Z0-9_-]+)/.exec(String(p.url));if(m)code=m[1];}
+    return /^[a-z0-9_-]+$/i.test(code)?code:"";
+  }
+  for(var i=0;i<items.length;i++){
+    var p=items[i];if(!p||typeof p!=="object")continue;
+    var n=nameOf(p);var code=permalink(p);
+    if(!code||/^test\b|\[(?:song|ep) title\]/i.test(n))continue;
+    var isEP=/\b(ep|album)\b/i.test(n);
+    var isPack=/\btab(?:s|lature)?\b.*\bbacking\b/i.test(n);
+    var isTab=/\btab(?:s|lature)?\b/i.test(n);
+    if(!isEP&&!isTab)continue;
+    var base=isEP?n:n.replace(/\s*[-—–:]\s*(?:guitar\s+)?tabs?(?:\s*\+\s*backing\s+tracks?)?\s*$/i,"").trim();
+    var key=(isEP?"ep:":"track:")+base.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    if(!groups[key]){groups[key]={title:base,items:[]};order.push(key);}
+    groups[key].items.push({code:code,label:isEP?"View bundle":isPack?"Tab + Backing Track":"Guitar Tab (PDF)"});
+  }
+  if(!order.length)return;
+  empty.hidden=true;
+  order.forEach(function(key){
+    var g=groups[key];
+    var card=document.createElement("article");card.className="product";
+    var label=document.createElement("div");label.className="eyebrow";label.textContent=key.indexOf("ep:")===0?"EP COLLECTION":"INDIVIDUAL TRACK";
+    var title=document.createElement("h3");title.textContent=g.title;
+    var actions=document.createElement("div");actions.className="choices";
+    g.items.forEach(function(item){
+      var a=document.createElement("a");a.href="https://simonlibonstore.gumroad.com/l/"+item.code;a.textContent=item.label;actions.appendChild(a);
+    });
+    card.appendChild(label);card.appendChild(title);card.appendChild(actions);slot.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
