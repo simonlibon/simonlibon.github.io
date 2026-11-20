@@ -107,6 +107,16 @@ def tab_format(name):
     return title, kind
 
 
+def checkout_url(code, price_cents):
+    """Preselect a free pay-what-you-want amount before Gumroad checkout."""
+    if not isinstance(code, str) or not re.fullmatch(r"[a-zA-Z0-9_-]+", code):
+        raise ValueError("Invalid Gumroad product permalink")
+    url = "https://simonlibonstore.gumroad.com/l/" + code
+    if price_cents == 0:
+        return url + "?price=0&wanted=true"
+    return url + "?wanted=true"
+
+
 def options_html(current, catalog):
     """Match only verified published sibling products; never synthesize checkout."""
     own = tab_format(current.get("name"))
@@ -135,6 +145,7 @@ def options_html(current, catalog):
         candidates[match[1]] = {
             "code": code,
             "price": f"€{cents / 100:.2f}",
+            "cents": cents,
         }
     if not all(kind in candidates for kind in ("tabs", "pack")):
         return ""
@@ -148,7 +159,7 @@ def options_html(current, catalog):
         selected = own[1] == kind and option["code"] == own_id
         tag = "span" if selected else "a"
         cls = "shop-option selected" if selected else "shop-option"
-        href = "" if selected else ' href="https://simonlibonstore.gumroad.com/l/' + option["code"] + '"'
+        href = "" if selected else ' href="' + html.escape(checkout_url(option["code"], option["cents"]), quote=True) + '"'
         fields.append(
             f'<{tag} class="{cls}"{href}>'
             f'<span class="shop-option-name">{html.escape(labels[kind])}</span>'
