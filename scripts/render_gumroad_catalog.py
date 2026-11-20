@@ -115,7 +115,7 @@ def product_card(g):
     type_text = "Complete collection" if g["kind"] == "bundle" else "Guitar tabs & tracks"
     return ('<article class="shop-item" data-shop-release="' + esc(g["title"].casefold()) +
             '" data-shop-search="' + esc((g["title"] + " " + g["search"]).casefold()) +
-            '" data-shop-date="' + esc(g["date"]) + '">')
+            '" data-shop-date="' + esc(g["date"]) + '">'
             '<a class="shop-card-link" href="' + esc(choice["checkout"]) +
             '" aria-label="Checkout: ' + esc(g["title"]) +
             '"><div class="shop-item-image">' + cover + '</div></a>'
