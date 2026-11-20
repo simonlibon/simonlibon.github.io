@@ -26,7 +26,7 @@ class GumroadMirrorTests(unittest.TestCase):
                       'class="sl-product-cover"', 'data-sl-mirror-css="style.css"',
                       'data-sl-mirror-css="shop.css"', 'data-gumroad-field="name"',
                       'data-gumroad-field="price"', 'data-gumroad-field="description"',
-                      'data-gumroad-action="buy"', 'BACK TO ALL PRODUCTS',
+                      'data-gumroad-action="buy"', 'ALL TABS &amp; BACKING TRACKS',
                       'Kinetic — Guitar Tab + Backing Track'):
             self.assertIn(token, result)
         self.assertNotIn('src="product.js', result)
