@@ -1,0 +1,36 @@
+name: Verify storefront without publishing
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'catalog.js'
+      - 'shop-model.js'
+      - 'shop.js'
+      - 'product.js'
+      - 'tabs.html'
+      - 'product.html'
+      - 'scripts/sync_gumroad.py'
+      - 'tests/test_shop.js'
+      - 'tests/test_gumroad_sync.py'
+      - '.github/workflows/verify-storefront.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check storefront links, grouping and hidden drafts
+        run: node tests/test_shop.js
+      - name: Check safe Gumroad synchronization without network access
+        run: python -m unittest discover -s tests -p 'test_gumroad_sync.py' -v
