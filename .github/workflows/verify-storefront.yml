@@ -12,6 +12,11 @@ on:
       - 'scripts/sync_gumroad.py'
       - 'tests/test_shop.js'
       - 'tests/test_gumroad_sync.py'
+      - 'tests/test_gumroad_site.py'
+      - 'scripts/build_gumroad_site.py'
+      - 'gumroad-site/profile.html'
+      - 'releases.json'
+      - 'concerts-data.json'
       - '.github/workflows/verify-storefront.yml'
   workflow_dispatch:
 
@@ -34,3 +39,9 @@ jobs:
         run: node tests/test_shop.js
       - name: Check safe Gumroad synchronization without network access
         run: python -m unittest discover -s tests -p 'test_gumroad_sync.py' -v
+      - name: Test the full Gumroad site with draft, release and concert fixtures
+        run: python -m unittest discover -s tests -p 'test_gumroad_site.py' -v
+      - name: Generate actual Gumroad homepage from current public data
+        run: |
+          python scripts/build_gumroad_site.py --output "$RUNNER_TEMP/simon-gumroad-profile.html"
+          test -s "$RUNNER_TEMP/simon-gumroad-profile.html"
