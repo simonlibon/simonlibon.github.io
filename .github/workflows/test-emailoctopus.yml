@@ -26,6 +26,13 @@ jobs:
             echo "::error::The stored value is not a single bearer token. Replace the repository secret."
             exit 1
           fi
+          auth_status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${token}" 'https://api.emailoctopus.com/lists')
+          if [[ "$auth_status" != 200 ]]; then
+            echo "::error::EmailOctopus key verification returned HTTP $auth_status."
+            exit 1
+          fi
+          echo "EmailOctopus authenticated the GitHub Actions secret."
           contact_id=$(printf %s 'simonlibon.music@gmail.com' | md5sum | cut -d' ' -f1)
           status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
             --header "Authorization: Bearer ${token}" \
