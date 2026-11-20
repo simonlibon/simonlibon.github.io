@@ -4,6 +4,10 @@ on:
     branches: [main]
     paths:
       - 'gumroad-site/profile.html'
+      - 'index.html'
+      - 'style.css'
+      - 'site.js'
+      - 'scripts/mirror_gumroad.py'
       - 'scripts/build_gumroad_site.py'
       - 'releases.json'
       - 'concerts-data.json'
