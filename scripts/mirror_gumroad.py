@@ -8,6 +8,10 @@ import html
 import re
 from pathlib import Path
 from urllib.parse import unquote
+if __package__:
+    from .render_gumroad_catalog import load_catalog, render_shop
+else:
+    from render_gumroad_catalog import load_catalog, render_shop
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = "https://simonlibon.github.io/"
@@ -198,6 +202,10 @@ def mirror_standalone(slug):
         out = out.replace("'" + filename + "'", "'" + SITE + filename + "'")
         out = out.replace('"' + filename + '"', '"' + SITE + filename + '"')
     out = out.replace("<body ", '<body data-sl-mirror="official-page-' + slug + '" ', 1)
+    if slug == "tabs":
+        # Essential product cards must be server-rendered into Gumroad's HTML.
+        # Remote scripts may be blocked, and should never make the shop empty.
+        out = render_shop(out, load_catalog())
     if ('data-sl-mirror="official-page-' + slug + '"') not in out:
         raise ValueError("Cannot mirror the " + slug + " page")
     if 'data-sl-mirror-css="style.css"' not in out:
