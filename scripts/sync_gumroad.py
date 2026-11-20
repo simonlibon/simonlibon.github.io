@@ -135,7 +135,7 @@ def image_of(item, old):
 def read_catalogue():
     source = CATALOG.read_text(encoding="utf-8")
     match = re.fullmatch(
-        r"\s*window\.SIMON_SHOP_CATALOG\s*=\s*(\{[\s\S]*\})\s*;\s*", source
+        r"\s*(?://[^\n]*\n\s*)*window\.SIMON_SHOP_CATALOG\s*=\s*(\{[\s\S]*\})\s*;\s*", source
     )
     if not match:
         raise RuntimeError("Unknown catalog.js format; refusing to overwrite")
