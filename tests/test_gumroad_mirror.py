@@ -1,6 +1,6 @@
 """The Gumroad mirror uses canonical, same-source HTML/CSS, not another theme."""
 import unittest
-from scripts.mirror_gumroad import mirror_profile, mirror_product, ROOT
+from scripts.mirror_gumroad import mirror_profile, mirror_product, mirror_standalone, ROOT
 
 class GumroadMirrorTests(unittest.TestCase):
     def test_home_has_canonical_structure_and_styles(self):
@@ -33,6 +33,15 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertNotIn('id="product-layout" class="sl-product-layout" hidden', result)
         self.assertNotIn('id="product-error"', result)
         self.assertTrue(len(result) < 150000)
+
+    def test_music_page_logo_assets_are_gumroad_compatible(self):
+        rendered = mirror_standalone("music")
+        self.assertNotIn("data:image/svg+xml", rendered)
+        self.assertNotIn("data:image/png;base64", rendered)
+        self.assertIn("assets/music-logos/qobuz.png", rendered)
+        self.assertIn("assets/music-logos/yandex-music.png", rendered)
+        self.assertIn('class="sl-logo-inline"', rendered)
+        self.assertIn('data-sl-mirror-css="style.css"', rendered)
 
 if __name__ == "__main__":
     unittest.main()
