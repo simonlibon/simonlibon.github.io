@@ -128,7 +128,8 @@ a{color:inherit;text-decoration:none}a:hover{opacity:.72}a:focus-visible{outline
   function nameOf(p){return String(p.name||p.title||"").trim();}
   function permalink(p){
     var code=String(p.permalink||p.custom_permalink||"");
-    if(!code&&p.url){var m=/\/l\/([a-zA-Z0-9_-]+)/.exec(String(p.url));if(m)code=m[1];}
+    var link=String(p.url||p.short_url||p.product_permalink||"");
+    if(!code&&link){var m=/\/l\/([a-zA-Z0-9_-]+)/.exec(link);if(m)code=m[1];}
     return /^[a-z0-9_-]+$/i.test(code)?code:"";
   }
   for(var i=0;i<items.length;i++){
