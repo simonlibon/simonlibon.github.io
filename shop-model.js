@@ -72,6 +72,10 @@
     // Gumroad officially supports a product URL plus ?wanted=true for direct checkout.
     // Use the creator's validated product URL instead of an undocumented checkout URL.
     const checkoutUrl = new URL(product.gumroadUrl);
+    // Gumroad's zero-price products show €0+ (pay what you want). For those,
+    // its checkout requires an explicit price before wanted=true can bypass
+    // the intermediary landing page. Never override paid-product prices.
+    if (Number(product.price) === 0) checkoutUrl.searchParams.set("price", "0");
     checkoutUrl.searchParams.set("wanted", "true");
     return checkoutUrl.href;
   };
