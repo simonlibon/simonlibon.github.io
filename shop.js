@@ -37,7 +37,7 @@
     if (window.location.hostname === "simonlibonstore.gumroad.com") {
       const option = g.kind === "bundle" ? g.options[0] :
         (g.options.find(function (o) { return o.kind === "pack"; }) || g.options[0]);
-      if (option && model.isLive(option.product)) return option.product.gumroadUrl;
+      if (option && model.isLive(option.product)) return model.checkout(option.product);
     }
     const query = preview ? "demo=1&" : "";
     return g.kind === "bundle" ? "product.html?" + query + "id=" + encodeURIComponent(g.id) :
