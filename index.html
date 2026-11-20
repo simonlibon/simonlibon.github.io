@@ -161,5 +161,13 @@ newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterD
     const dialog=document.getElementById('newsletter-dialog');
     if(dialog && e.target===dialog)dialog.close();
   });
+  // A newsletter link from the Gumroad website opens the existing signup dialog.
+  function openFromLink(){
+    if(window.location.hash!=='#newsletter')return;
+    const dialog=document.getElementById('newsletter-dialog');
+    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
+  }
+  window.addEventListener('hashchange',openFromLink);
+  openFromLink();
 })();
 </script></body></html>
