@@ -195,7 +195,7 @@ def build(p, catalog=None):
     result = mirror_product(p, cover, label, fallback, includes)
     options = options_html(p, catalog or [])
     if options:
-        anchor = '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy">'
+        anchor = '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"'
         if result.count(anchor) != 1:
             raise ValueError("Missing Gumroad buy button for format selector")
         result = result.replace(anchor, options + anchor, 1)
