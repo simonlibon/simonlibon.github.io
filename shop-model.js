@@ -69,11 +69,10 @@
   };
   const checkout = function (product) {
     if (!isLive(product)) return "";
-    const code = new URL(product.gumroadUrl).pathname.split("/").filter(Boolean).pop();
-    const checkoutUrl = new URL("https://gumroad.com/checkout");
-    checkoutUrl.searchParams.set("product", code);
-    checkoutUrl.searchParams.set("quantity", "1");
-    checkoutUrl.searchParams.set("referrer", "https://simonlibon.github.io/tabs.html");
+    // Gumroad officially supports a product URL plus ?wanted=true for direct checkout.
+    // Use the creator's validated product URL instead of an undocumented checkout URL.
+    const checkoutUrl = new URL(product.gumroadUrl);
+    checkoutUrl.searchParams.set("wanted", "true");
     return checkoutUrl.href;
   };
   window.SIMON_SHOP_MODEL = { build: build, checkout: checkout, isLive: isLive };
