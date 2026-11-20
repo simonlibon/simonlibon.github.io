@@ -14,9 +14,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from mirror_gumroad import mirror_product
 
 API = "https://api.gumroad.com/v2/"
-MARKER = 'data-sl-product-template="v1"'
+MARKER = 'data-sl-product-template="v2"'
+OWN_MARKERS = (MARKER, 'data-sl-product-template="v1"')
 TEMPLATE = Path(__file__).with_name("gumroad-product-template.html")
 FALLBACK_COVERS = {
     "zvxja": "https://public-files.gumroad.com/w3h3lhnhymirnqdzb1xls0h7nb28",
@@ -94,10 +96,17 @@ def build(p):
     fallback = p.get("formatted_price") or p.get("price_formatted") or "VIEW PRICE AT CHECKOUT"
     if isinstance(amount, (float, int)) and not p.get("formatted_price"):
         fallback = f"€{amount / 100:,.2f}" if p.get("price_currency_type") == "eur" else "VIEW PRICE AT CHECKOUT"
-    template = TEMPLATE.read_text(encoding="utf-8")
-    return (template.replace("[[COVER_HTML]]", cover)
-                    .replace("[[TYPE_LABEL]]", html.escape(product_type(p)))
-                    .replace("[[PRICE_FALLBACK]]", html.escape(str(fallback))))
+    name_lower = str(name).lower()
+    if "ep" in name_lower or "album" in name_lower or "bundle" in name_lower:
+        includes = ["Official tablatures (PDF)", "Backing tracks (audio)", "Digital download"]
+        label = "EP COLLECTION"
+    elif "tab" in name_lower and "backing" in name_lower:
+        includes = ["Guitar tab (PDF)", "Backing track without lead guitar", "Digital download"]
+        label = "INDIVIDUAL TRACK"
+    else:
+        includes = ["Guitar tab (PDF)", "Digital download"]
+        label = "INDIVIDUAL TRACK"
+    return mirror_product(p, cover, label, fallback, includes)
 
 
 def main():
@@ -128,7 +137,7 @@ def main():
             continue
         name = product.get("name") or entry.get("name")
         old = request(token, "products/" + key + "/custom_html").get("custom_html") or ""
-        if old and MARKER not in old:
+        if old and not any(marker in old for marker in OWN_MARKERS):
             print(f"SKIP {permalink}: independently customized page; no changes")
             continue
         if not product.get("permalink") and not product.get("custom_permalink"):
