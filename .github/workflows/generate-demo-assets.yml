@@ -1,0 +1,56 @@
+name: Generate demo shop files
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/create_demo_assets.py
+      - .github/workflows/generate-demo-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-demo-assets
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install demo generators
+        run: python -m pip install Pillow reportlab
+      - name: Create synthetic PDF, WAV and PNG
+        run: python scripts/create_demo_assets.py
+      - name: Validate generated files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import wave
+          folder=Path('test-assets')
+          paths=['Test_Track_Guitar_Tab_DEMO.pdf','Test_Track_Backing_Track_DEMO.wav','Test_Track_Cover_DEMO.png']
+          for name in paths:
+              f=folder/name
+              assert f.is_file() and f.stat().st_size>500, name
+          assert (folder/paths[0]).read_bytes().startswith(b'%PDF')
+          assert (folder/paths[2]).read_bytes().startswith(b'\x89PNG')
+          with wave.open(str(folder/paths[1]),'rb') as wav:
+              assert wav.getnframes()>0
+          print('Three demo files generated and validated')
+          PY
+      - name: Commit only test files
+        run: |
+          git add test-assets/Test_Track_*
+          if git diff --cached --quiet; then
+            echo "Demo files unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Generate synthetic test download assets"
+          git push
