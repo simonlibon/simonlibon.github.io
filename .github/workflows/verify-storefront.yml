@@ -13,6 +13,13 @@ on:
       - 'tests/test_shop.js'
       - 'tests/test_gumroad_sync.py'
       - 'tests/test_gumroad_site.py'
+      - 'tests/test_gumroad_mirror.py'
+      - 'scripts/mirror_gumroad.py'
+      - 'product.html'
+      - 'style.css'
+      - 'shop.css'
+      - 'index.html'
+      - 'site.js'
       - 'scripts/build_gumroad_site.py'
       - 'gumroad-site/profile.html'
       - 'releases.json'
@@ -41,6 +48,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_gumroad_sync.py' -v
       - name: Test the full Gumroad site with draft, release and concert fixtures
         run: python -m unittest discover -s tests -p 'test_gumroad_site.py' -v
+      - name: Check Gumroad mirrors official homepage and product detail DOM and CSS
+        run: python -m unittest discover -s tests -p 'test_gumroad_mirror.py' -v
       - name: Generate actual Gumroad homepage from current public data
         run: |
           python scripts/build_gumroad_site.py --output "$RUNNER_TEMP/simon-gumroad-profile.html"
