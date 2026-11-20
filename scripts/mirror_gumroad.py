@@ -43,9 +43,29 @@ def _inline_assets(document, product=False):
     document = re.sub(r'\b(href|src)="([^"]+)"', absolute, document)
     return document
 
+def _store_navigation(document):
+    """Keep the canonical visual design but link to verified Gumroad page slugs."""
+    pages = {
+        "index.html": "",
+        "music.html": "music",
+        "concerts.html": "concerts",
+        "tabs.html": "tabs",
+        "merch.html": "merch",
+        "press.html": "press",
+        "privacy.html": "privacy",
+    }
+    for filename, slug in pages.items():
+        old = 'href="' + SITE + filename
+        # Preserve query and hash components while changing only the route.
+        document = document.replace(old + '"', 'href="' + STORE + slug + '"')
+        document = document.replace(old + '?', 'href="' + STORE + slug + '?')
+        document = document.replace(old + '#', 'href="' + STORE + slug + '#')
+    document = document.replace('href="' + SITE + '"', 'href="' + STORE + '"')
+    return document
+
 def mirror_profile():
     source = (ROOT / "index.html").read_text(encoding="utf-8")
-    out = _inline_assets(source)
+    out = _store_navigation(_inline_assets(source))
     # The page is a visual clone; this marker is a deployment assertion.
     out = out.replace("<body data-page=\"home\">",
                       '<body data-page="home" data-sl-mirror="official-home-v2">', 1)
@@ -55,7 +75,7 @@ def mirror_profile():
 
 def mirror_product(p, cover_html, type_label, price_fallback, includes):
     out = (ROOT / "product.html").read_text(encoding="utf-8")
-    out = _inline_assets(out, product=True)
+    out = _store_navigation(_inline_assets(out, product=True))
     def once(old, new):
         nonlocal out
         if out.count(old) != 1:
@@ -157,7 +177,7 @@ def mirror_standalone(slug):
     if slug not in PAGE_SOURCES:
         raise ValueError("Unknown Simon Libon page")
     source = (ROOT / PAGE_SOURCES[slug]).read_text(encoding="utf-8")
-    out = _inline_assets(source)
+    out = _store_navigation(_inline_assets(source))
     if slug == "music":
         out = _compatible_music_images(out)
     # The catalogue and schedule scripts fetch public data from the official
