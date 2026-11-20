@@ -99,7 +99,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const select = document.createElement('select');
     select.id = 'newsletter-concert-country';
     select.add(new Option('Select your country', ''));
-    for (const choice of JSON.parse(field.dataset.choices)) {
+    const choices = JSON.parse(field.dataset.choices);
+    choices.sort((a, b) => a.label.localeCompare(b.label, 'en'));
+    for (const choice of choices) {
       select.add(new Option(choice.label, String(choice.value)));
     }
     const label = document.createElement('label');
@@ -120,6 +122,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     wrapper.append(label, select, value);
     field.style.display = 'none';
     field.after(wrapper);
+    const email = dialog.querySelector('.main-form input[type=email]');
+    if (email && email.id && !email.labels.length) {
+      const emailLabel = document.createElement('label');
+      emailLabel.className = 'newsletter-email-label';
+      emailLabel.htmlFor = email.id;
+      emailLabel.textContent = 'Email address';
+      email.placeholder = 'you@example.com';
+      email.before(emailLabel);
+    }
     return true;
   }
   if (mountPicker()) return;

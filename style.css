@@ -686,3 +686,20 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 #newsletter-dialog .newsletter-country-picker { display: grid; gap: 6px; margin-top: 14px; }
 #newsletter-dialog .newsletter-country-picker label { font: 500 12px/1.4 'DM Sans', Arial, sans-serif; color: var(--ink); }
 #newsletter-dialog .newsletter-country-picker select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 46px; padding: 8px 12px; font: 400 16px/1.4 'DM Sans', Arial, sans-serif; background-color: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 0; }
+
+#newsletter-dialog [eo-form-fields-container] { display: grid; gap: 14px; }
+#newsletter-dialog .newsletter-country-picker { margin-top: 0; }
+#newsletter-dialog .newsletter-email-label,
+#newsletter-dialog .newsletter-country-picker label {
+  display: block;
+  margin: 0;
+  color: var(--ink);
+  font: 500 13px/1.4 'DM Sans', Arial, sans-serif;
+}
+#newsletter-dialog .newsletter-email-label { margin-bottom: 6px; }
+#newsletter-dialog .main-form { gap: 16px; }
+#newsletter-dialog .newsletter-dialog-body { padding-block: 28px 18px; }
+#newsletter-dialog .newsletter-dialog-body > p { margin-bottom: 18px; }
+@media (max-height: 540px) {
+  #newsletter-dialog { max-height: calc(100dvh - 16px); overflow-y: auto; }
+}
