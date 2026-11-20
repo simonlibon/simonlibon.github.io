@@ -1,0 +1,52 @@
+name: Preview complete Gumroad website
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gumroad-site/profile.html'
+      - '.github/workflows/preview-gumroad-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+      - name: Install official Gumroad CLI
+        run: |
+          go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Confirm seller identity
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          test -n "$GUMROAD_ACCESS_TOKEN" || { echo "::error::GUMROAD_ACCESS_TOKEN missing"; exit 1; }
+          gumroad user --json --no-input --jq '.user | {username, name}'
+      - name: Preview and sanitize custom Gumroad homepage (no publishing)
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages preview ./gumroad-site/profile.html --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"
+          python - "$RUNNER_TEMP/gumroad-preview.json" <<'PY'
+          import json,sys
+          preview=json.load(open(sys.argv[1],encoding='utf-8'))
+          if not preview.get('success',True):
+              raise SystemExit('Gumroad rejected custom profile preview')
+          html=preview.get('custom_html') or ''
+          report=preview.get('sanitization_report') or {}
+          print('Preview accepted; sanitized HTML characters:',len(html))
+          print('Sanitization report:',json.dumps(report,ensure_ascii=False)[:2000])
+          # All branded areas and links must survive the sanitizer.
+          for token in ('SIMON LIBON','Music','Concerts','TABS','MERCH','NEWSLETTER','https://simonlibon.github.io/'):
+              if token.lower() not in html.lower():
+                  raise SystemExit('Gumroad stripped essential element: '+token)
+          PY
+      - name: Report no live changes
+        run: echo "This workflow only previews the Gumroad site. It does not publish, email, or modify any product."
