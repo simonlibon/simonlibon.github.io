@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#faf9f7">
+<meta name="description" content="Listen to Simon Libon's official releases on your preferred music platform.">
+<title>Listen | Simon Libon</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{font-family:"DM Sans",Arial,sans-serif;color:#18181a;background:#faf9f7}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit}
+.brand{height:76px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e7e4e1;color:#18181a;text-decoration:none;font:700 26px/1 "Space Grotesk",Arial,sans-serif;letter-spacing:-.05em}
+main{width:min(100% - 36px,520px);margin:0 auto;flex:1;padding:52px 0 70px}
+.kicker{color:#77757a;font-size:10px;letter-spacing:.22em;font-weight:700;text-transform:uppercase;text-align:center;margin:0 0 26px}
+.cover{width:min(100%,330px);aspect-ratio:1;margin:0 auto 28px;background:#e8e4ee;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cover img{display:block;width:100%;height:100%;object-fit:cover}
+.cover-fallback{font-size:13px;color:#55515b;font-weight:700;letter-spacing:.16em;text-align:center;padding:20px}
+h1{margin:0;text-align:center;font:700 clamp(29px,7vw,42px)/1.1 "Space Grotesk",Arial,sans-serif;letter-spacing:-.065em;overflow-wrap:anywhere}
+.release-type{color:#77757a;letter-spacing:.17em;text-transform:uppercase;font-weight:700;font-size:10px;text-align:center;margin:11px 0 36px}
+.platform-list{display:grid;gap:9px}
+.platform-link{min-height:54px;display:flex;justify-content:space-between;align-items:center;border:1px solid #d7d4d2;text-decoration:none;background:transparent;padding:15px 17px;font-size:12px;letter-spacing:.035em;font-weight:700}
+.preview-link{color:#85838b;cursor:default;background:#f4f2ef}.preview-note{text-align:center;font-size:10px;line-height:1.6;color:#77757a;letter-spacing:.06em;margin:0 auto 18px;max-width:400px}.platform-link:not(.preview-link):hover,.platform-link:not(.preview-link):focus-visible{background:#18181a;color:#faf9f7;border-color:#18181a}
+.platform-link span:last-child{font-size:16px;font-weight:400}
+.empty{margin:70px 0 0;text-align:center}
+.empty p{margin:14px auto 0;max-width:380px;font-size:13px;color:#77757a;line-height:1.6}
+.empty a{display:inline-block;margin-top:28px;padding:13px 20px;border:1px solid #18181a;text-decoration:none;font-size:10px;letter-spacing:.12em;font-weight:700}
+footer{border-top:1px solid #e7e4e1;padding:22px 18px;color:#85838b;text-align:center;font-size:10px;letter-spacing:.12em}
+[hidden]{display:none!important}
+@media(max-width:650px){.brand{height:60px;font-size:23px}main{padding:35px 0 55px}.cover{width:min(100%,290px)}}
+@media(prefers-reduced-motion:no-preference){.platform-link{transition:background .15s,color .15s}}
+</style>
+</head>
+<body>
+<a class="brand" href="index.html" aria-label="Simon Libon home">SIMON LIBON</a>
+<main>
+<section id="release" hidden aria-label="Listen to this release">
+<p class="kicker">LISTEN NOW</p>
+<div id="cover" class="cover"></div>
+<h1 id="release-title"></h1>
+<p id="release-type" class="release-type"></p>
+<nav id="platforms" class="platform-list" aria-label="Choose a streaming platform"></nav>
+</section>
+<section id="unavailable" class="empty" hidden aria-live="polite">
+<h1 id="unavailable-title">COMING SOON</h1>
+<p id="unavailable-description">The listening links will appear here when this release is available.</p>
+<a href="music.html">BACK TO MUSIC →</a>
+</section>
+</main>
+<footer>© SIMON LIBON</footer>
+<script>
+(function(){
+"use strict";
+const releaseBox=document.getElementById("release");
+const emptyBox=document.getElementById("unavailable");
+const emptyTitle=document.getElementById("unavailable-title");
+const emptyDescription=document.getElementById("unavailable-description");
+const params=new URLSearchParams(location.search);
+const id=params.get("id");
+const preview=params.get("preview")==="1";
+const showEmpty=(title,description)=>{
+  emptyTitle.textContent=title;
+  emptyDescription.textContent=description;
+  emptyBox.hidden=false;
+};
+if(preview){
+  document.title="Newsletter Preview — Listen | Simon Libon";
+  document.getElementById("release-title").textContent="[RELEASE TITLE]";
+  document.getElementById("release-type").textContent="SINGLE · EP · ALBUM";
+  const cover=document.getElementById("cover");
+  const placeholder=document.createElement("span");
+  placeholder.className="cover-fallback";
+  placeholder.textContent="RELEASE ARTWORK";
+  cover.append(placeholder);
+  const note=document.createElement("p");
+  note.className="preview-note";
+  note.textContent="PREVIEW ONLY — Streaming links will become active when this release is published.";
+  const nav=document.getElementById("platforms");
+  nav.parentElement.insertBefore(note,nav);
+  ["Spotify","Apple Music","YouTube Music","Deezer","Amazon Music"].forEach(name=>{
+    const item=document.createElement("div");
+    item.className="platform-link preview-link";
+    item.setAttribute("aria-disabled","true");
+    const label=document.createElement("span");
+    label.textContent=name;
+    item.append(label);
+    nav.append(item);
+  });
+  releaseBox.hidden=false;
+  return;
+}
+if(!id||!/^[a-z0-9-]{1,80}$/.test(id)){
+  showEmpty("COMING SOON","The listening links will appear here when a release is available.");
+  return;
+}
+fetch("releases.json",{cache:"no-store"}).then(response=>{
+  if(!response.ok)throw Error("Release catalogue unavailable");
+  return response.json();
+}).then(data=>{
+  if(!Array.isArray(data.releases))throw Error("Invalid release catalogue");
+  const release=data.releases.find(item=>item && item.id===id && item.published===true);
+  if(!release || typeof release.title!=="string" || !release.title.trim()){
+    showEmpty("NOT AVAILABLE","This release is not available yet.");
+    return;
+  }
+  const labels={single:"SINGLE",ep:"EP",album:"ALBUM"};
+  const links=Array.isArray(release.platforms)?release.platforms:[];
+  const valid=links.filter(item=>{
+    if(!item || typeof item.name!=="string" || !item.name.trim() || typeof item.url!=="string")return false;
+    try{
+      const url=new URL(item.url);
+      return url.protocol==="https:" && !url.username && !url.password;
+    }catch{return false}
+  });
+  if(!valid.length){
+    showEmpty("COMING SOON","Streaming links for this release are not ready yet.");
+    return;
+  }
+  document.title=release.title+" — Listen | Simon Libon";
+  document.getElementById("release-title").textContent=release.title;
+  document.getElementById("release-type").textContent=labels[release.type]||"RELEASE";
+  const cover=document.getElementById("cover");
+  if(typeof release.cover==="string" && /^https:\/\//i.test(release.cover)){
+    const image=document.createElement("img");
+    image.src=release.cover;
+    image.alt="Cover artwork for "+release.title;
+    image.onerror=()=>{cover.replaceChildren();const fallback=document.createElement("span");fallback.className="cover-fallback";fallback.textContent="SIMON LIBON";cover.append(fallback)};
+    cover.append(image);
+  }else{
+    const fallback=document.createElement("span");
+    fallback.className="cover-fallback";
+    fallback.textContent="SIMON LIBON";
+    cover.append(fallback);
+  }
+  const nav=document.getElementById("platforms");
+  valid.forEach(item=>{
+    const link=document.createElement("a");
+    link.className="platform-link";
+    link.href=item.url;
+    link.target="_blank";
+    link.rel="noopener noreferrer";
+    const name=document.createElement("span");
+    name.textContent=item.name;
+    const arrow=document.createElement("span");
+    arrow.textContent="↗";
+    arrow.setAttribute("aria-hidden","true");
+    link.append(name,arrow);
+    nav.append(link);
+  });
+  releaseBox.hidden=false;
+}).catch(()=>showEmpty("TEMPORARILY UNAVAILABLE","Please try again later."));
+})();
+</script>
+</body>
+</html>
