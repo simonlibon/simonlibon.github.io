@@ -53,7 +53,7 @@ jobs:
           print('Preview accepted; sanitized HTML characters:',len(html))
           print('Sanitization report:',json.dumps(report,ensure_ascii=False)[:2000])
           # All branded areas and links must survive the sanitizer.
-          for token in ('SIMON LIBON','Music','Concerts','TABS','MERCH','NEWSLETTER','https://simonlibon.github.io/'):
+          for token in ('SIMON LIBON','Music','Concerts','TABS','MERCH','NEWSLETTER','https://simonlibonstore.gumroad.com/'):
               if token.lower() not in html.lower():
                   raise SystemExit('Gumroad stripped essential element: '+token)
           PY
