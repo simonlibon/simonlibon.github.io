@@ -1,0 +1,33 @@
+name: Test EmailOctopus on Simon's mailbox
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  test:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger the new music automation for Simon only
+        env:
+          EMAILOCTOPUS_API_KEY: ${{ secrets.EMAILOCTOPUS_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${EMAILOCTOPUS_API_KEY}" ]]; then
+            echo "::error::Configure EMAILOCTOPUS_API_KEY before running the private test."
+            exit 1
+          fi
+          contact_id=$(printf %s 'simonlibon.music@gmail.com' | md5sum | cut -d' ' -f1)
+          status=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${EMAILOCTOPUS_API_KEY}" \
+            --header 'Content-Type: application/json' \
+            --data "{\"contact_id\":\"${contact_id}\"}" \
+            'https://api.emailoctopus.com/automations/70b5faf8-e526-11f1-9ffa-5565b58f1bcc/queue')
+          if [[ "$status" != 204 ]]; then
+            echo "::error::EmailOctopus returned HTTP $status. Check the API token, automation status and test contact."
+            exit 1
+          fi
+          echo "EmailOctopus accepted the test for Simon. Verify receipt in Gmail."
