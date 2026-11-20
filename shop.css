@@ -348,3 +348,6 @@ body[data-page="tabs"] .shop-item-price {font-variant-numeric:tabular-nums}
   .sl-product-page .shop-option {padding:12px 11px}
   .sl-product-page .shop-option-name,.sl-product-page .shop-option-price {font-size:12px}
 }
+
+/* Non-transactional storefront preview, visible only with ?demo=1. */
+.shop-demo-note{max-width:850px;margin:12px 0 26px;padding:11px 0;border-top:1px solid #dfdcd8;border-bottom:1px solid #dfdcd8;color:#77757b;font-size:10px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;line-height:1.6}
