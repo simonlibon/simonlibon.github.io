@@ -89,11 +89,18 @@ def slug_of(item):
 
 def kind_of(item, old=None):
     name = str(item.get("name", "")).lower()
-    if "bundle" in name or re.search(r"\bep\b", name) or ("tab" in name and "backing" in name):
+    has_tabs = bool(re.search(r"\b(tabs?|tablatures?)\b", name))
+    has_backing = bool(re.search(r"\bbacking\b", name))
+    # An EP/album is one bundle. A single song sold with both files is a pack.
+    if re.search(r"\b(ep|album)\b", name):
         return "bundle"
-    if "backing" in name:
+    if has_tabs and has_backing:
+        return "pack"
+    if "bundle" in name:
+        return "bundle"
+    if has_backing:
         return "backing"
-    if "tab" in name or "tablature" in name:
+    if has_tabs:
         return "tabs"
     return (old or {}).get("type") or "digital"
 
@@ -205,6 +212,7 @@ def main():
         includes = {
             "tabs": ["Guitar tabs (PDF)", "Digital download"],
             "backing": ["Backing track without lead guitar", "Digital audio download"],
+            "pack": ["Guitar tab (PDF)", "Backing track without lead guitar", "Digital download"],
             "bundle": ["Tabs and backing tracks", "Digital download"],
         }.get(kind, ["Digital download"])
         published.append({
