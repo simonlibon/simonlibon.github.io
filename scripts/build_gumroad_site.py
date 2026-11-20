@@ -12,7 +12,10 @@ import re
 from pathlib import Path
 from urllib.parse import quote, urlparse
 from zoneinfo import ZoneInfo
-from mirror_gumroad import mirror_profile
+if __package__:
+    from .mirror_gumroad import mirror_profile
+else:
+    from mirror_gumroad import mirror_profile
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "gumroad-site" / "profile.html"
