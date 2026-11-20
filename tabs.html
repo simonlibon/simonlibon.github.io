@@ -48,6 +48,9 @@
 <script async src="https://eocampaign1.com/form/e481fb88-e48d-11f1-b718-bf82b7962b6e.js?v=concert-layout2" data-form="e481fb88-e48d-11f1-b718-bf82b7962b6e"></script></div></dialog><script src="site.js?v=newsletter-simple"></script>
 <script>
 (function(){
+  // On Gumroad the official product cards are already embedded at build time.
+  // Do not clear or replace them if Gumroad blocks remote JavaScript.
+  if (document.body.hasAttribute('data-sl-static-catalog')) return;
   const catalog = document.createElement('script');
   catalog.src = 'catalog.js?refresh=' + Date.now();
   catalog.onload = function(){
