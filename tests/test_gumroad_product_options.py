@@ -16,7 +16,7 @@ class ProductOptionTests(unittest.TestCase):
         self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm"',html)
         self.assertIn('Guitar Tab (PDF)',html)
         self.assertIn('Tab + Backing Track',html)
-        self.assertEqual(html.count("class=\"shop-option"), 2)
+        self.assertEqual(html.count('class="shop-option selected"') + html.count('class="shop-option"'), 2)
         output=build(tab,[tab,pack])
         self.assertIn("CHOOSE YOUR DOWNLOAD",output)
         self.assertIn('data-gumroad-action="buy"',output)
