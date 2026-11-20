@@ -32,18 +32,21 @@
     const model = window.SIMON_SHOP_MODEL;
     if (!model) return showError();
     const preview = new URLSearchParams(location.search).get("demo") === "1";
+    // Checkout is only unlocked for the three known test products until cleanup time.
+    const demoCheckoutOpen = preview && Date.now() < Date.parse("2026-11-21T01:49:00+01:00");
+    const testPermalinks = new Set(["mmxjjd", "ntapzm", "jghmyd"]);
     const products = Array.isArray(window.SIMON_SHOP_CATALOG?.products) ? window.SIMON_SHOP_CATALOG.products : [];
     const demoProducts = preview ? [
       {id:"demo-tab",title:"DEMO TRACK — Guitar Tab",type:"tabs",published:true,
-        price:5,description:"Illustrative tab preview only.",releaseDate:"2026-11-21",
+        price:0,description:"Temporary free demo: a synthetic guitar tab PDF, not a real release.",releaseDate:"2026-11-21",
         image:"https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
         gumroadUrl:"https://simonlibonstore.gumroad.com/l/mmxjjd",includes:["Guitar tab (PDF)"]},
       {id:"demo-pack",title:"DEMO TRACK — Guitar Tab + Backing Track",type:"pack",published:true,
-        price:9,description:"Illustrative tab and track preview only.",releaseDate:"2026-11-21",
+        price:0,description:"Temporary free demo: synthetic guitar tab PDF and backing WAV.",releaseDate:"2026-11-21",
         image:"https://public-files.gumroad.com/me05sdxis06xvgyy5vlmgye8mqiu",
         gumroadUrl:"https://simonlibonstore.gumroad.com/l/ntapzm",includes:["Guitar tab (PDF)","Backing track (WAV)"]},
       {id:"demo-ep",title:"DEMO EP — Complete EP Bundle",type:"bundle",published:true,
-        price:25,description:"Visual bundle mock-up; no real EP files are available.",releaseDate:"2026-11-21",
+        price:0,description:"Temporary free demo bundle: one synthetic PDF and one WAV, not a full EP.",releaseDate:"2026-11-21",
         image:"https://public-files.gumroad.com/n4sgr37s19z2py5nkrg0rnwlb5ys",
         gumroadUrl:"https://simonlibonstore.gumroad.com/l/jghmyd",includes:["Visual demonstration only"]}
     ] : [];
@@ -66,7 +69,7 @@
       const back = document.querySelector(".back-to-shop");
       if (back) back.href = "tabs.html?demo=1";
       const payment = document.querySelector(".sl-payment-copy");
-      if (payment) payment.textContent = "VISUAL DEMONSTRATION — CHECKOUT DISABLED";
+      if (payment) payment.textContent = demoCheckoutOpen ? "TEMPORARY FREE TEST — Gumroad handles the order and downloads. No official music is included." : "VISUAL DEMONSTRATION — CHECKOUT DISABLED";
     }
     document.getElementById("product-title").textContent = group.title;
     document.getElementById("product-type").textContent =
@@ -92,7 +95,8 @@
       const product = option.product;
       const checkoutUrl = model.checkout(product);
       if (!checkoutUrl) return showError();
-      if (preview) {
+      const approvedDemo = demoCheckoutOpen && testPermalinks.has(new URL(product.gumroadUrl).pathname.split("/").pop());
+      if (preview && !approvedDemo) {
         buy.removeAttribute("href");
         buy.removeAttribute("target");
         buy.textContent = "DEMO ONLY — NOT FOR SALE";
@@ -101,6 +105,12 @@
         buy.style.opacity = ".55";
       } else {
         buy.href = checkoutUrl;
+        if (preview && approvedDemo) {
+          buy.textContent = "FREE TEST CHECKOUT · GUMROAD";
+          buy.removeAttribute("aria-disabled");
+          buy.style.pointerEvents = "";
+          buy.style.opacity = "";
+        }
       }
       price.textContent = euro(product.price);
       description.textContent = product.description ||
