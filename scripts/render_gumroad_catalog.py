@@ -156,9 +156,17 @@ def render_shop(document, products):
     if not count:
         document = document.replace('id="shop-empty" class="shop-empty" hidden',
                                     'id="shop-empty" class="shop-empty"', 1)
-    document = document.replace(
-        '<body data-sl-mirror="official-page-tabs"',
-        '<body data-sl-static-catalog="1" data-sl-mirror="official-page-tabs"', 1
-    )
+    if 'data-sl-mirror="official-page-tabs"' in document:
+        document = document.replace(
+            '<body data-sl-mirror="official-page-tabs"',
+            '<body data-sl-static-catalog="1" data-sl-mirror="official-page-tabs"', 1
+        )
+    else:
+        document = document.replace(
+            '<body data-page="tabs"',
+            '<body data-sl-static-catalog="1" data-page="tabs"', 1
+        )
+    if 'data-sl-static-catalog="1"' not in document:
+        raise ValueError("Cannot mark Gumroad catalogue as pre-rendered")
     # Static cards remain visible even if Gumroad blocks every <script>.
     return document
