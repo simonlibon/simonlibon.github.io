@@ -39,8 +39,12 @@ jobs:
             --header 'Content-Type: application/json' \
             --data "{\"contact_id\":\"${contact_id}\"}" \
             'https://api.emailoctopus.com/automations/70b5faf8-e526-11f1-9ffa-5565b58f1bcc/queue')
+          if [[ "$status" == 403 ]]; then
+            echo "::error::The EmailOctopus API token authenticated, but the automation-queue action was forbidden (HTTP 403). Verify that this automation is active, has the 'Manually via API' trigger, that the test contact is subscribed, and that the account is permitted to start automations."
+            exit 1
+          fi
           if [[ "$status" != 204 ]]; then
-            echo "::error::EmailOctopus returned HTTP $status. Check the API token, automation status and test contact."
+            echo "::error::EmailOctopus automation queue returned HTTP $status (expected 204). Verify the automation ID, eligible contact, and re-entry settings."
             exit 1
           fi
           echo "EmailOctopus accepted the test for Simon. Verify receipt in Gmail."
