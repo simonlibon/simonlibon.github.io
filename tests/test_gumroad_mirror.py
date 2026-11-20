@@ -12,7 +12,7 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertIn('<main></main>', mirrored)
         self.assertIn('SIMON LIBON', mirrored)
         self.assertEqual(mirrored.count('data-sl-mirror="official-home-v2"'), 1)
-        self.assertIn('https://simonlibon.github.io/music.html', mirrored)
+        self.assertIn('https://simonlibonstore.gumroad.com/music', mirrored)
         self.assertIn('class="newsletter-dialog"', original)
 
     def test_product_has_canonical_markup_and_real_gumroad_buy(self):
@@ -42,6 +42,12 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertIn("assets/music-logos/yandex-music.png", rendered)
         self.assertIn('class="sl-logo-inline"', rendered)
         self.assertIn('data-sl-mirror-css="style.css"', rendered)
+
+    def test_shop_navigation_stays_on_gumroad_and_loads_public_catalogue(self):
+        mirrored = mirror_standalone("tabs")
+        self.assertIn("https://simonlibonstore.gumroad.com/music", mirrored)
+        self.assertIn("https://simonlibonstore.gumroad.com/tabs", mirrored)
+        self.assertIn("https://simonlibon.github.io/catalog.js", mirrored)
 
 if __name__ == "__main__":
     unittest.main()
