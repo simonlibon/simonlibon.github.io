@@ -622,3 +622,63 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 
 /* Mobile header aligned with desktop: no divider between wordmark and navigation. */
 @media(max-width:650px){.header-inner{height:67px!important}.nav,.nav.open{border-top:0!important;height:45px!important}.header{border-bottom:1px solid #e7e4e1!important}}
+
+/* The newsletter uses the same typography and paper tones as the site. */
+#newsletter-dialog {
+  width: min(420px, calc(100vw - 32px));
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 0;
+}
+#newsletter-dialog .newsletter-dialog-body { padding: 36px clamp(20px, 6vw, 32px) 24px; }
+#newsletter-dialog h2 {
+  font: 600 clamp(27px, 6vw, 32px)/1.1 'Space Grotesk', Arial, sans-serif;
+  letter-spacing: -.05em;
+}
+#newsletter-dialog .newsletter-dialog-body > p { color: #605e63; font-size: 13px; line-height: 1.5; margin: 8px 0 22px; }
+#newsletter-dialog .newsletter-close { width: 36px; height: 36px; line-height: 1; color: var(--ink); }
+#newsletter-dialog .inline-container { --font-family: 'DM Sans', Arial, sans-serif; background: transparent; }
+#newsletter-dialog .emailoctopus-form {
+  --field-colour: #fff;
+  --field-border-colour: var(--line);
+  --button-colour: var(--ink);
+  --button-text-colour: var(--white);
+  --primary-brand-colour: var(--ink);
+}
+#newsletter-dialog .main-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+#newsletter-dialog [eo-form-fields-container] { display: block; }
+#newsletter-dialog .main-form .emailoctopus-form-row { margin: 0 !important; min-width: 0; }
+#newsletter-dialog .main-form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  margin: 0 !important;
+  padding: 10px 14px;
+  border: 1px solid var(--field-border-colour);
+  border-radius: 0;
+  font: 400 16px/1.4 'DM Sans', Arial, sans-serif;
+}
+#newsletter-dialog .main-form input[type=submit] {
+  background: var(--ink);
+  color: var(--white);
+  border-color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#newsletter-dialog .main-form input[type=submit]:hover { background: #343338; }
+#newsletter-dialog .main-form input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+#newsletter-dialog .mastfoot p {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  color: #69666d;
+  font: 400 11px/1.5 'DM Sans', Arial, sans-serif;
+  text-indent: 0;
+}
+#newsletter-dialog .mastfoot a { position: static; color: inherit; text-decoration: underline; }
