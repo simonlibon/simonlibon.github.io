@@ -159,6 +159,6 @@
     document.getElementById("product-layout").hidden = false;
   }
   load("catalog.js?refresh=" + Date.now(), function () {
-    load("shop-model.js?v=1", render);
+    load("shop-model.js?v=direct-free-checkout-2", render);
   });
 })();
