@@ -97,7 +97,11 @@ def mirror_product(p, cover_html, type_label, price_fallback, includes):
          html.escape(str(price_fallback)) + '</div>')
     # A native Gumroad action is required on its own product landing page.
     old_buy = '<a id="product-buy" class="sl-buy-button" href="#" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>'
-    once(old_buy, '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy">BUY NOW · SECURE CHECKOUT</a>')
+    # Gumroad pay-what-you-want products priced at zero need the amount
+    # preselected; otherwise checkout can fall back to its product landing.
+    zero_price = (p.get("price") == 0 and not isinstance(p.get("price"), bool))
+    buy_options = ' data-gumroad-price="0"' if zero_price else ""
+    once(old_buy, '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"' + buy_options + '>BUY NOW · SECURE CHECKOUT</a>')
     once('<p id="product-description"></p>',
          '<div id="product-description" data-gumroad-field="description"><p>Official digital download by Simon Libon.</p></div>')
     once('id="product-included-section" class="sl-product-details" hidden',
