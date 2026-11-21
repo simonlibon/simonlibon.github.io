@@ -56,6 +56,8 @@ assert(storePage.includes('id="shop-bundle-grid"'));
 assert(storePage.includes('id="shop-grid"'));
 assert(storePage.includes('shop-model.js'));
 assert(storePage.includes('shop.js'));
+assert(storePage.includes('class="shop-cart-link"'), "Cart link should remain in the shop header");
+assert(!storePage.includes('class="shop-cart-link" style="display:none"'), "Cart must remain visible when there are no published products");
 assert(detailPage.includes('product.js'));
 new vm.Script(fs.readFileSync("shop.js", "utf8"), { filename: "shop.js" });
 new vm.Script(fs.readFileSync("product.js", "utf8"), { filename: "product.js" });
