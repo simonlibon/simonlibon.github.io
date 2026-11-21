@@ -59,3 +59,37 @@ jobs:
           else
             echo "Automation listing is not accessible through this API route"
           fi
+      - name: Test a new subscription to the only audience (owner mailbox only)
+        env:
+          EMAILOCTOPUS_API_KEY: ${{ secrets.EMAILOCTOPUS_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="Authorization: Bearer ${EMAILOCTOPUS_API_KEY}"
+          lists=$(mktemp)
+          response=$(mktemp)
+          trap 'rm -f "$lists" "$response"' EXIT
+          curl -fsS --max-time 20 -H "$auth" 'https://api.emailoctopus.com/lists' > "$lists"
+          list_count=$(jq '.data | length' "$lists")
+          if [[ "$list_count" != 1 ]]; then
+            echo "::error::Expected exactly one newsletter list; got $list_count. Aborting without creating contact."
+            exit 1
+          fi
+          list_id=$(jq -r '.data[0].id' "$lists")
+          double_opt_in=$(jq -r '.data[0].double_opt_in' "$lists")
+          if [[ "$double_opt_in" != false ]]; then
+            echo "::error::List requires confirmation, so this test will not silently bypass opt-in."
+            exit 1
+          fi
+          alias="simonlibon.music+welcome-check-${GITHUB_RUN_ID}@gmail.com"
+          body=$(jq -nc --arg email "$alias" '{email_address:$email,status:"subscribed"}')
+          code=$(curl -sS --max-time 30 -X POST -H "$auth" -H 'Content-Type: application/json' \
+            -d "$body" -o "$response" -w '%{http_code}' \
+            "https://api.emailoctopus.com/lists/${list_id}/contacts")
+          echo "New owner-only test contact: HTTP $code"
+          if [[ "$code" != 200 && "$code" != 201 ]]; then
+            jq -r '.error.code // .code // "unknown error"' "$response" 2>/dev/null || true
+            exit 1
+          fi
+          jq -r '"Contact status: " + (.data.status // .status // "unknown")' "$response"
+          echo "Check Gmail for a welcome message addressed to the test alias; only this owner mailbox was used."
