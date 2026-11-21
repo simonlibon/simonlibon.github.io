@@ -58,6 +58,8 @@ assert(storePage.includes('shop-model.js'));
 assert(storePage.includes('shop.js'));
 assert(detailPage.includes('product.js'));
 assert(!detailPage.includes('id="product-add-to-cart"'), "No Add to cart on product page");
+assert(detailPage.includes('class="shop-cart-link sl-product-cart-link"'), "Product details retain a cart shortcut");
+assert(detailPage.includes("https://gumroad.com/checkout"), "Product cart goes to Gumroad checkout");
 assert(storePage.includes('class="shop-cart-link"'), "Cart shortcut remains available in the shop header");
 assert(storePage.includes("https://gumroad.com/checkout"), "Cart opens Gumroad checkout");
 assert(!detailPage.includes("ADD TO CART"), "Secondary cart action must be absent");
