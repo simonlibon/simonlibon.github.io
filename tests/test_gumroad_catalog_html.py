@@ -68,6 +68,29 @@ class GumroadCatalogHTMLTests(unittest.TestCase):
         self.assertLess(page.index('data-sl-compact-cards="v2"'), page.index('data-sl-gumroad-shop-heading="v1"'))
         self.assertIn('class="shop-cart-link"', page)
 
+    def test_gumroad_track_section_and_card_match_official_styles(self):
+        # Gumroad may discard body[data-page], so styles must target the
+        # preserved #shop-catalog root shared with the official website.
+        original = (ROOT / "tabs.html").read_text(encoding="utf-8")
+        mirrored = mirror_standalone("tabs")
+        sheet = (ROOT / "shop.css").read_text(encoding="utf-8")
+        css = mirrored.split('<style data-sl-mirror-css="shop.css">', 1)[1].split('</style>', 1)[0]
+        self.assertIn('shop.css?v=shop-final-parity-20261121', original)
+        self.assertIn('Final storefront parity: selectors survive Gumroad', sheet)
+        self.assertIn('#shop-catalog .shop-list-heading{', css)
+        self.assertIn('border-top:1px solid #dedbd7', css)
+        self.assertIn("font-family:'Space Grotesk',Arial,sans-serif", css)
+        self.assertIn('#shop-catalog .shop-item-title{', css)
+        self.assertIn('#shop-catalog .shop-item-actions a{', css)
+        self.assertIn('color:#18181a;', css)
+        self.assertIn('font-weight:700;', css)
+        self.assertIn('INDIVIDUAL TRACKS', mirrored)
+        self.assertIn('VIEW OPTIONS', mirrored)
+        self.assertIn('class="shop-cart-link"', mirrored)
+        self.assertNotIn('class="shop-payment-note"', mirrored)
+        fallback = css.split('Final storefront parity:', 1)[1]
+        self.assertNotIn('body[data-page=', fallback)
+
     def test_empty_shop_has_explicit_message(self):
         source = (ROOT / "tabs.html").read_text(encoding="utf-8")
         result = render_shop(source, [])

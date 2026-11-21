@@ -630,3 +630,34 @@ body[data-page="tabs"] .shop-item-price {font-variant-numeric:tabular-nums}
   color:#39363e;
   font-size:.85em;
 }
+
+/* Final storefront parity: selectors survive Gumroad's missing body[data-page] attribute. */
+#shop-catalog .shop-list-heading{
+  margin:26px 0 20px;
+  padding-top:17px;
+  border-top:1px solid #dedbd7;
+  font-family:'Space Grotesk',Arial,sans-serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.11em;
+  line-height:1.5;
+  color:#29272b;
+}
+#shop-catalog .shop-item-title{
+  font-family:'Space Grotesk',Arial,sans-serif;
+  color:#1b1b1e;
+  font-weight:700;
+}
+#shop-catalog .shop-item-actions a{
+  color:#18181a;
+}
+#shop-catalog .shop-item-price{
+  color:#1b1b1e;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:650px){
+  #shop-catalog .shop-list-heading{
+    font-size:11px;
+    margin:24px 0 16px;
+  }
+}

@@ -62,6 +62,9 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertNotIn('id="newsletter-dialog"', mirrored)
         self.assertNotIn('class="shop-payment-note"', mirrored)
         self.assertIn('data-sl-static-catalog="1"', mirrored)
+        self.assertIn('#shop-catalog .shop-list-heading{', mirrored)
+        self.assertIn('#shop-catalog .shop-item-actions a{', mirrored)
+        self.assertIn('Final storefront parity: selectors survive Gumroad', mirrored)
 
 if __name__ == "__main__":
     unittest.main()

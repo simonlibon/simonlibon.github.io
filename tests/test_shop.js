@@ -77,6 +77,10 @@ assert(shopStyles.includes("font-size:15px!important"), "Mobile product descript
 assert(shopStyles.includes("@media(max-width:860px)"), "Narrow layouts must stack the cover and text");
 assert(detailPage.includes("shop.css?v=canonical-product-typography-v4"), "Official product page busts the previous stylesheet cache");
 assert(!shopStyles.includes(".product-topline>.sl-product-cart-link{margin-left:auto"), "No product-specific cart styling");
+assert(storePage.includes("shop.css?v=shop-final-parity-20261121"), "Final shop CSS is cache-busted");
+assert(shopStyles.includes("#shop-catalog .shop-list-heading{"), "Track heading matches official on Gumroad without body attrs");
+assert(shopStyles.includes("#shop-catalog .shop-item-title{"), "Card title uses official weight");
+assert(shopStyles.includes("#shop-catalog .shop-item-actions a{"), "VIEW OPTIONS matches official color");
 assert(storePage.includes('class="shop-cart-link"'), "Cart shortcut remains available in the shop header");
 assert(storePage.includes("https://gumroad.com/checkout"), "Cart opens Gumroad checkout");
 assert(!detailPage.includes("ADD TO CART"), "Secondary cart action must be absent");
