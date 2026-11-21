@@ -16,9 +16,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 if __package__:
-    from .mirror_gumroad import mirror_product
+    from .render_gumroad_products import detail_page
+    from .render_gumroad_catalog import group_products, load_catalog
 else:
-    from mirror_gumroad import mirror_product
+    from render_gumroad_products import detail_page
+    from render_gumroad_catalog import group_products, load_catalog
 
 API = "https://api.gumroad.com/v2/"
 MARKER = 'data-sl-product-template="v2"'
@@ -213,46 +215,151 @@ NATIVE_FORMAT_CSS = """
 """
 
 
-def build(p, catalog=None):
-    permalink = p.get("permalink") or p.get("custom_permalink") or ""
-    name = p.get("name") or "Digital product"
-    url = cover_url(p, permalink)
-    if url:
-        cover = f'<img alt="Cover art for {html.escape(name, quote=True)}" src="{html.escape(url, quote=True)}" loading="eager">'
-    else:
-        cover = '<div class="cover-fallback">SIMON LIBON</div>'
-    amount = p.get("price")
-    fallback = p.get("formatted_price") or p.get("price_formatted") or "VIEW PRICE AT CHECKOUT"
-    if isinstance(amount, (float, int)) and not p.get("formatted_price"):
-        fallback = f"€{amount / 100:,.2f}" if p.get("price_currency_type") == "eur" else "VIEW PRICE AT CHECKOUT"
-    name_lower = str(name).lower()
-    if "ep" in name_lower or "album" in name_lower or "bundle" in name_lower:
-        includes = ["Official tablatures (PDF)", "Backing tracks (audio)", "Digital download"]
-        label = "EP COLLECTION"
-    elif "tab" in name_lower and "backing" in name_lower:
-        includes = ["Guitar tab (PDF)", "Backing track without lead guitar", "Digital download"]
-        label = "INDIVIDUAL TRACK"
-    else:
-        includes = ["Guitar tab (PDF)", "Digital download"]
-        label = "INDIVIDUAL TRACK"
-    result = mirror_product(p, cover, label, fallback, includes)
-    options = options_html(p, catalog or [])
-    if options:
-        anchor = '<a id="product-buy" class="sl-buy-button"'
-        if result.count(anchor) != 1:
-            raise ValueError("Missing Buy Now button for format selector")
-        # The format radio list owns the visible checkout action; keep the
-        # original as a hidden fallback while preserving Gumroad's separate
-        # native-action marker required for its custom product page.
-        native = result[result.index(anchor):]
-        native = native[:native.index('</a>') + len('</a>')]
-        result = result.replace('class="sl-shop sl-product-page"',
-                                'class="sl-shop sl-product-page sl-has-formats"', 1)
-        hidden = native.replace('class="sl-buy-button"',
-                                'class="sl-buy-button sl-native-fallback" style="display:none!important" aria-hidden="true" tabindex="-1"', 1)
-        result = result.replace(native, options + hidden, 1)
-        result = result.replace('</head>', NATIVE_FORMAT_CSS + '</head>', 1)
+
+def _native_product_slug(product):
+    code = product.get("custom_permalink") or product.get("permalink")
+    if isinstance(code, str) and re.fullmatch(r"[a-zA-Z0-9_-]+", code):
+        return code
+    for url in (product.get("url"), product.get("short_url")):
+        parsed = urllib.parse.urlparse(str(url or ""))
+        match = re.fullmatch(r"/l/([a-zA-Z0-9_-]+)", parsed.path)
+        if parsed.scheme == "https" and parsed.netloc == "simonlibonstore.gumroad.com" and match:
+            return match.group(1)
+    return None
+
+
+def _native_product_rows(current, all_products):
+    """Adapt real Gumroad data into the very same model as the official shop.
+
+    Keep current Gumroad prices, and use the canonical catalogue's cover,
+    description and included-files wording when the SKU names correspond.
+    """
+    known = {str(row.get("id")): row for row in load_catalog()
+             if isinstance(row, dict) and row.get("published") is True}
+    source = {}
+    for candidate in list(all_products or []) + [current]:
+        if not isinstance(candidate, dict) or candidate.get("published") is False:
+            continue
+        code = _native_product_slug(candidate)
+        if code:
+            source[code] = candidate
+
+    result = []
+    for code, p in source.items():
+        name = str(p.get("name") or "").strip()
+        if not name:
+            continue
+        match = tab_format(name)
+        if match:
+            kind = match[1]
+        elif re.search(r"\b(ep|album|bundle)\b", name, re.I):
+            kind = "bundle"
+        else:
+            kind = "digital"
+        existing = known.get(code) or {}
+        # An unrelated SKU reusing a test permalink must never inherit
+        # another song's title, description or files.
+        if str(existing.get("title") or "").casefold() != name.casefold():
+            existing = {}
+        amount = p.get("price_cents")
+        if amount is None:
+            amount = p.get("price")
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)) or amount < 0:
+            raise ValueError("Missing validated price for " + code)
+        description = str(existing.get("description") or "").strip()
+        if not description:
+            raw = str(p.get("description") or "")
+            description = html.unescape(re.sub(r"<[^>]+>", " ", raw))
+            description = " ".join(description.split()).strip()
+        if not description:
+            description = "Official digital download by Simon Libon."
+        includes = existing.get("includes")
+        if not isinstance(includes, list) or not includes:
+            includes = (["Guitar tab (PDF)", "Backing track (audio)"] if kind == "pack"
+                        else ["Guitar tab (PDF)"] if kind == "tabs"
+                        else ["Tabs and backing tracks"] if kind == "bundle"
+                        else ["Digital download"])
+        image = existing.get("image") or cover_url(p, code) or ""
+        result.append({
+            "id": code, "title": name, "type": kind,
+            "price": amount / 100, "published": True,
+            "description": description, "includes": includes,
+            "gumroadUrl": "https://simonlibonstore.gumroad.com/l/" + code,
+            "image": image, "releaseDate": str(existing.get("releaseDate") or ""),
+        })
+    # Always choose the same artwork regardless of which format brought
+    # the buyer to this song. The official shop uses its first tab SKU.
+    result.sort(key=lambda item: (0 if item["type"] == "tabs" else
+                                  1 if item["type"] == "pack" else 2,
+                                  item["id"]))
     return result
+
+
+def build(p, catalog=None):
+    """Render native /l/<sku> from the shared product.html and shared styles.
+
+    No alternate visible Gumroad product markup is generated. The native
+    Gumroad metadata/action fields are hidden support elements only.
+    """
+    code = _native_product_slug(p)
+    if not code:
+        raise ValueError("Cannot create native product detail without a safe permalink")
+    rows = _native_product_rows(p, catalog or [p])
+    bundles, tracks = group_products(rows)
+    located = next(((group, option)
+                    for group in (bundles + tracks)
+                    for option in group["options"]
+                    if urllib.parse.urlparse(option["checkout"]).path == "/l/" + code), None)
+    if located:
+        group, selected = located
+    else:
+        current = next((item for item in rows if item["id"] == code), None)
+        if current is None:
+            raise ValueError("Native product missing from its published inventory: " + code)
+        selected = {
+            "title": current["title"], "kind": current["type"],
+            "price": current["price"], "image": current["image"],
+            "description": current["description"], "includes": current["includes"],
+            "checkout": checkout_url(code, round(current["price"] * 100)),
+        }
+        group = {
+            "kind": "bundle" if current["type"] == "bundle" else "track",
+            "title": current["title"], "image": current["image"],
+            "options": [selected],
+        }
+
+    page = detail_page(group, selected)
+    if 'class="sl-shop sl-product-page"' not in page:
+        raise ValueError("Shared product template is missing")
+    page = page.replace('class="sl-shop sl-product-page"',
+                        'class="sl-shop sl-product-page sl-has-formats" data-sl-product-template="v2"', 1)
+    native_name = html.escape(str(p.get("name") or selected["title"]), quote=True)
+    native_price = "€{:.2f}".format(selected["price"])
+    amount = p.get("price_cents")
+    if amount is None:
+        amount = p.get("price")
+    attrs = ' data-gumroad-price="0"' if amount == 0 else ''
+    support = ('<div class="sl-native-metadata" style="display:none!important" aria-hidden="true">'
+               '<span data-gumroad-field="name">' + native_name + '</span>'
+               '<span data-gumroad-field="price">' + native_price + '</span>'
+               '<span data-gumroad-field="description">' +
+               html.escape(selected["description"]) + '</span>'
+               '<a class="sl-gumroad-native-fallback" data-gumroad-action="buy"' + attrs +
+               ' style="display:none!important" aria-hidden="true" tabindex="-1">NATIVE CHECKOUT</a>'
+               '</div>')
+    marker = '<div class="sl-product-copy">'
+    if page.count(marker) != 1:
+        raise ValueError("Cannot embed required native Gumroad product metadata")
+    page = page.replace(marker, marker + support, 1)
+    required = ('data-sl-product-template="v2"', 'data-gumroad-action="buy"',
+                'data-gumroad-field="name"', 'data-gumroad-field="price"',
+                'data-gumroad-field="description"', 'data-sl-inline-formats="v3"',
+                'data-sl-mirror-css="style.css"', 'data-sl-mirror-css="shop.css"')
+    if len(group["options"]) == 1:
+        required = tuple(s for s in required if s != 'data-sl-inline-formats="v3"')
+    if any(marker not in page for marker in required) or len(page) > 150000:
+        raise ValueError("Canonical Gumroad product page incomplete or too large")
+    return page
 
 
 def contains_cart_shortcut(document):
@@ -329,11 +436,13 @@ def main():
         needed = [MARKER, 'data-gumroad-action="buy"', 'data-gumroad-field="name"',
                   'data-gumroad-field="price"', 'data-gumroad-field="description"', "site-head"]
         missing = [x for x in needed if x not in sanitized]
-        if 'data-sl-native-formats="v4"' in new_page:
-            selectors = ['data-sl-native-formats="v4"', 'id="sl-native-tabs"',
-                         'id="sl-native-pack"', 'data-sl-native-format-css="v4"',
-                         'sl-native-buy', *set(re.findall(r'/l/[A-Za-z0-9_-]+', new_page))]
-            missing += [token for token in selectors if token not in sanitized]
+        if 'name="sl-download-format"' in new_page:
+            selectors = ['data-sl-inline-formats="v3"', 'id="sl-format-tabs"',
+                         'id="sl-format-pack"', 'sl-variant-buy',
+                         *set(re.findall(r'/l/[A-Za-z0-9_-]+', new_page))]
+            missing += [element for element in selectors if element not in sanitized]
+            if sanitized.count('name="sl-download-format"') != new_page.count('name="sl-download-format"'):
+                missing.append("both format radio controls")
         if missing or preview.get("warning"):
             raise RuntimeError(f"Preview rejected {permalink}, missing={missing}, warning={preview.get('warning')}")
         removed = (preview.get("sanitization_report") or {}).get("total_removed")

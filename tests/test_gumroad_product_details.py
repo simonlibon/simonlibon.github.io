@@ -88,6 +88,43 @@ class GumroadProductDetailTests(unittest.TestCase):
             self.assertLess(page.index('BUY NOW · SECURE CHECKOUT'),page.index('class="sl-payment-copy"'))
             self.assertIn('Backing track (WAV)',page)
 
+    def test_route_matrix_same_title_variants_and_files_for_all_skus(self):
+        from scripts.publish_gumroad_product_pages import build
+        from urllib.parse import urlparse
+        catalog=load_catalog()
+        native_rows=[{"name":p["title"],"permalink":p["id"],"price_cents":round(p["price"]*100),
+                      "published":True} for p in catalog if p.get("published")]
+        bundles,tracks=group_products(catalog)
+        self.assertTrue(tracks)
+        for group in bundles+tracks:
+            for opt in group["options"]:
+                sku=urlparse(opt["checkout"]).path.rsplit("/",1)[-1]
+                standalone=detail_page(group,opt)
+                native=build(next(p for p in native_rows if p["permalink"]==sku),native_rows)
+                common='<h1 id="product-title">'+group["title"]+'</h1>'
+                self.assertIn(common,standalone)
+                self.assertIn(common,native)
+                for doc in (standalone,native):
+                    self.assertIn('data-sl-canonical-product="v1"',doc)
+                    self.assertIn('class="sl-product-layout"',doc)
+                    self.assertIn('class="shop-purchase-options"',doc)
+                    self.assertIn('CHOOSE YOUR DOWNLOAD',doc)
+                    self.assertIn('WHAT\'S INCLUDED',doc)
+                    self.assertIn('class="sl-payment-copy"',doc)
+                    self.assertIn('data-sl-inline-formats="v3"',doc)
+                    self.assertNotIn('shop-cart-link sl-product-cart-link',doc)
+                    self.assertNotIn('ADD TO CART',doc)
+                    self.assertNotIn('RETURN TO THE OFFICIAL SIMON LIBON SHOP',doc)
+                    self.assertEqual(doc.count('name="sl-download-format"'),len(group["options"]))
+                    self.assertEqual(doc.count(' checked="checked"'),1)
+                    for option in group["options"]:
+                        self.assertIn(option["checkout"].replace("&","&amp;"),doc)
+                        for file in option.get("includes",[]):
+                            self.assertIn(file,doc)
+                self.assertIn('data-gumroad-action="buy"',native)
+                self.assertIn('data-gumroad-field="name"',native)
+                self.assertNotIn('data-gumroad-action="buy"',standalone)
+
     def test_mobile_navigation_matches_all_site_sections(self):
         source=(ROOT/"product.html").read_text(encoding="utf-8")
         self.assertIn('body[data-page="product"] .header-inner{height:58px!important',source)

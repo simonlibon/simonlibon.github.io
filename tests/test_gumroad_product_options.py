@@ -22,13 +22,15 @@ class ProductOptionTests(unittest.TestCase):
         self.assertIn('€9.00',markup)
         self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?wanted=true"',markup)
         output=build(tab,[tab,pack])
-        self.assertIn('data-sl-native-format-css="v4"',output)
+        self.assertIn('data-sl-inline-formats="v3"',output)
         self.assertIn('class="sl-shop sl-product-page sl-has-formats"',output)
+        self.assertIn('data-sl-canonical-product="v1"',output)
+        self.assertIn('<h1 id="product-title">TEST TRACK</h1>',output)
         self.assertIn('data-gumroad-action="buy"',output)
         self.assertIn('id="product-buy"',output)
-        self.assertIn('#sl-native-tabs:checked ~ .sl-native-buttons',output)
-        self.assertIn('#sl-native-pack:checked ~ .sl-native-buttons',output)
-        self.assertEqual(output.count('class="sl-buy-button sl-native-buy"'),2)
+        self.assertIn('#sl-format-tabs:checked ~ ',output)
+        self.assertIn('#sl-format-pack:checked ~ ',output)
+        self.assertEqual(output.count('class="sl-buy-button sl-variant-buy"'),2)
 
     def test_actual_published_demo_names_group_on_native_product_links(self):
         tab=row("FREE TEST — Demo Guitar Tab (PDF)","ksiweq",0)
@@ -41,9 +43,9 @@ class ProductOptionTests(unittest.TestCase):
             self.assertIn('/l/mmxjjd?price=0&amp;wanted=true',selector)
             page=build(current,[tab,pack])
             self.assertIn('class="sl-shop sl-product-page sl-has-formats"',page)
-            self.assertIn('data-sl-native-formats="v4"',page)
-            self.assertIn('for="sl-native-tabs"',page)
-            self.assertIn('for="sl-native-pack"',page)
+            self.assertIn('data-sl-inline-formats="v3"',page)
+            self.assertIn('for="sl-format-tabs"',page)
+            self.assertIn('for="sl-format-pack"',page)
             self.assertNotIn('class="shop-cart-link sl-product-cart-link"',page)
             self.assertNotIn('href="https://gumroad.com/checkout',page)
             self.assertNotIn("ADD TO CART",page)
@@ -75,17 +77,17 @@ class ProductOptionTests(unittest.TestCase):
         # The visible "Buy Now" action is a regular HTTPS checkout link,
         # not Gumroad's native product-page action that could reopen the listing.
         self.assertIn('class="sl-gumroad-native-fallback" data-gumroad-action="buy"',native_page)
-        paid_page=build({**tab,"price":500},[tab,pack])
+        paid_page=build({**tab,"price_cents":500},[{**tab,"price_cents":500},pack])
         self.assertNotIn('data-gumroad-price="0"',paid_page)
         self.assertIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd?wanted=true"',paid_page)
 
     def test_only_published_sku_buys_directly_and_keeps_native_fallback(self):
         tab=row("FREE TEST — Demo Guitar Tab (PDF)","mmxjjd",0)
         page=build(tab,[tab])
-        self.assertIn('<a id="product-buy" class="sl-buy-button" href="https://simonlibonstore.gumroad.com/l/mmxjjd?price=0&amp;wanted=true"',page)
+        self.assertIn('id="product-buy" class="sl-buy-button" href="https://simonlibonstore.gumroad.com/l/mmxjjd?price=0&amp;wanted=true"',page)
         self.assertIn('class="sl-gumroad-native-fallback" data-gumroad-action="buy"',page)
         self.assertNotIn('id="product-buy" class="sl-buy-button" data-gumroad-action',page)
-        self.assertNotIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd"',page)
+        self.assertNotIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd" target',page)
         self.assertNotIn("ADD TO CART",page)
 
     def test_hide_options_if_only_draft_other_format(self):

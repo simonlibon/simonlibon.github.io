@@ -148,8 +148,11 @@
       });
       price.after(optionsField);
     }
-    // Prefer the complete pack when it is genuinely on sale. Never synthesize one.
-    const preferred = options.find(function (o) { return o.kind === "pack"; }) ||
+    // Deep links containing a SKU keep that choice selected, including after
+    // browser Back/Forward; the canonical track URL defaults to the pack.
+    const preferred = (id && options.find(function (o) {
+      return String(o.product.id) === String(id);
+    })) || options.find(function (o) { return o.kind === "pack"; }) ||
       options.find(function (o) { return o.kind === "tabs"; }) || options[0];
     if (optionsField) {
       const index = options.indexOf(preferred);
