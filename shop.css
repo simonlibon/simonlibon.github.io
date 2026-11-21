@@ -354,6 +354,14 @@ body[data-page="tabs"] .shop-item-price {font-variant-numeric:tabular-nums}
 .shop-demo-note{max-width:850px;margin:12px 0 26px;padding:11px 0;border-top:1px solid #dfdcd8;border-bottom:1px solid #dfdcd8;color:#77757b;font-size:10px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;line-height:1.6}
 
 
+/* Gumroad requires hidden field markers for its native product pages.
+   Never let them leak into the visible canonical product sheet. */
+.sl-product-page .sl-native-metadata,
+.sl-product-page .sl-native-metadata * {
+  display:none!important;
+  visibility:hidden!important;
+}
+
 /* Shared official, Gumroad standalone and native-product detail rhythm.
    Keep only the chosen format visible and separate descriptive text from checkout. */
 .sl-product-page .sl-buy-button{
