@@ -1,14 +1,12 @@
 # Release artwork
 
-For each release, place the approved source artwork here:
+Prepare artwork on your computer so unpublished artwork is not exposed through the public site repository.
 
-`release-artwork/<slug>/source.png`
+1. Install Pillow: `python -m pip install Pillow`
+2. Run: `python scripts/prepare_release_artwork.py /path/to/source.png --output-dir /path/to/output`
 
-Use a lowercase slug such as `lueur`. In GitHub Actions, run **Prepare release cover and thumbnail** and enter that slug. The workflow creates:
+The script creates a square cover at 3000 × 3000 and a square shop thumbnail at 600 × 600. It center-crops non-square source images, so approve the crop before using it.
 
-- `cover-square.jpg` — 3000 × 3000, intended as the Gumroad product cover.
-- `thumbnail-square.jpg` — 600 × 600, used for release cards on the official and Gumroad-mirrored shop.
+For an official release, attach `cover-square.jpg` to its Gumroad product. After the release art is ready to be public, add `thumbnail-square.jpg` under `release-artwork/<slug>/` in the repository. The Gumroad-to-site sync will use that thumbnail on both shop catalogs; until then, the Gumroad cover remains the fallback.
 
-When a matching published Gumroad product is synchronized, the site uses the generated thumbnail. If no generated thumbnail exists, it continues using the Gumroad cover.
-
-The source artwork still needs to be created and approved for each release. After generation, the square cover must be attached to the Gumroad product; Gumroad product publishing and cover upload remain separate steps. Never publish a draft until its title, price, cover, and delivered files are final.
+The source artwork itself stays local. The script prepares the two files but does not create the artwork concept, upload the cover to Gumroad, or publish a product.
