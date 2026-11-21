@@ -7,19 +7,28 @@ def row(name, slug, kindprice, published=True):
             "price_cents":kindprice,"published":published}
 
 class ProductOptionTests(unittest.TestCase):
-    def test_two_download_options_link_without_fabricating_products(self):
+    def test_two_download_options_select_in_place_before_checkout(self):
         tab=row("TEST TRACK — Guitar Tab","mmxjjd",500)
         pack=row("TEST TRACK — Guitar Tab + Backing Track","ntapzm",900)
-        html=options_html(tab,[tab,pack])
-        self.assertIn('CHOOSE YOUR DOWNLOAD',html)
-        self.assertIn('class="shop-option selected"',html)
-        self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?wanted=true"',html)
-        self.assertIn('Guitar Tab (PDF)',html)
-        self.assertIn('Tab + Backing Track',html)
-        self.assertEqual(html.count('class="shop-option selected"') + html.count('class="shop-option"'), 2)
+        markup=options_html(tab,[tab,pack])
+        self.assertIn('CHOOSE YOUR DOWNLOAD',markup)
+        self.assertIn('data-sl-native-formats="v4"',markup)
+        self.assertEqual(markup.count('name="sl-native-download-format"'), 2)
+        self.assertEqual(markup.count(' checked="checked"'), 1)
+        self.assertIn('for="sl-native-tabs"',markup)
+        self.assertIn('for="sl-native-pack"',markup)
+        self.assertNotIn('<a class="shop-option"',markup, "Option rows must not link directly to checkout")
+        self.assertIn('€5.00',markup)
+        self.assertIn('€9.00',markup)
+        self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?wanted=true"',markup)
         output=build(tab,[tab,pack])
-        self.assertIn("CHOOSE YOUR DOWNLOAD",output)
+        self.assertIn('data-sl-native-format-css="v4"',output)
+        self.assertIn('class="sl-shop sl-product-page sl-has-formats"',output)
         self.assertIn('data-gumroad-action="buy"',output)
+        self.assertIn('id="product-buy"',output)
+        self.assertIn('#sl-native-tabs:checked ~ .sl-native-buttons',output)
+        self.assertIn('#sl-native-pack:checked ~ .sl-native-buttons',output)
+        self.assertEqual(output.count('class="sl-buy-button sl-native-buy"'),2)
 
     def test_free_demo_format_switch_bypasses_product_landing_page(self):
         tab=row("TEST TRACK — Guitar Tab","mmxjjd",0)
