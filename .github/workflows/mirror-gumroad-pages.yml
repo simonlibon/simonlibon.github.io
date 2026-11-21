@@ -82,7 +82,7 @@ jobs:
                           'id="product-buy"', 'id="product-price"', 'id="product-cover"']
               if any(x not in page for x in essentials):
                   missing=[x for x in essentials if x not in page]
-                raise SystemExit("Gumroad stripped essential product detail markup: "+slug+" missing="+repr(missing))
+                  raise SystemExit("Gumroad stripped essential product detail markup: "+slug+" missing="+repr(missing))
               if "simonlibonstore.gumroad.com/l/" not in page:
                   raise SystemExit("Gumroad detail missing real checkout: "+slug)
           if slug=="tabs":
