@@ -9,7 +9,7 @@ window.SIMON_SHOP_CATALOG = {
       "includes": [
         "Guitar tab (PDF)"
       ],
-      "price": 0,
+      "price": 0.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ksiweq",
       "image": "https://public-files.gumroad.com/6ohw1nhf7mldd1igmf3o09lidr6u",
       "published": true,
@@ -24,7 +24,7 @@ window.SIMON_SHOP_CATALOG = {
         "Guitar tab (PDF)",
         "Backing track (WAV)"
       ],
-      "price": 0,
+      "price": 0.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/mmxjjd",
       "image": "https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
       "published": true,
