@@ -77,10 +77,10 @@ class GumroadCatalogHTMLTests(unittest.TestCase):
         mirrored = mirror_standalone("tabs")
         self.assertEqual(mirrored.count('class="shop-item"'), sum(len(group) for group in group_products(catalog)))
         self.assertGreaterEqual(published, 0)
-        for item in catalog:
-            p = safe_product(item)
-            if p:
-                self.assertIn("/l/" + p["checkout"].split("/l/")[-1].split("?")[0], mirrored)
+        for collection in group_products(catalog):
+            for group in collection:
+                self.assertIn(detail_url(group), mirrored)
+        self.assertNotIn("SHOP TEMPORARILY UNAVAILABLE", mirrored)
 
 
 if __name__ == "__main__":
