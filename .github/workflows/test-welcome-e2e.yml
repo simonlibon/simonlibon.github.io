@@ -1,9 +1,6 @@
-name: Check newsletter welcome configuration
+name: Test newsletter welcome signup (owner mailbox)
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/test-welcome-e2e.yml'
 permissions: {}
 jobs:
   audit:
