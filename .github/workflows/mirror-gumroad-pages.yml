@@ -6,6 +6,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '12 * * * *'
 permissions:
   contents: read
 concurrency:
@@ -51,73 +53,24 @@ jobs:
           set -euo pipefail
           : > "$RUNNER_TEMP/approved-slugs.txt"
           for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
+            desired="$RUNNER_TEMP/gumroad-pages/$slug.html"
+            current="$RUNNER_TEMP/current-$slug.html"
+            # Skip only when the actual Gumroad page is identical to the
+            # currently generated site revision. Do not use cached previews.
+            if gumroad pages pull "$slug" -o "$current" --json --no-input > "$RUNNER_TEMP/current-$slug.json" 2>/dev/null; then
+              if python3 scripts/verify_gumroad_route.py --slug "$slug" --generated "$desired" --published "$current" >/dev/null 2>&1; then
+                echo "ALREADY CURRENT $slug"
+                continue
+              fi
+            fi
             if gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
               echo "REMOTE PREVIEW ACCEPTED $slug"
             elif grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/preview-$slug.json"; then
-              if [[ "$slug" == "tabs" ]]; then
-                # Gumroad's read-only preview quota should not permanently
-                # block the canonical shop. Validate this exact static build,
-                # back up the owned live page, publish it, then pull & verify.
-                python - "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
-          from pathlib import Path
-          from scripts.render_gumroad_catalog import load_catalog,group_products,detail_url
-          import sys
-          document=Path(sys.argv[1]).read_text(encoding="utf-8")
-          bundles,tracks=group_products(load_catalog())
-          required=['data-sl-mirror-css="style.css"',
-                    'data-sl-mirror-css="shop.css"',
-                    'data-sl-static-catalog="1"',
-                    'Final storefront parity: selectors survive Gumroad',
-                    '#shop-catalog .shop-list-heading{',
-                    'border-top:1px solid #dedbd7',
-                    '#shop-catalog .shop-item-title{',
-                    '#shop-catalog .shop-item-actions a{',
-                    'class="shop-cart-link"',
-                    'href="https://simonlibon.github.io/?newsletter=1"']
-          missing=[x for x in required if x not in document]
-          if missing or document.count('class="shop-item"')!=len(bundles)+len(tracks):
-              raise SystemExit("Unsafe local Gumroad tabs page; missing="+repr(missing))
-          if any(detail_url(group) not in document for group in bundles+tracks):
-              raise SystemExit("One or more product links missing from canonical tabs page")
-          if 'id="shop-empty"' in document and bundles+tracks:
-              raise SystemExit("Tabs page has a false empty state")
-          print("LOCAL TABS PREFLIGHT OK: "+str(len(bundles)+len(tracks))+" release cards")
-          PY
-                echo "$slug" >> "$RUNNER_TEMP/approved-slugs.txt"
-                continue
-              fi
-              if [[ "$slug" != product-* ]]; then
-                echo "::warning::Preview quota exhausted; leaving non-product page $slug unchanged"
-                continue
-              fi
-              # The native & custom product templates have already passed local
-              # validation and previous real Gumroad previews. Do not block a CSS
-              # update indefinitely because a read-only preview quota was hit.
-              # We verify ownership, back up and pull the live page after pushing.
-              python - "$slug" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
-          from pathlib import Path
-          import re,sys
-          slug,filepath=sys.argv[1:]
-          html=Path(filepath).read_text(encoding="utf-8")
-          required=['data-sl-mirror="official-page-'+slug+'"',
-                    'data-sl-mirror-css="style.css"',
-                    'data-sl-mirror-css="shop.css"',
-                    'class="sl-product-layout"', 'id="product-buy"',
-                    'id="product-cover"', 'id="product-price"',
-                    'data-sl-inline-formats="v3"',
-                    'font-size:16px!important','@media(max-width:860px)']
-          missing=[v for v in required if v not in html]
-          if missing:
-              raise SystemExit("Unsafe local product page: "+slug+" missing "+repr(missing))
-          if html.count('name="sl-download-format"') != 2:
-              raise SystemExit("Incorrect number of download choices for "+slug)
-          if not all(code in html for code in ('/l/ksiweq','/l/mmxjjd')):
-              raise SystemExit("Missing live PDF or WAV checkout on "+slug)
-          if any(re.search(r'<a\b[^>]*?(?:shop-cart-link|sl-product-cart-link|gumroad\.com/checkout)',tag,re.I)
-                 for tag in re.findall(r'<a\b[^>]*>',html,re.I)):
-              raise SystemExit("Unwanted CART link on product page: "+slug)
-          print("LOCAL PRODUCT PREFLIGHT OK",slug,"(Gumroad preview quota unavailable)")
-          PY
+              # Gumroad's preview quota cannot silently keep a page stale.
+              # Validate the exact canonical version, publish it, then verify
+              # the resulting live revision across every route.
+              python3 scripts/verify_gumroad_route.py --slug "$slug" --generated "$desired"
+              echo "::warning::Preview quota hit on $slug; relying on strict local and post-publication checks"
               echo "$slug" >> "$RUNNER_TEMP/approved-slugs.txt"
               continue
             else
@@ -210,12 +163,12 @@ jobs:
               # keep a recoverable copy before replacing the creator's page.
               old="$RUNNER_TEMP/previous-$slug.html"
               if ! gumroad pages pull "$slug" -o "$old" --json --no-input > "$RUNNER_TEMP/pulled-$slug.json"; then
-                echo "::warning::Cannot back up $slug; leaving it untouched"
-                continue
+                echo "::error::Cannot back up $slug; incomplete Gumroad synchronization"
+                exit 1
               fi
               if ! grep -Fq "data-sl-mirror=\"official-page-$slug\"" "$old" && ! grep -Fq 'data-sl-mirror-css="style.css"' "$old"; then
-                echo "::warning::Page $slug is not one of our canonical mirrors; leaving untouched"
-                continue
+                echo "::error::Gumroad page $slug is not an owned canonical mirror; refusing unsafe change"
+                exit 1
               fi
               gumroad pages push "$slug" "$file" --json --no-input > "$RUNNER_TEMP/out-$slug.json"
               echo "UPDATED $slug"
@@ -304,6 +257,16 @@ jobs:
           print("PRODUCT DETAIL VERIFIED", slug)
           PY
           done
+      - name: Verify every published Gumroad path has the exact official site revision
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
+            gumroad pages pull "$slug" -o "$RUNNER_TEMP/verified-all-$slug.html" --json --no-input > "$RUNNER_TEMP/verified-all-$slug.json"
+            python3 scripts/verify_gumroad_route.py --slug "$slug" --generated "$RUNNER_TEMP/gumroad-pages/$slug.html" --published "$RUNNER_TEMP/verified-all-$slug.html"
+          done
+          echo "ALL OFFICIAL GUMROAD ROUTES ARE CURRENT"
       - name: Save previous pages for rollback
         if: always()
         uses: actions/upload-artifact@v4

@@ -2,25 +2,15 @@ name: Publish full Gumroad storefront
 on:
   push:
     branches: [main]
-    paths:
-      - 'gumroad-site/profile.html'
-      - 'index.html'
-      - 'style.css'
-      - 'site.js'
-      - 'scripts/mirror_gumroad.py'
-      - 'scripts/build_gumroad_site.py'
-      - 'releases.json'
-      - 'concerts-data.json'
-      - '.github/workflows/publish-gumroad-site.yml'
   workflow_dispatch:
   schedule:
-    - cron: '31 3 * * *'
+    - cron: '37 * * * *'
 
 permissions:
   contents: read
 
 concurrency:
-  group: gumroad-profile-publish
+  group: gumroad-website-product-pages
   cancel-in-progress: false
 
 jobs:
@@ -32,11 +22,11 @@ jobs:
       - name: Check Gumroad page eligibility
         id: readiness
         run: |
-          if python3 -c 'from scripts.render_gumroad_catalog import load_catalog, safe_product; import sys; sys.exit(0 if any(safe_product(p) and not str(p.get("title", "")).strip().upper().startswith("TEST ") for p in load_catalog()) else 1)'; then
+          if python3 -c 'from scripts.render_gumroad_catalog import load_catalog, safe_product; import sys; sys.exit(0 if any(safe_product(p) for p in load_catalog()) else 1)'; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::Page preview/publication postponed until a genuine published product is available. Existing Gumroad pages stay unchanged."
-            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Cannot guarantee full Gumroad profile parity without a published product."
+            exit 1
           fi
       - name: Generate release and concert sections from live data
         if: steps.readiness.outputs.ready == 'true'
@@ -94,7 +84,17 @@ jobs:
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
-          gumroad pages preview "$RUNNER_TEMP/simon-gumroad-profile.html" --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if gumroad pages preview "$RUNNER_TEMP/simon-gumroad-profile.html" --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"; then
+              break
+            fi
+            if [[ "$attempt" -eq 3 ]] || ! grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/gumroad-preview.json"; then
+              echo "::error::Gumroad refused the homepage preview; no publication"
+              exit 1
+            fi
+            sleep 67
+          done
           python - "$RUNNER_TEMP/gumroad-preview.json" <<'PY'
           import json,sys
           data=json.load(open(sys.argv[1],encoding='utf-8'))
@@ -126,3 +126,23 @@ jobs:
           print('Gumroad profile update submitted.')
           print('Public profile:',data.get('profile_url') or 'https://simonlibonstore.gumroad.com')
           PY
+      - name: Verify Gumroad homepage against the current official website
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          gumroad pages pull profile -o "$RUNNER_TEMP/home-verified.html" --json --no-input > "$RUNNER_TEMP/home-verified.json"
+          python3 - "$RUNNER_TEMP/simon-gumroad-profile.html" "$RUNNER_TEMP/home-verified.html" <<'PY'
+          from pathlib import Path
+          import re,sys
+          pattern=r'<main\b[^>]*\bdata-sl-mirror-sha="([0-9a-f]{20})"'
+          desired=Path(sys.argv[1]).read_text(encoding="utf-8")
+          live=Path(sys.argv[2]).read_text(encoding="utf-8")
+          expected=re.findall(pattern,desired)
+          found=re.findall(pattern,live)
+          if len(expected)!=1 or found!=expected:
+              raise SystemExit("Gumroad homepage is out of date")
+          if 'href="https://simonlibon.github.io/?newsletter=1"' not in live:
+              raise SystemExit("Gumroad homepage lost the newsletter signup link")
+          print("VERIFIED GUMROAD HOMEPAGE",found[0])
+          PY
+
