@@ -66,6 +66,28 @@ class GumroadProductDetailTests(unittest.TestCase):
         self.assertIn('id="sl-format-tabs" name="sl-download-format" value="tabs" checked="checked"',tabs)
         self.assertIn('id="sl-format-pack" name="sl-download-format" value="pack" checked="checked"',pack)
 
+    def test_included_files_and_description_have_clean_spacing(self):
+        demo=[
+            {**p("ksiweq","FREE TEST — Demo Guitar Tab (PDF)","tabs",0),
+             "description":"Free technical demo. Not an official music release.",
+             "includes":["Guitar tab (PDF)"]},
+            {**p("mmxjjd","FREE TEST — Demo Guitar Tab + Backing Track","pack",0),
+             "description":"Free technical demo. Not an official music release.",
+             "includes":["Guitar tab (PDF)","Backing track (WAV)"]},
+        ]
+        pages=list(product_pages(demo))
+        self.assertEqual(len(pages),2)
+        for slug,g,o in pages:
+            page=detail_page(g,o)
+            self.assertIn('class="sl-payment-copy"',page)
+            self.assertIn('data-sl-inline-formats="v3"',page)
+            self.assertIn('Free technical demo. Not an official music release.',page)
+            self.assertNotIn('RETURN TO THE OFFICIAL SIMON LIBON SHOP',page)
+            self.assertNotIn('Digital download</li>',page)
+            self.assertNotIn('class="shop-cart-link sl-product-cart-link"',page)
+            self.assertLess(page.index('BUY NOW · SECURE CHECKOUT'),page.index('class="sl-payment-copy"'))
+            self.assertIn('Backing track (WAV)',page)
+
     def test_mobile_navigation_matches_all_site_sections(self):
         source=(ROOT/"product.html").read_text(encoding="utf-8")
         self.assertIn('body[data-page="product"] .header-inner{height:58px!important',source)
