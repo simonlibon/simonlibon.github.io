@@ -5,7 +5,7 @@ window.SIMON_SHOP_CATALOG = {
       "id": "nxdrt",
       "title": "Lueur — Guitar Tab + Backing Track",
       "type": "pack",
-      "description": "TEST FICTIF — Brouillon non publié. \n Contenu de démonstration : tablature PDF de la mélodie de « Lueur » et backing track synthétique au format FLAC.\n Cette fiche sert à tester la présentation Gumroad et la livraison des fichiers. Ce n’est pas une sortie officielle.",
+      "description": "PRODUIT DE TEST FICTIF — NE PAS ACHETER. \n Contenu de démonstration : tablature PDF et backing track synthétique au format FLAC.\n Cette fiche sert à tester la publication, l’affichage Gumroad et la livraison numérique. Ce n’est pas une sortie officielle et les fichiers ne correspondent pas à un master final.",
       "includes": [
         "Guitar tab (PDF)",
         "Backing track (audio)"
