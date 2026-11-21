@@ -33,6 +33,8 @@ class GumroadMirrorTests(unittest.TestCase):
                       'data-gumroad-action="buy"', 'ALL TABS &amp; BACKING TRACKS',
                       'Kinetic — Guitar Tab + Backing Track'):
             self.assertIn(token, result)
+        self.assertNotIn('<a class="shop-cart-link',result)
+        self.assertNotIn('href="https://gumroad.com/checkout',result)
         self.assertNotIn('src="product.js', result)
         self.assertNotIn('id="product-layout" class="sl-product-layout" hidden', result)
         self.assertNotIn('id="product-error"', result)
