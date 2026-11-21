@@ -72,7 +72,9 @@ jobs:
               raise SystemExit("Sanitizer stripped essential page elements: "+slug)
           if 'id="newsletter-dialog"' in page:
               raise SystemExit("Gumroad still has an empty newsletter popup: "+slug)
-          if 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
+          # The canonical product.html has no newsletter control in its footer;
+          # all other site sections do, and must keep a working signup link.
+          if not slug.startswith("product-") and 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
               raise SystemExit("Working newsletter destination missing from "+slug)
           if slug.startswith("product-"):
               essentials=['data-sl-mirror="official-page-'+slug+'"',
