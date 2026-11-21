@@ -89,7 +89,7 @@ function renderPlatforms(items){
     link.href=item.url;
     link.target="_blank";
     link.rel="noopener noreferrer";
-    if(preview) link.title="Search Simon Libon on "+item.name;
+    if(preview) link.title="Open "+item.name;
     (index<mainPlatforms.length?nav:secondary).append(link);
   });
   if(secondary.childElementCount){
@@ -112,7 +112,7 @@ if(preview){
   cover.append(placeholder);
   const note=document.createElement("p");
   note.className="preview-note";
-  note.textContent="PREVIEW ONLY — Choose a platform to search Simon Libon. Direct release links appear when a release is published.";
+  note.textContent="PREVIEW ONLY — These links open a platform search or homepage. Direct release links appear when a release is published.";
   const nav=document.getElementById("platforms");
   nav.parentElement.insertBefore(note,nav);
   const query=encodeURIComponent("Simon Libon");
@@ -123,9 +123,25 @@ if(preview){
     "Deezer":"https://www.deezer.com/search/"+query,
     "Amazon Music":"https://music.amazon.com/search/"+query,
     "TIDAL":"https://listen.tidal.com/search?q="+query,
-    "Qobuz":"https://www.qobuz.com/us-en/search?q="+query
+    "SoundCloud":"https://soundcloud.com/",
+    "Qobuz":"https://www.qobuz.com/",
+    "Bandcamp":"https://bandcamp.com/",
+    "Pandora":"https://www.pandora.com/",
+    "Napster":"https://www.napster.com/",
+    "Audiomack":"https://audiomack.com/",
+    "Anghami":"https://play.anghami.com/",
+    "iHeartRadio":"https://www.iheart.com/",
+    "JioSaavn":"https://www.jiosaavn.com/",
+    "KKBOX":"https://www.kkbox.com/",
+    "Gaana":"https://gaana.com/",
+    "Mixcloud":"https://www.mixcloud.com/",
+    "Audius":"https://audius.co/",
+    "NetEase Cloud Music":"https://music.163.com/",
+    "Yandex Music":"https://music.yandex.com/",
+    "LINE MUSIC":"https://music.line.me/"
   };
-  renderPlatforms([...mainPlatforms,"TIDAL","Qobuz"].map(name=>({name,url:previewLinks[name]})));
+  const morePlatforms=["TIDAL","SoundCloud","Qobuz","Bandcamp","Pandora","Napster","Audiomack","Anghami","iHeartRadio","JioSaavn","KKBOX","Gaana","Mixcloud","Audius","NetEase Cloud Music","Yandex Music","LINE MUSIC"];
+  renderPlatforms([...mainPlatforms,...morePlatforms].map(name=>({name,url:previewLinks[name]})));
   releaseBox.hidden=false;
   return;
 }
