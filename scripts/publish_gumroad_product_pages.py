@@ -100,7 +100,7 @@ def tab_format(name):
     if not isinstance(name, str) or re.search(r"\b(ep|album|bundle)\b", name, flags=re.I):
         return None
     suffix = re.search(
-        r"\s*[-—–:]\s*(?:guitar\s+)?tabs?(?:\s*\(pdf\))?"
+        r"(?:\s*[-—–:]\s*|\s+)(?:guitar\s+)?tabs?(?:\s*\(pdf\))?"
         r"(?:\s*(?:\+|&|and)\s*backing\s+tracks?(?:\s*\((?:wav|mp3)\))?)?\s*$",
         name, flags=re.I,
     )
