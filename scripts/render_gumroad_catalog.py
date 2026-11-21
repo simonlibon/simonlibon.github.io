@@ -127,7 +127,7 @@ def product_card(g):
     options = g["options"]
     detail = detail_url(g)
     cover = ('<img src="' + esc(g.get("thumbnail") or g["image"]) + '" alt="Cover artwork for ' +
-             esc(g["title"]) + '" loading="lazy">') if g["image"] else (
+             esc(g["title"]) + '" loading="lazy">') if (g.get("thumbnail") or g["image"]) else (
              '<span class="placeholder-text">SIMON LIBON</span>')
     price = min(p["price"] for p in options)
     # Match official site: product cards open the detail page, not checkout.
