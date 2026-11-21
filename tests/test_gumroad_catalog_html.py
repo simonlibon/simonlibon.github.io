@@ -61,6 +61,8 @@ class GumroadCatalogHTMLTests(unittest.TestCase):
         self.assertIn('id="shop-empty" class="shop-empty"', result)
         self.assertIn('>0 RELEASES', result)
         self.assertIn('COMING SOON', result)
+        self.assertIn('class="shop-cart-link"', result)
+        self.assertNotIn('class="shop-cart-link" style="display:none"', result)
 
     def test_reject_unpublished_template_untrusted_url(self):
         bad = product("Track — Guitar Tab", "slug", "tabs")
