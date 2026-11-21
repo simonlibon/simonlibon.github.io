@@ -215,11 +215,6 @@ def render_shop(document, products):
                 '<div id="shop-grid" class="shop-product-grid" aria-live="polite">' +
                 ''.join(product_card(g) for g in tracks) + '</div>')
     count = len(bundles) + len(tracks)
-    if count:
-        # The official page starts with the cart hidden until its live catalogue loads;
-        # static Gumroad mirrors must reveal it when published products exist.
-        document = document.replace('class="shop-cart-link" style="display:none"',
-                                    'class="shop-cart-link"', 1)
     replace_one('id="shop-count" class="shop-count">RELEASES',
                 'id="shop-count" class="shop-count">' +
                 str(count) + (" RELEASE" if count == 1 else " RELEASES"))
