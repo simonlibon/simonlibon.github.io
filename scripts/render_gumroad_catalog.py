@@ -47,10 +47,12 @@ def safe_product(item):
     kind = str(item.get("type") or "")
     if kind == "backing":
         return None
-    if re.search(r"\b(ep|album|bundle)\b", title, re.I) or kind == "bundle":
+    if re.search(r"\b(ep|album)\b", title, re.I):
         kind = "bundle"
     elif re.search(r"\btabs?\b.*\bbacking\b", title, re.I) or kind == "pack":
         kind = "pack"
+    elif re.search(r"\bbundle\b", title, re.I) or kind == "bundle":
+        kind = "bundle"
     elif re.search(r"\btabs?\b", title, re.I) or kind == "tabs":
         kind = "tabs"
     else:
