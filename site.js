@@ -88,7 +88,21 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 
 /* Shared newsletter dialog on every page. */
-(function(){const d=document.getElementById('newsletter-dialog');if(!d)return;document.querySelectorAll('[data-newsletter-open]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(!d.open)d.showModal();}));d.addEventListener('click',e=>{if(e.target===d)d.close();});})();
+(function(){
+  const d=document.getElementById('newsletter-dialog');
+  if(!d)return;
+  document.querySelectorAll('[data-newsletter-open]').forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();if(!d.open)d.showModal();
+  }));
+  d.addEventListener('click',e=>{if(e.target===d)d.close();});
+  // The Gumroad mirror forwards newsletter subscribers to the official form.
+  // This parameter opens the real EmailOctopus form on the official domain.
+  if(location.hostname==='simonlibon.github.io' &&
+     new URLSearchParams(location.search).get('newsletter')==='1' &&
+     !d.open && typeof d.showModal==='function'){
+    d.showModal();
+  }
+})();
 
 (function initConcertCountryPicker() {
   const dialog = document.getElementById('newsletter-dialog');
