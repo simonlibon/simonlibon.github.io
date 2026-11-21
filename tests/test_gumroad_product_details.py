@@ -36,6 +36,8 @@ class GumroadProductDetailTests(unittest.TestCase):
             self.assertIn(group["title"],rendered)
             self.assertIn('/l/'+slug.removeprefix("product-")+'?price=0&amp;wanted=true',rendered)
             self.assertIn('href="https://simonlibonstore.gumroad.com/tabs"',rendered)
+            self.assertIn('class="shop-cart-link sl-product-cart-link"',rendered)
+            self.assertIn('href="https://gumroad.com/checkout',rendered)
             self.assertNotIn('id="product-add-to-cart"',rendered)
             self.assertNotIn('ADD TO CART',rendered)
             self.assertNotIn('src="product.js',rendered)
