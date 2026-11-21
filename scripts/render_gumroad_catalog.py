@@ -64,6 +64,7 @@ def safe_product(item):
     if not isinstance(includes,list) or not all(isinstance(v,str) and v.strip() for v in includes):
         includes=[]
     return dict(title=title, kind=kind, price=price, image=item.get("image"),
+                thumbnail=item.get("thumbnail") or item.get("image"),
                 date=str(item.get("releaseDate") or ""), checkout=checkout,
                 description=str(item.get("description") or ""), includes=includes)
 
@@ -90,12 +91,14 @@ def group_products(products):
             key = "track:" + re.sub(r"[^a-z0-9]+", "-", display.casefold()).strip("-")
         if key not in groups:
             groups[key] = {"kind": "bundle" if p["kind"] == "bundle" else "track",
-                           "title": display, "image": "", "date": "", "options": [], "search": ""}
+                           "title": display, "image": "", "thumbnail": "", "date": "", "options": [], "search": ""}
         group = groups[key]
         group["options"].append(p)
         group["search"] += " " + p["description"]
         if not group["image"] and isinstance(p["image"], str) and p["image"].startswith("https://"):
             group["image"] = p["image"]
+        if not group["thumbnail"] and isinstance(p.get("thumbnail"), str) and p["thumbnail"].startswith("https://"):
+            group["thumbnail"] = p["thumbnail"]
         group["date"] = max(group["date"], p["date"])
     all_groups = sorted(groups.values(), key=lambda g: (g["date"], g["title"].casefold()), reverse=True)
     for g in all_groups:
@@ -123,7 +126,7 @@ def product_card(g):
     esc = lambda s: html.escape(str(s), quote=True)
     options = g["options"]
     detail = detail_url(g)
-    cover = ('<img src="' + esc(g["image"]) + '" alt="Cover artwork for ' +
+    cover = ('<img src="' + esc(g.get("thumbnail") or g["image"]) + '" alt="Cover artwork for ' +
              esc(g["title"]) + '" loading="lazy">') if g["image"] else (
              '<span class="placeholder-text">SIMON LIBON</span>')
     price = min(p["price"] for p in options)
