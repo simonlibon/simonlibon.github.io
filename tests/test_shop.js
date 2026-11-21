@@ -62,6 +62,8 @@ assert(!detailPage.includes('class="shop-cart-link sl-product-cart-link"'), "No 
 assert(!detailPage.includes("https://gumroad.com/checkout"), "Product page does not link to basket");
 const shopStyles = fs.readFileSync("shop.css", "utf8");
 assert(shopStyles.includes(".product-topline{display:flex;align-items:center;justify-content:space-between"), "Product header keeps cart aligned right");
+assert(shopStyles.includes(".sl-product-copy > #product-description"), "Descriptions must have explicit readable spacing");
+assert(shopStyles.includes(".sl-product-page .sl-product-details"), "Included files use shared spacing");
 assert(!shopStyles.includes(".product-topline>.sl-product-cart-link{margin-left:auto"), "No product-specific cart styling");
 assert(storePage.includes('class="shop-cart-link"'), "Cart shortcut remains available in the shop header");
 assert(storePage.includes("https://gumroad.com/checkout"), "Cart opens Gumroad checkout");
