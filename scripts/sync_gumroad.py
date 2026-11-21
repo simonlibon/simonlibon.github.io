@@ -219,6 +219,11 @@ def main():
         # Keep this exact description through every hourly Gumroad sync.
         if slug == "mmxjjd" and kind == "pack":
             includes = ["Guitar tab (PDF)", "Backing track (WAV)"]
+        thumbnail_path = ROOT / "release-artwork" / slug / "thumbnail-square.jpg"
+        thumbnail_url = (
+            f"https://raw.githubusercontent.com/simonlibon/simonlibon.github.io/main/release-artwork/{slug}/thumbnail-square.jpg"
+            if thumbnail_path.is_file() else image_of(product, old_product)
+        )
         published.append({
             "id": slug,
             "title": name,
@@ -228,6 +233,7 @@ def main():
             "price": cents / 100,
             "gumroadUrl": f"https://{STORE}/l/{slug}",
             "image": image_of(product, old_product),
+            "thumbnail": thumbnail_url,
             "published": True,
             "releaseDate": (old_product or {}).get("releaseDate") or today,
         })
