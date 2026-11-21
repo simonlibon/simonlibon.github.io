@@ -23,22 +23,36 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Check Gumroad page eligibility
+        id: readiness
+        run: |
+          if python3 -c 'from scripts.render_gumroad_catalog import load_catalog, safe_product; import sys; sys.exit(0 if any(safe_product(p) and not str(p.get("title", "")).strip().upper().startswith("TEST ") for p in load_catalog()) else 1)'; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Page preview/publication postponed until a genuine published product is available. Existing Gumroad pages stay unchanged."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Generate same page as the publish workflow
+        if: steps.readiness.outputs.ready == 'true'
         run: python3 scripts/build_gumroad_site.py --output "$RUNNER_TEMP/simon-gumroad-profile.html"
       - uses: actions/setup-go@v5
+        if: steps.readiness.outputs.ready == 'true'
         with:
           go-version: '1.25.x'
       - name: Install official Gumroad CLI
+        if: steps.readiness.outputs.ready == 'true'
         run: |
           go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - name: Confirm seller identity
+        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           test -n "$GUMROAD_ACCESS_TOKEN" || { echo "::error::GUMROAD_ACCESS_TOKEN missing"; exit 1; }
           gumroad user --json --no-input --jq '.user | {username, name}'
       - name: Preview and sanitize custom Gumroad homepage (no publishing)
+        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -58,4 +72,5 @@ jobs:
                   raise SystemExit('Gumroad stripped essential element: '+token)
           PY
       - name: Report no live changes
+        if: steps.readiness.outputs.ready == 'true'
         run: echo "This workflow only previews the Gumroad site. It does not publish, email, or modify any product."
