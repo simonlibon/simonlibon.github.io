@@ -54,6 +54,38 @@ jobs:
             if gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
               echo "REMOTE PREVIEW ACCEPTED $slug"
             elif grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/preview-$slug.json"; then
+              if [[ "$slug" == "tabs" ]]; then
+                # Gumroad's read-only preview quota should not permanently
+                # block the canonical shop. Validate this exact static build,
+                # back up the owned live page, publish it, then pull & verify.
+                python - "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
+          from pathlib import Path
+          from scripts.render_gumroad_catalog import load_catalog,group_products,detail_url
+          import sys
+          document=Path(sys.argv[1]).read_text(encoding="utf-8")
+          bundles,tracks=group_products(load_catalog())
+          required=['data-sl-mirror-css="style.css"',
+                    'data-sl-mirror-css="shop.css"',
+                    'data-sl-static-catalog="1"',
+                    'Final storefront parity: selectors survive Gumroad',
+                    '#shop-catalog .shop-list-heading{',
+                    'border-top:1px solid #dedbd7',
+                    '#shop-catalog .shop-item-title{',
+                    '#shop-catalog .shop-item-actions a{',
+                    'class="shop-cart-link"',
+                    'href="https://simonlibon.github.io/?newsletter=1"']
+          missing=[x for x in required if x not in document]
+          if missing or document.count('class="shop-item"')!=len(bundles)+len(tracks):
+              raise SystemExit("Unsafe local Gumroad tabs page; missing="+repr(missing))
+          if any(detail_url(group) not in document for group in bundles+tracks):
+              raise SystemExit("One or more product links missing from canonical tabs page")
+          if 'id="shop-empty"' in document and bundles+tracks:
+              raise SystemExit("Tabs page has a false empty state")
+          print("LOCAL TABS PREFLIGHT OK: "+str(len(bundles)+len(tracks))+" release cards")
+          PY
+                echo "$slug" >> "$RUNNER_TEMP/approved-slugs.txt"
+                continue
+              fi
               if [[ "$slug" != product-* ]]; then
                 echo "::warning::Preview quota exhausted; leaving non-product page $slug unchanged"
                 continue
@@ -228,6 +260,13 @@ jobs:
               raise SystemExit("Gumroad newsletter destination is not functional")
           if 'data-sl-compact-cards="v2"' not in cards:
               raise SystemExit("Gumroad published wrong cover/card dimensions")
+          parity=['Final storefront parity: selectors survive Gumroad',
+                  '#shop-catalog .shop-list-heading{',
+                  '#shop-catalog .shop-item-title{',
+                  '#shop-catalog .shop-item-actions a{',
+                  'border-top:1px solid #dedbd7']
+          if any(expected not in cards for expected in parity):
+              raise SystemExit("Gumroad /tabs still shows the outdated section heading or links")
           from scripts.render_gumroad_catalog import detail_url
           for group in bundles+tracks:
               if detail_url(group) not in cards:
