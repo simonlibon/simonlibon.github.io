@@ -2,6 +2,22 @@ window.SIMON_SHOP_CATALOG = {
   "shopName": "Simon Libon — Tabs & Tracks",
   "products": [
     {
+      "id": "nxdrt",
+      "title": "Lueur — Guitar Tab + Backing Track",
+      "type": "pack",
+      "description": "TEST FICTIF — Brouillon non publié. \n Contenu de démonstration : tablature PDF de la mélodie de « Lueur » et backing track synthétique au format FLAC.\n Cette fiche sert à tester la présentation Gumroad et la livraison des fichiers. Ce n’est pas une sortie officielle.",
+      "includes": [
+        "Guitar tab (PDF)",
+        "Backing track (audio)"
+      ],
+      "price": 9.0,
+      "gumroadUrl": "https://simonlibonstore.gumroad.com/l/nxdrt",
+      "image": "https://public-files.gumroad.com/p0dzr36sp8c4fv5ll6zn42c0an59",
+      "thumbnail": "https://public-files.gumroad.com/p0dzr36sp8c4fv5ll6zn42c0an59",
+      "published": true,
+      "releaseDate": "2026-11-21"
+    },
+    {
       "id": "ksiweq",
       "title": "FREE TEST — Demo Guitar Tab (PDF)",
       "type": "tabs",
