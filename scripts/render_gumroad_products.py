@@ -18,9 +18,9 @@ else:
 
 LABELS = {"tabs": "Guitar Tab (PDF)", "pack": "Tab + Backing Track", "bundle": "Complete EP Bundle"}
 INCLUDES = {
-    "tabs": ["Guitar tab (PDF)", "Digital download"],
-    "pack": ["Guitar tab (PDF)", "Backing track without lead guitar", "Digital download"],
-    "bundle": ["Tabs and backing tracks", "Digital download"],
+    "tabs": ["Guitar tab (PDF)"],
+    "pack": ["Guitar tab (PDF)", "Backing track (audio)"],
+    "bundle": ["Tabs and backing tracks"],
 }
 
 
@@ -107,7 +107,7 @@ def detail_page(group, current):
                                 "Official digital download by Simon Libon.") + '</span>')
             details.append('<ul class="sl-variant-includes" data-sl-kind="' + kind + '">' +
                            ''.join('<li>' + escaped(v) + '</li>' for v in
-                                   INCLUDES.get(kind, ["Digital download"])) + '</ul>')
+                                   (option.get("includes") or INCLUDES.get(kind, ["Digital download"]))) + '</ul>')
         once('<div id="product-price" class="sl-product-price"></div>',
              ''.join(inputs) +
              '<div id="product-price" class="sl-product-price">' + ''.join(prices) + '</div>' +
@@ -131,13 +131,12 @@ def detail_page(group, current):
              'id="product-included-section" class="sl-product-details"')
         once('<ul id="product-included"></ul>',
              '<ul id="product-included">' + ''.join('<li>' + escaped(v) + '</li>'
-                                                  for v in INCLUDES.get(current["kind"], ["Digital download"])) + '</ul>')
+                                                  for v in (current.get("includes") or INCLUDES.get(current["kind"], ["Digital download"]))) + '</ul>')
         once('<a id="product-buy" class="sl-buy-button" href="#" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>',
              '<a id="product-buy" class="sl-buy-button" href="' + escaped(current["checkout"]) +
              '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
-    # An official site duplicate on Gumroad does not need to repeatedly
-    # explain that Gumroad manages the transaction.
-    page = re.sub(r'<p class="sl-payment-copy">.*?</p>', '', page, count=1, flags=re.S)
+    # Keep the same small delivery/security line across all three product routes.
+    # The product description now has its own spacing and subtle divider.
     page, removed = re.subn(
         r'<div id="product-error" class="sl-product-unknown" hidden>.*?</div>',
         '', page, count=1, flags=re.S,
