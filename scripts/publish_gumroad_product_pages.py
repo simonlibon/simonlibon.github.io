@@ -22,6 +22,9 @@ else:
 
 API = "https://api.gumroad.com/v2/"
 MARKER = 'data-sl-product-template="v2"'
+# These already-existing test products can have their branded previews repaired
+# while remaining unpublished. No other draft may be modified.
+SAFE_TEST_DRAFT_IDS = {"R9C0cMTZHmWPfZovsTj4LA==", "Bq8QU2gYZ4-ptvQKi-VyaQ=="}
 OWN_MARKERS = (MARKER, 'data-sl-product-template="v1"')
 TEMPLATE = Path(__file__).with_name("gumroad-product-template.html")
 FALLBACK_COVERS = {
@@ -57,7 +60,7 @@ def published_products(token):
         params = {"page_key": page} if page else {}
         data = request(token, "products", values=params)
         entries = data.get("products") or []
-        all_products += [p for p in entries if p.get("published") is True]
+        all_products += [p for p in entries if p.get("published") is True or p.get("id") in SAFE_TEST_DRAFT_IDS]
         page = data.get("next_page_key") or data.get("page_key")
         if not page or page in seen or not entries:
             break
@@ -118,13 +121,21 @@ def checkout_url(code, price_cents):
 
 
 def options_html(current, catalog):
-    """Match only verified published sibling products; never synthesize checkout."""
+    """A real same-page radio selector, never a checkout link on the option row.
+
+    Gumroad may strip JavaScript from custom HTML, so CSS updates both the
+    displayed price and the *only visible* checkout button. The original
+    native Gumroad action remains as an invisible fallback for the sanitizer.
+    """
     own = tab_format(current.get("name"))
     if own is None:
         return ""
     candidates = {}
     for row in catalog:
-        if not isinstance(row, dict) or row.get("published") is not True:
+        if not isinstance(row, dict):
+            continue
+        is_safe_test = row.get("id") in SAFE_TEST_DRAFT_IDS
+        if row.get("published") is not True and not is_safe_test:
             continue
         match = tab_format(row.get("name"))
         if match is None or match[0] != own[0] or match[1] in candidates:
@@ -139,35 +150,64 @@ def options_html(current, catalog):
             code = parts[2]
         if not re.fullmatch(r"[a-zA-Z0-9_-]+", code):
             continue
-        cents = row.get("price_cents", row.get("price"))
+        cents = row.get("price_cents")
+        if cents is None:
+            cents = row.get("price")
         if isinstance(cents, bool) or not isinstance(cents, (int, float)) or cents < 0:
             continue
         candidates[match[1]] = {
-            "code": code,
-            "price": f"€{cents / 100:.2f}",
-            "cents": cents,
+            "code": code, "price": f"€{cents / 100:.2f}", "cents": cents
         }
     if not all(kind in candidates for kind in ("tabs", "pack")):
         return ""
     own_id = current.get("permalink") or current.get("custom_permalink")
     if not own_id:
-        own_id = next((x["code"] for k,x in candidates.items() if k == own[1]), "")
+        own_id = candidates[own[1]]["code"]
     labels = {"tabs": "Guitar Tab (PDF)", "pack": "Tab + Backing Track"}
-    fields = ['<fieldset class="shop-purchase-options"><legend>CHOOSE YOUR DOWNLOAD</legend>']
+    fields = ['<div class="sl-native-selector" data-sl-native-formats="v4">']
     for kind in ("tabs", "pack"):
-        option = candidates[kind]
-        selected = own[1] == kind and option["code"] == own_id
-        tag = "span" if selected else "a"
-        cls = "shop-option selected" if selected else "shop-option"
-        href = "" if selected else ' href="' + html.escape(checkout_url(option["code"], option["cents"]), quote=True) + '"'
-        fields.append(
-            f'<{tag} class="{cls}"{href}>'
-            f'<span class="shop-option-name">{html.escape(labels[kind])}</span>'
-            f'<strong class="shop-option-price">{option["price"]}</strong>'
-            f'</{tag}>'
-        )
-    fields.append("</fieldset>")
-    return "".join(fields)
+        checked = ' checked="checked"' if own[1] == kind and candidates[kind]["code"] == own_id else ""
+        fields.append('<input class="sl-native-radio" type="radio" id="sl-native-' + kind +
+                      '" name="sl-native-download-format" value="' + kind + '"' + checked + '>')
+    fields.append('<div class="sl-native-price">')
+    for kind in ("tabs", "pack"):
+        fields.append('<span class="sl-native-price-value" data-sl-kind="' + kind +
+                      '">' + candidates[kind]["price"] + '</span>')
+    fields.append('</div><fieldset class="shop-purchase-options"><legend>CHOOSE YOUR DOWNLOAD</legend>')
+    for kind in ("tabs", "pack"):
+        fields.append('<label class="shop-option" for="sl-native-' + kind + '">' +
+                      '<span class="shop-option-name">' + html.escape(labels[kind]) + '</span>' +
+                      '<strong class="shop-option-price">' + candidates[kind]["price"] + '</strong>' +
+                      '</label>')
+    fields.append('</fieldset><div class="sl-native-buttons">')
+    for kind in ("tabs", "pack"):
+        fields.append('<a class="sl-buy-button sl-native-buy" data-sl-kind="' + kind +
+                      '" href="' + html.escape(checkout_url(candidates[kind]["code"], candidates[kind]["cents"]), quote=True) +
+                      '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
+    fields.append('</div>')
+    return "".join(fields) + '</div>'
+
+
+NATIVE_FORMAT_CSS = """
+<style data-sl-native-format-css="v4">
+.sl-has-formats #product-price{display:none!important}
+.sl-native-selector .sl-native-radio{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;clip-path:inset(50%)!important}
+.sl-native-selector .sl-native-price{font-size:26px;font-weight:700;margin:0 0 18px;color:#18181a}
+.sl-native-selector .sl-native-price-value,
+.sl-native-selector .sl-native-buy{display:none!important}
+.sl-native-selector .shop-purchase-options label{cursor:pointer}
+.sl-native-selector .sl-native-buttons{margin-top:18px}
+.sl-native-selector .sl-native-buy{width:100%;justify-content:center;align-items:center}
+#sl-native-tabs:checked ~ .sl-native-price .sl-native-price-value[data-sl-kind="tabs"],
+#sl-native-pack:checked ~ .sl-native-price .sl-native-price-value[data-sl-kind="pack"]{display:block!important}
+#sl-native-tabs:checked ~ .sl-native-buttons .sl-native-buy[data-sl-kind="tabs"],
+#sl-native-pack:checked ~ .sl-native-buttons .sl-native-buy[data-sl-kind="pack"]{display:flex!important}
+#sl-native-tabs:checked ~ .shop-purchase-options label[for="sl-native-tabs"],
+#sl-native-pack:checked ~ .shop-purchase-options label[for="sl-native-pack"]{border-color:#18181a!important;background:#f0eeeb!important}
+#sl-native-tabs:focus-visible ~ .shop-purchase-options label[for="sl-native-tabs"],
+#sl-native-pack:focus-visible ~ .shop-purchase-options label[for="sl-native-pack"]{outline:2px solid #917cb1;outline-offset:2px}
+</style>
+"""
 
 
 def build(p, catalog=None):
@@ -198,7 +238,18 @@ def build(p, catalog=None):
         anchor = '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"'
         if result.count(anchor) != 1:
             raise ValueError("Missing Gumroad buy button for format selector")
-        result = result.replace(anchor, options + anchor, 1)
+        # Replace the native CTA with one visible checkout for the selected
+        # format. The hidden original keeps Gumroad's native action marker.
+        native = result[result.index(anchor):]
+        native = native[:native.index('</a>') + len('</a>')]
+        result = result.replace('class="sl-shop sl-product-page"',
+                                'class="sl-shop sl-product-page sl-has-formats"', 1)
+        hidden = native.replace('class="sl-buy-button"',
+                                'class="sl-buy-button sl-native-fallback"', 1)
+        hidden = hidden.replace('data-gumroad-action="buy"',
+                                'data-gumroad-action="buy" style="display:none!important" aria-hidden="true" tabindex="-1"', 1)
+        result = result.replace(native, options + hidden, 1)
+        result = result.replace('</head>', NATIVE_FORMAT_CSS + '</head>', 1)
     return result
 
 
@@ -210,7 +261,17 @@ def main():
     if not token:
         raise SystemExit("Missing GUMROAD_ACCESS_TOKEN; no pages touched")
     pages = published_products(token)
-    print("Published Gumroad products:", len(pages))
+    print("Public products and explicitly allowed unpublished test drafts:", len(pages))
+    # Read real product details for every variant. Listing summaries can have
+    # outdated/zero prices; never display those as €0.00 options.
+    detailed = []
+    for item in pages:
+        product_id = item.get("id")
+        if not product_id:
+            continue
+        detail = request(token, "products/" + urllib.parse.quote(str(product_id), safe="")).get("product") or {}
+        detailed.append({**item, **{k: v for k, v in detail.items() if v is not None}})
+    pages = detailed
     for entry in pages:
         identifier = entry.get("id")
         if not identifier:
@@ -240,6 +301,7 @@ def main():
             print("Replacing the known legacy DEMO EP page with the canonical layout.")
         if not product.get("permalink") and not product.get("custom_permalink"):
             product["permalink"] = permalink
+        product = {**entry, **{k: v for k, v in product.items() if v is not None}}
         new_page = build(product, pages)
         if permalink in FALLBACK_COVERS and "<img " not in new_page:
             raise RuntimeError("Expected an image cover for the known test product")
@@ -251,6 +313,11 @@ def main():
         needed = [MARKER, 'data-gumroad-action="buy"', 'data-gumroad-field="name"',
                   'data-gumroad-field="price"', 'data-gumroad-field="description"', "site-head"]
         missing = [x for x in needed if x not in sanitized]
+        if 'data-sl-native-formats="v4"' in new_page:
+            selectors = ['data-sl-native-formats="v4"', 'id="sl-native-tabs"',
+                         'id="sl-native-pack"', 'data-sl-native-format-css="v4"',
+                         'sl-native-buy', '/l/mmxjjd', '/l/ntapzm']
+            missing += [token for token in selectors if token not in sanitized]
         if missing or preview.get("warning"):
             raise RuntimeError(f"Preview rejected {permalink}, missing={missing}, warning={preview.get('warning')}")
         removed = (preview.get("sanitization_report") or {}).get("total_removed")
