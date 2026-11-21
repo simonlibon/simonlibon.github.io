@@ -30,6 +30,24 @@ class ProductOptionTests(unittest.TestCase):
         self.assertIn('#sl-native-pack:checked ~ .sl-native-buttons',output)
         self.assertEqual(output.count('class="sl-buy-button sl-native-buy"'),2)
 
+    def test_actual_published_demo_names_group_on_native_product_links(self):
+        tab=row("FREE TEST — Demo Guitar Tab (PDF)","ksiweq",0)
+        pack=row("FREE TEST — Demo Guitar Tab + Backing Track","mmxjjd",0)
+        for current in (tab,pack):
+            selector=options_html(current,[tab,pack])
+            self.assertIn("CHOOSE YOUR DOWNLOAD",selector)
+            self.assertEqual(selector.count('name="sl-native-download-format"'),2)
+            self.assertIn('/l/ksiweq?price=0&amp;wanted=true',selector)
+            self.assertIn('/l/mmxjjd?price=0&amp;wanted=true',selector)
+            page=build(current,[tab,pack])
+            self.assertIn('class="sl-shop sl-product-page sl-has-formats"',page)
+            self.assertIn('data-sl-native-formats="v4"',page)
+            self.assertIn('for="sl-native-tabs"',page)
+            self.assertIn('for="sl-native-pack"',page)
+            self.assertNotIn("ADD TO CART",page)
+        self.assertIn('id="sl-native-tabs" name="sl-native-download-format" value="tabs" checked="checked"',options_html(tab,[tab,pack]))
+        self.assertIn('id="sl-native-pack" name="sl-native-download-format" value="pack" checked="checked"',options_html(pack,[tab,pack]))
+
     def test_free_demo_format_switch_bypasses_product_landing_page(self):
         tab=row("TEST TRACK — Guitar Tab","mmxjjd",0)
         pack=row("TEST TRACK — Guitar Tab + Backing Track","ntapzm",0)
