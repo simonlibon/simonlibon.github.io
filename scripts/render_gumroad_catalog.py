@@ -60,9 +60,12 @@ def safe_product(item):
     target = f"https://{DOMAIN}{parsed.path.rstrip('/')}"
     # Exactly the same direct checkout semantics as shop-model.js.
     checkout = target + ("?price=0&wanted=true" if price == 0 else "?wanted=true")
+    includes=item.get("includes")
+    if not isinstance(includes,list) or not all(isinstance(v,str) and v.strip() for v in includes):
+        includes=[]
     return dict(title=title, kind=kind, price=price, image=item.get("image"),
                 date=str(item.get("releaseDate") or ""), checkout=checkout,
-                description=str(item.get("description") or ""))
+                description=str(item.get("description") or ""), includes=includes)
 
 
 def group_products(products):
