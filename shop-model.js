@@ -48,17 +48,18 @@
       // The storefront sells a tab or a tab+audio pack, never audio by itself.
       if (kind === "backing") return;
       if (kind === "bundle") {
-        bundles.push({ kind: "bundle", id: p.id, title: p.title, options: [{ kind: "bundle", product: p }], image: p.image || "", date: p.releaseDate || "" });
+        bundles.push({ kind: "bundle", id: p.id, title: p.title, options: [{ kind: "bundle", product: p }], image: p.image || "", thumbnail: p.thumbnail || p.image || "", date: p.releaseDate || "" });
         return;
       }
       const title = trackTitle(p);
       const key = trackKey(title) || ("product-" + String(p.id));
       if (!tracksMap.has(key)) {
-        tracksMap.set(key, { kind: "track", key: key, title: title, options: [], image: "", date: "" });
+        tracksMap.set(key, { kind: "track", key: key, title: title, options: [], image: "", thumbnail: "", date: "" });
       }
       const group = tracksMap.get(key);
       group.options.push({ kind: kind, product: p });
       if (!group.image && p.image) group.image = p.image;
+      if (!group.thumbnail && p.thumbnail) group.thumbnail = p.thumbnail;
       if (String(p.releaseDate || "") > String(group.date || "")) group.date = p.releaseDate;
     });
     const tracks = [...tracksMap.values()];

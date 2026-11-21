@@ -50,7 +50,7 @@
   }
   function art(group) {
     const container = el("div", "shop-item-image");
-    const uri = String(group.image || "");
+    const uri = String(group.thumbnail || group.image || "");
     if (/^https:\/\//i.test(uri)) {
       const img = el("img");
       img.src = uri;
