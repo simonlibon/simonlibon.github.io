@@ -250,9 +250,6 @@ def build(p, catalog=None):
                                 'class="sl-shop sl-product-page sl-has-formats"', 1)
         hidden = native.replace('class="sl-buy-button"',
                                 'class="sl-buy-button sl-native-fallback" style="display:none!important" aria-hidden="true" tabindex="-1"', 1)
-        if 'data-gumroad-action="buy"' in hidden:
-            hidden = hidden.replace('data-gumroad-action="buy"',
-                                    'data-gumroad-action="buy"', 1)
         result = result.replace(native, options + hidden, 1)
         result = result.replace('</head>', NATIVE_FORMAT_CSS + '</head>', 1)
     return result
