@@ -136,7 +136,6 @@
     const trackHeading = document.getElementById("shop-track-heading");
     const empty = document.getElementById("shop-empty");
     const count = document.getElementById("shop-count");
-    const cart = document.querySelector(".shop-cart-link");
     if (!search || !sort || !grid || !bundlesGrid || !bundleSection || !trackHeading || !empty || !count) return;
 
     function matches(g, q) {
@@ -154,12 +153,6 @@
       bundleSection.hidden = bundles.length === 0;
       trackHeading.hidden = tracks.length === 0;
       const overall = grouped.bundles.length + grouped.tracks.length;
-      // Never send visitors to an old Gumroad cart while no real releases are on sale.
-      if (cart) {
-        const enabled = !preview && overall > 0;
-        cart.hidden = !enabled;
-        cart.style.display = enabled ? "" : "none";
-      }
       empty.hidden = (bundles.length + tracks.length) > 0;
       empty.querySelector("h3").textContent = overall ? "NO MATCHES." : "COMING SOON.";
       empty.querySelector("p").textContent = overall ?
