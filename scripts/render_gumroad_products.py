@@ -81,7 +81,7 @@ def detail_page(group, current):
                 raise ValueError("Invalid download format")
             return kind
 
-        inputs, choices, prices, buttons, descriptions, details = [], [], [], [], [], []
+        inputs, choices, prices, buttons, cart_buttons, descriptions, details = [], [], [], [], [], [], []
         for option in variants:
             kind = token(option)
             selected = option["checkout"] == current["checkout"]
@@ -102,6 +102,11 @@ def detail_page(group, current):
             buttons.append('<a' + button_id + ' class="sl-buy-button sl-variant-buy" ' +
                            'data-sl-kind="' + kind + '" href="' + escaped(option["checkout"]) +
                            '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
+            cart_button_id = ' id="product-add-to-cart"' if selected else ""
+            cart_href = option["checkout"].split("?", 1)[0]
+            cart_buttons.append('<a' + cart_button_id + ' class="sl-cart-button sl-variant-cart" ' +
+                                'data-sl-kind="' + kind + '" href="' + escaped(cart_href) +
+                                '" target="_blank" rel="noopener noreferrer">ADD TO CART</a>')
             descriptions.append('<span class="sl-variant-description" data-sl-kind="' + kind +
                                 '">' + escaped(option["description"].strip() or
                                 "Official digital download by Simon Libon.") + '</span>')
@@ -115,6 +120,8 @@ def detail_page(group, current):
              ''.join(choices) + '</fieldset>')
         once('<a id="product-buy" class="sl-buy-button" href="#" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>',
              '<div class="sl-buy-variants">' + ''.join(buttons) + '</div>')
+        once('<a id="product-add-to-cart" class="sl-cart-button gumroad-button" href="#" target="_blank" rel="noopener noreferrer">ADD TO CART</a>',
+             '<div class="sl-cart-variants">' + ''.join(cart_buttons) + '</div>')
         once('<p id="product-description"></p>',
              '<p id="product-description" class="sl-variant-description-wrap">' +
              ''.join(descriptions) + '</p>')
@@ -135,6 +142,9 @@ def detail_page(group, current):
         once('<a id="product-buy" class="sl-buy-button" href="#" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>',
              '<a id="product-buy" class="sl-buy-button" href="' + escaped(current["checkout"]) +
              '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
+        once('<a id="product-add-to-cart" class="sl-cart-button gumroad-button" href="#" target="_blank" rel="noopener noreferrer">ADD TO CART</a>',
+             '<a id="product-add-to-cart" class="sl-cart-button" href="' + escaped(current["checkout"].split("?", 1)[0]) +
+             '" target="_blank" rel="noopener noreferrer">ADD TO CART</a>')
     # An official site duplicate on Gumroad does not need to repeatedly
     # explain that Gumroad manages the transaction.
     page = re.sub(r'<p class="sl-payment-copy">.*?</p>', '', page, count=1, flags=re.S)
@@ -155,6 +165,7 @@ def detail_page(group, current):
 .sl-product-page .shop-purchase-options .sl-option-dot{width:14px;height:14px;border:1px solid #28282c;border-radius:50%;flex:0 0 14px;display:inline-flex;align-items:center;justify-content:center}
 .sl-product-page .sl-variant-price,
 .sl-product-page .sl-variant-buy,
+.sl-product-page .sl-variant-cart,
 .sl-product-page .sl-variant-description,
 .sl-product-page .sl-variant-includes{display:none!important}
 .sl-product-page .sl-variant-description-wrap{white-space:pre-line}
@@ -166,6 +177,7 @@ def detail_page(group, current):
             selector = '#sl-format-' + kind + ':checked ~ '
             css += (selector + '#product-price .sl-variant-price[data-sl-kind="' + kind + '"],\n' +
                     selector + '.sl-buy-variants .sl-variant-buy[data-sl-kind="' + kind + '"],\n' +
+                    selector + '.sl-cart-variants .sl-variant-cart[data-sl-kind="' + kind + '"],\n' +
                     selector + '#product-description .sl-variant-description[data-sl-kind="' + kind + '"],\n' +
                     selector + '#product-included-section .sl-variant-includes[data-sl-kind="' + kind +
                     '"]{display:block!important}\n')
