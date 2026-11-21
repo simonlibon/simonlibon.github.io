@@ -59,7 +59,7 @@ assert(storePage.includes('shop.js'));
 assert(detailPage.includes('product.js'));
 assert(!detailPage.includes('id="product-add-to-cart"'), "No Add to cart on product page");
 assert(!storePage.includes('class="shop-cart-link"'), "No cart shortcut in storefront");
-assert(detailPage.includes("ADD TO CART"), "secondary action is visible");
+assert(!detailPage.includes("ADD TO CART"), "Secondary cart action must be absent");
 new vm.Script(fs.readFileSync("shop.js", "utf8"), { filename: "shop.js" });
 new vm.Script(fs.readFileSync("product.js", "utf8"), { filename: "product.js" });
 const shopScript = fs.readFileSync("shop.js", "utf8");
