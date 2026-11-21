@@ -1,6 +1,6 @@
 """Check tab/track choice links on native Gumroad pages. No network access."""
 import unittest
-from scripts.publish_gumroad_product_pages import options_html, build
+from scripts.publish_gumroad_product_pages import options_html, build, contains_cart_shortcut
 
 def row(name, slug, kindprice, published=True):
     return {"name":name,"permalink":slug,"url":"https://simonlibonstore.gumroad.com/l/"+slug,
@@ -49,6 +49,19 @@ class ProductOptionTests(unittest.TestCase):
             self.assertNotIn("ADD TO CART",page)
         self.assertIn('id="sl-native-tabs" name="sl-native-download-format" value="tabs" checked="checked"',options_html(tab,[tab,pack]))
         self.assertIn('id="sl-native-pack" name="sl-native-download-format" value="pack" checked="checked"',options_html(pack,[tab,pack]))
+
+    def test_cart_detection_covers_all_product_entry_routes(self):
+        self.assertFalse(contains_cart_shortcut('<style>.shop-cart-link{display:block}</style>'))
+        self.assertTrue(contains_cart_shortcut('<a class="shop-cart-link" href="https://gumroad.com/checkout">CART</a>'))
+        self.assertTrue(contains_cart_shortcut('<a class="sl-product-cart-link" href="/other">CART</a>'))
+        self.assertTrue(contains_cart_shortcut('<a href="https://gumroad.com/checkout?referrer=site">Cart</a>'))
+        tab=row("FREE TEST — Demo Guitar Tab (PDF)","ksiweq",0)
+        pack=row("FREE TEST — Demo Guitar Tab + Backing Track","mmxjjd",0)
+        for current in (tab,pack):
+            page=build(current,[tab,pack])
+            self.assertFalse(contains_cart_shortcut(page))
+            self.assertIn("CHOOSE YOUR DOWNLOAD",page)
+            self.assertIn("BUY NOW",page)
 
     def test_free_demo_format_switch_bypasses_product_landing_page(self):
         tab=row("TEST TRACK — Guitar Tab","mmxjjd",0)
