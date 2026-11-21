@@ -16,7 +16,7 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertIn('https://simonlibonstore.gumroad.com/music', mirrored)
         self.assertIn('class="newsletter-dialog"', original)
         self.assertNotIn('id="newsletter-dialog"', mirrored)
-        self.assertNotIn('data-newsletter-open', mirrored.split('<body')[1].split('</footer>')[0])
+        self.assertNotIn('href="#newsletter-dialog"', mirrored)
 
 
     def test_product_has_canonical_markup_and_real_gumroad_buy(self):
