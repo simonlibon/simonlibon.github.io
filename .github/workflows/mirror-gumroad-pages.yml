@@ -97,12 +97,11 @@ jobs:
                   raise SystemExit("Gumroad stripped the official compact-card sizes")
               if 'class="shop-payment-note"' in page:
                   raise SystemExit("Redundant checkout note still present")
+              from scripts.render_gumroad_catalog import detail_url
               for group in bundles+tracks:
-                  for option in group["options"]:
-                      slug_id=option["checkout"].split("/l/")[-1].split("?")[0]
-                      if "/l/"+slug_id not in page:
-                          raise SystemExit("Gumroad dropped a live checkout link: "+slug_id)
-              print(f"SHOP CARD CHECK OK: {expected} groups, {sum(len(x['options']) for x in bundles+tracks)} purchase options")
+                  if detail_url(group) not in page:
+                      raise SystemExit("Gumroad shop does not link to the branded product page: "+group["title"])
+              print(f"SHOP DETAILS CHECK OK: {expected} cards, {sum(len(x['options']) for x in bundles+tracks)} branded detail pages")
           print("PREVIEW OK",slug,len(page),"chars")
           PY
           done
@@ -169,12 +168,11 @@ jobs:
               raise SystemExit("Gumroad newsletter destination is not functional")
           if 'data-sl-compact-cards="v2"' not in cards:
               raise SystemExit("Gumroad published wrong cover/card dimensions")
+          from scripts.render_gumroad_catalog import detail_url
           for group in bundles+tracks:
-              for item in group["options"]:
-                  slug=item["checkout"].split("/l/")[-1].split("?")[0]
-                  if "/l/"+slug not in cards:
-                      raise SystemExit("Missing published Gumroad checkout link: "+slug)
-          print(f"Published Gumroad shop verified: {actual} release cards, same as official catalogue")
+              if detail_url(group) not in cards:
+                  raise SystemExit("Gumroad shop card missing official-style detail link: "+group["title"])
+          print(f"Published Gumroad shop verified: {actual} release cards linking to branded product pages")
           PY
       - name: Verify published product detail pages
         env:
