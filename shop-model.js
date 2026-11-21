@@ -79,5 +79,11 @@
     checkoutUrl.searchParams.set("wanted", "true");
     return checkoutUrl.href;
   };
-  window.SIMON_SHOP_MODEL = { build: build, checkout: checkout, isLive: isLive };
+  const productPage = function (product) {
+    if (!isLive(product)) return "";
+    // The documented Gumroad product URL opens the native Add to cart step;
+    // it must NOT contain ?wanted=true, which skips straight to checkout.
+    return new URL(product.gumroadUrl).href;
+  };
+  window.SIMON_SHOP_MODEL = { build: build, checkout: checkout, productPage: productPage, isLive: isLive };
 })();
