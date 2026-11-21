@@ -77,8 +77,9 @@ jobs:
           if not slug.startswith("product-") and 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
               raise SystemExit("Working newsletter destination missing from "+slug)
           if slug.startswith("product-"):
-              essentials=['data-sl-mirror="official-page-'+slug+'"',
-                          'data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
+              # Gumroad strips custom <body> data attributes on standalone
+              # product pages; verify the actual visual DOM and buy link.
+              essentials=['data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
                           'id="product-buy"', 'id="product-price"', 'id="product-cover"']
               if any(x not in page for x in essentials):
                   missing=[x for x in essentials if x not in page]
@@ -189,7 +190,8 @@ jobs:
           import sys
           slug=sys.argv[1]
           source=Path(sys.argv[2]).read_text(encoding="utf-8")
-          required=['data-sl-mirror="official-page-'+slug+'"', 'id="product-buy"',
+          required=['data-sl-mirror-css="shop.css"', 'id="product-buy"',
+                    'id="product-price"', 'id="product-cover"',
                     'class="sl-product-layout"', 'simonlibonstore.gumroad.com/l/']
           if any(x not in source for x in required):
               raise SystemExit("Gumroad lost a published branded product detail page: "+slug)
