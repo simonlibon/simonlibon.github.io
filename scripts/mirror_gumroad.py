@@ -67,9 +67,45 @@ def _store_navigation(document):
     document = document.replace('href="' + SITE + '"', 'href="' + STORE + '"')
     return document
 
+def _functional_newsletter(document):
+    """Gumroad strips EmailOctopus' form script: never show an empty dialog.
+
+    Link to the real matching newsletter popup hosted on the official site.
+    The subscriber still sees Simon Libon's design and actual signup fields.
+    """
+    url = SITE + "?newsletter=1"
+    def fix_link(m):
+        tag = m.group(0)
+        tag = re.sub(r'\sdata-newsletter-open(?:="[^"]*")?', '', tag)
+        tag = re.sub(r'\saria-haspopup="dialog"', '', tag)
+        if not re.search(r'\bhref="[^"]*"', tag):
+            raise ValueError("Newsletter link without href")
+        return re.sub(r'\bhref="[^"]*"', 'href="' + url + '"', tag, count=1)
+    document = re.sub(r'<a\b[^>]*\bdata-newsletter-open\b[^>]*>', fix_link,
+                      document, flags=re.I)
+    # The embedded signup script isn't permitted on native Gumroad custom HTML.
+    # Removing the now-unreachable dialog also removes the blank Gumroad popup.
+    document = re.sub(r'<dialog\b[^>]*\bid="newsletter-dialog"[^>]*>.*?</dialog>',
+                      '', document, count=1, flags=re.S | re.I)
+    return document
+
+
+def _remove_gumroad_catalog_loader(document):
+    """Only Gumroad uses build-time cards; remove the obsolete async error UI."""
+    if "const catalog = document.createElement('script')" not in document:
+        raise ValueError("Official shop loader changed; update mirrored loader stripping")
+    document, count = re.subn(
+        r'<script>\s*\(function\(\)\{\s*// On Gumroad the official product cards.*?</script>',
+        '', document, count=1, flags=re.S
+    )
+    if count != 1 or "SHOP TEMPORARILY UNAVAILABLE" in document:
+        raise ValueError("Obsolete script can still blank the Gumroad store")
+    return document
+
+
 def mirror_profile():
     source = (ROOT / "index.html").read_text(encoding="utf-8")
-    out = _store_navigation(_inline_assets(source))
+    out = _functional_newsletter(_store_navigation(_inline_assets(source)))
     # The page is a visual clone; this marker is a deployment assertion.
     out = out.replace("<body data-page=\"home\">",
                       '<body data-page="home" data-sl-mirror="official-home-v2">', 1)
@@ -79,7 +115,7 @@ def mirror_profile():
 
 def mirror_product(p, cover_html, type_label, price_fallback, includes):
     out = (ROOT / "product.html").read_text(encoding="utf-8")
-    out = _store_navigation(_inline_assets(out, product=True))
+    out = _functional_newsletter(_store_navigation(_inline_assets(out, product=True)))
     def once(old, new):
         nonlocal out
         if out.count(old) != 1:
@@ -185,7 +221,9 @@ def mirror_standalone(slug):
     if slug not in PAGE_SOURCES:
         raise ValueError("Unknown Simon Libon page")
     source = (ROOT / PAGE_SOURCES[slug]).read_text(encoding="utf-8")
-    out = _store_navigation(_inline_assets(source))
+    out = _functional_newsletter(_store_navigation(_inline_assets(source)))
+    if slug == "tabs":
+        out = _remove_gumroad_catalog_loader(out)
     if slug == "tabs":
         # Two separate direct-buy links can wrap naturally on small phones.
         out = out.replace("</head>", '<style>body[data-page="tabs"] .shop-item-actions{flex-wrap:wrap;row-gap:10px}'
