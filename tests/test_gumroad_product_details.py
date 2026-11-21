@@ -27,6 +27,9 @@ class GumroadProductDetailTests(unittest.TestCase):
         for slug,group,option in self.pages:
             rendered=detail_page(group,option)
             self.assertIn('data-sl-mirror="official-page-'+slug+'"',rendered)
+            self.assertIn('Canonical product sheet: balanced framing and readable type v3.',rendered)
+            self.assertIn('font-size:16px!important',rendered)
+            self.assertIn('@media(max-width:860px)',rendered)
             for field in ('class="sl-product-layout"','class="sl-product-cover"',
                           'id="product-title"','id="product-price"',
                           'id="product-buy"','id="product-description"',

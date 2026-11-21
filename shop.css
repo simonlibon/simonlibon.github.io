@@ -432,3 +432,168 @@ body[data-page="tabs"] .shop-item-price {font-variant-numeric:tabular-nums}
   }
   .sl-product-page .sl-product-details{margin-top:18px}
 }
+
+
+/* Canonical product sheet: balanced framing and readable type v3.
+   Shared by official dynamic details, Gumroad custom pages and /l/ native
+   pages. Use the canonical .sl-product-page root, never Gumroad's body attrs. */
+.sl-product-page{
+  padding-top:clamp(22px,2.1vw,32px);
+}
+.sl-product-page .product-topline{
+  max-width:1100px;
+  padding-bottom:15px;
+  margin:0 auto 25px;
+}
+.sl-product-page .back-to-shop{
+  font-size:12px;
+  line-height:1.5;
+}
+.sl-product-page .sl-product-layout{
+  width:100%;
+  max-width:1100px;
+  grid-template-columns:minmax(0,410px) minmax(0,1fr);
+  gap:clamp(38px,5vw,72px);
+  align-items:start;
+}
+.sl-product-page .sl-product-cover{
+  width:100%;
+  max-width:410px;
+  margin:0;
+}
+.sl-product-page .sl-product-copy{
+  min-width:0;
+  padding-top:5px;
+}
+.sl-product-page .sl-product-kicker{
+  margin:0 0 13px;
+  font-size:12px;
+  line-height:1.5;
+  letter-spacing:.14em;
+}
+.sl-product-page .sl-product-copy h1{
+  max-width:100%;
+  margin:0 0 12px;
+  font-size:clamp(36px,3.5vw,54px);
+  line-height:1.08;
+  letter-spacing:-.062em;
+  overflow-wrap:break-word;
+}
+.sl-product-page .sl-product-artist{
+  margin:0;
+  font-size:12px;
+  line-height:1.5;
+  letter-spacing:.12em;
+}
+.sl-product-page .sl-product-price{
+  margin:24px 0 17px;
+  font-size:28px;
+  line-height:1.2;
+}
+.sl-product-page .shop-purchase-options{
+  gap:9px;
+  margin-bottom:17px;
+}
+.sl-product-page .shop-purchase-options legend{
+  padding-bottom:12px;
+  font-size:12px;
+  line-height:1.5;
+  letter-spacing:.11em;
+}
+.sl-product-page .shop-option{
+  min-height:52px;
+  padding:12px 15px;
+}
+.sl-product-page .shop-option-name,
+.sl-product-page .shop-option-price{
+  font-size:14px;
+  line-height:1.4;
+}
+.sl-product-page .sl-buy-button{
+  min-height:54px;
+  padding:16px 20px;
+  font-size:12px;
+  line-height:1.5;
+}
+.sl-product-page .sl-payment-copy{
+  margin:11px 0 0;
+  font-size:12px;
+  line-height:1.55;
+}
+.sl-product-page .sl-product-copy > #product-description{
+  margin-top:22px;
+  padding-top:19px;
+  font-size:16px!important;
+  line-height:1.65!important;
+  color:#4b4850;
+  overflow-wrap:break-word;
+}
+.sl-product-page .sl-product-details{
+  margin-top:23px;
+}
+.sl-product-page .sl-product-details h2{
+  margin:0 0 10px;
+  font-size:12px;
+  line-height:1.5;
+  letter-spacing:.11em;
+}
+.sl-product-page .sl-product-details li{
+  padding:4px 0;
+  font-size:15px;
+  line-height:1.55;
+  color:#39363e;
+}
+@media(min-width:861px) and (max-width:1150px){
+  .sl-product-page .sl-product-layout{
+    grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);
+    gap:clamp(26px,4vw,48px);
+  }
+  .sl-product-page .sl-product-copy h1{
+    font-size:clamp(33px,4.3vw,48px);
+  }
+}
+@media(max-width:860px){
+  .sl-product-page .sl-product-layout{
+    max-width:570px;
+    grid-template-columns:minmax(0,1fr);
+    gap:24px;
+  }
+  .sl-product-page .sl-product-cover{
+    width:min(100%,380px);
+    margin:0 auto;
+  }
+  .sl-product-page .sl-product-copy{
+    padding-top:0;
+  }
+  .sl-product-page .sl-product-copy h1{
+    font-size:clamp(32px,6vw,45px);
+  }
+  .sl-product-page .sl-product-price{
+    margin:21px 0 16px;
+    font-size:26px;
+  }
+}
+@media(max-width:520px){
+  .sl-product-page{padding-top:19px}
+  .sl-product-page .product-topline{
+    margin-bottom:21px;
+    padding-bottom:13px;
+  }
+  .sl-product-page .back-to-shop{font-size:11px}
+  .sl-product-page .sl-product-layout{gap:19px}
+  .sl-product-page .sl-product-cover{
+    width:min(100%,320px);
+  }
+  .sl-product-page .sl-product-kicker{font-size:11px;margin-bottom:10px}
+  .sl-product-page .sl-product-copy h1{font-size:clamp(31px,8vw,39px)}
+  .sl-product-page .shop-option{padding:12px 13px;min-height:52px}
+  .sl-product-page .shop-option-name,
+  .sl-product-page .shop-option-price{font-size:14px}
+  .sl-product-page .sl-product-copy > #product-description{
+    margin-top:19px;
+    padding-top:16px;
+    font-size:15px!important;
+  }
+  .sl-product-page .sl-product-details h2{font-size:12px}
+  .sl-product-page .sl-product-details li{font-size:15px}
+}

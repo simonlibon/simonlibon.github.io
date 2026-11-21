@@ -101,6 +101,11 @@ class ProductOptionTests(unittest.TestCase):
                     self.assertIn('id="sl-format-' + kind +
                                   '" name="sl-download-format" value="' + kind +
                                   '" checked="checked"', page)
+                for view in (custom, native):
+                    self.assertIn('Canonical product sheet: balanced framing and readable type v3.', view)
+                    self.assertIn('font-size:16px!important', view)
+                    self.assertIn('@media(max-width:860px)', view)
+                    self.assertIn('font-size:15px!important', view)
                 self.assertIn('data-sl-product-template="v2"', native)
                 self.assertIn('class="sl-gumroad-native-fallback" data-gumroad-action="buy"', native)
                 self.assertIn('class="sl-native-metadata"', native)
