@@ -113,10 +113,7 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 <dialog id="newsletter-dialog" class="newsletter-dialog" aria-labelledby="newsletter-dialog-title">
 <form method="dialog" class="newsletter-dialog-shell"><button type="submit" class="newsletter-close" aria-label="Close newsletter">×</button></form>
 <div class="newsletter-dialog-body"><h2 id="newsletter-dialog-title">NEWSLETTER</h2><p>New music, tabs, merch &amp; shows.</p>
-<script async src="https://eocampaign1.com/form/e481fb88-e48d-11f1-b718-bf82b7962b6e.js?v=concert-layout2" data-form="e481fb88-e48d-11f1-b718-bf82b7962b6e"></script></div></dialog><script src="site.js?v=newsletter-simple"></script><script>
-const newsletterDialog=document.getElementById('newsletter-dialog');
-document.querySelector('[data-newsletter-open]')?.addEventListener('click',function(e){e.preventDefault();newsletterDialog?.showModal();});
-newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterDialog)newsletterDialog.close();});
+<script async src="https://eocampaign1.com/form/e481fb88-e48d-11f1-b718-bf82b7962b6e.js?v=concert-layout2" data-form="e481fb88-e48d-11f1-b718-bf82b7962b6e"></script></div></dialog><script src="site.js?v=newsletter-unified-20261121"></script><script>
 /* Check for new published HTML when returning to the site, including iOS Safari. */
 (function(){
   const pageVersion='home-20261119-footer-ff2b9ffc-emailoctopus-country-picker-layout2-simple';
@@ -145,29 +142,5 @@ newsletterDialog?.addEventListener('click',function(e){if(e.target===newsletterD
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible') checkFreshVersion();
   });
-})();
-</script><script>
-/* Newsletter works independently of cached shared scripts. */
-(function(){
-  function openNewsletter(e){
-    const trigger=e.target.closest('[data-newsletter-open]');
-    if(!trigger)return;
-    e.preventDefault();
-    const dialog=document.getElementById('newsletter-dialog');
-    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
-  }
-  document.addEventListener('click',openNewsletter);
-  document.addEventListener('click',function(e){
-    const dialog=document.getElementById('newsletter-dialog');
-    if(dialog && e.target===dialog)dialog.close();
-  });
-  // A newsletter link from the Gumroad website opens the existing signup dialog.
-  function openFromLink(){
-    if(window.location.hash!=='#newsletter')return;
-    const dialog=document.getElementById('newsletter-dialog');
-    if(dialog && typeof dialog.showModal==='function' && !dialog.open)dialog.showModal();
-  }
-  window.addEventListener('hashchange',openFromLink);
-  openFromLink();
 })();
 </script></body></html>
