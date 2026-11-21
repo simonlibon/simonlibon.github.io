@@ -86,7 +86,6 @@
 
     const options = group.options;
     const buy = document.getElementById("product-buy");
-    const addToCart = document.getElementById("product-add-to-cart");
     const price = document.getElementById("product-price");
     const description = document.getElementById("product-description");
     const includedSection = document.getElementById("product-included-section");
@@ -104,17 +103,8 @@
         buy.setAttribute("aria-disabled", "true");
         buy.style.pointerEvents = "none";
         buy.style.opacity = ".55";
-        // A disabled preview must not expose any purchase path, including cart.
-        addToCart.removeAttribute("href");
-        addToCart.setAttribute("aria-disabled", "true");
-        addToCart.textContent = "CART UNAVAILABLE IN PREVIEW";
       } else {
         buy.href = checkoutUrl;
-        // Cart opens the real product page (without wanted=true).
-        // Gumroad overlay enhances this link; native navigation is the fallback.
-        addToCart.href = model.productPage(product);
-        addToCart.removeAttribute("aria-disabled");
-        addToCart.textContent = "ADD TO CART";
         if (preview && approvedDemo) {
           buy.textContent = "FREE TEST CHECKOUT · GUMROAD";
           buy.removeAttribute("aria-disabled");
@@ -167,17 +157,8 @@
     }
     select(preferred);
     document.getElementById("product-layout").hidden = false;
-    // Gumroad's documented overlay presents its native Add to cart action.
-    // If it cannot load, the HTTPS product link still works.
-    if (!preview && !document.querySelector('script[data-sl-gumroad-overlay]')) {
-      const overlay = document.createElement("script");
-      overlay.src = "https://gumroad.com/js/gumroad.js";
-      overlay.async = true;
-      overlay.dataset.slGumroadOverlay = "1";
-      document.body.append(overlay);
-    }
   }
   load("catalog.js?refresh=" + Date.now(), function () {
-    load("shop-model.js?v=checkout-cart-1", render);
+    load("shop-model.js?v=direct-checkout-20261121", render);
   });
 })();
