@@ -73,4 +73,5 @@ jobs:
           gh workflow run deploy-pages.yml --ref main
           gh workflow run mirror-gumroad-pages.yml --ref main
           gh workflow run gumroad-product-pages.yml --ref main
-          echo "Official website, Gumroad storefront and product-page refreshes dispatched"
+          gh workflow run publish-gumroad-site.yml --ref main
+          echo "Official website, Gumroad pages, homepage and product-page refreshes dispatched"
