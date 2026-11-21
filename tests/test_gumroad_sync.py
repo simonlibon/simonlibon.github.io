@@ -75,9 +75,9 @@ class GumroadSyncTests(unittest.TestCase):
         def detail(endpoint, token, params=None):
             product_id=endpoint.rsplit("/",1)[-1]
             return {"product":next(x for x in inventory if x["id"] == product_id)}
-        with patch.dict(os.environ,{"GUMROAD_ACCESS_TOKEN":"offline-test"}), \\
-             patch.object(sync,"fetch_products",return_value=inventory), \\
-             patch.object(sync,"api_get",side_effect=detail):
+        with (patch.dict(os.environ, {"GUMROAD_ACCESS_TOKEN": "offline-test"}),
+              patch.object(sync, "fetch_products", return_value=inventory),
+              patch.object(sync, "api_get", side_effect=detail)):
             sync.main()
         items=self.read()
         self.assertEqual([p["type"] for p in items],["tabs","pack"])
