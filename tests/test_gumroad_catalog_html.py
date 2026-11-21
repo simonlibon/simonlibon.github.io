@@ -54,6 +54,20 @@ class GumroadCatalogHTMLTests(unittest.TestCase):
         self.assertIn('id="shop-ep-section" class="shop-group-section"', result)
         self.assertIn('id="shop-track-heading" class="shop-list-heading"', result)
 
+    def test_gumroad_shop_heading_preserves_official_scale_without_body_attributes(self):
+        page = render_shop((ROOT / "tabs.html").read_text(encoding="utf-8"), self.products)
+        self.assertIn('data-sl-gumroad-shop-heading="v1"', page)
+        self.assertIn('#shop-catalog .shop-catalog-head #collection-title', page)
+        self.assertIn('font-size:clamp(43px,5.65vw,74px)!important', page)
+        self.assertIn('font-size:clamp(31px,7.8vw,37px)!important', page)
+        self.assertIn('display:block!important', page)
+        self.assertIn('text-align:center!important', page)
+        # These selectors must not depend on Gumroad preserving body[data-page].
+        heading_css = page.split('<style data-sl-gumroad-shop-heading="v1">', 1)[1].split('</style>', 1)[0]
+        self.assertNotIn('body[data-page=', heading_css)
+        self.assertLess(page.index('data-sl-compact-cards="v2"'), page.index('data-sl-gumroad-shop-heading="v1"'))
+        self.assertIn('class="shop-cart-link"', page)
+
     def test_empty_shop_has_explicit_message(self):
         source = (ROOT / "tabs.html").read_text(encoding="utf-8")
         result = render_shop(source, [])
