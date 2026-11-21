@@ -61,6 +61,7 @@ jobs:
           print('Connected to the correct Gumroad creator.')
           PY
       - name: Backup current storefront
+        id: old-profile
         if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
@@ -72,6 +73,17 @@ jobs:
             echo "No custom storefront to pull; attempting a snapshot of the standard profile."
             gumroad pages scaffold profile -o "$RUNNER_TEMP/gumroad-backup/profile-before.html" --json --no-input
           fi
+          python3 - "$RUNNER_TEMP/simon-gumroad-profile.html" "$RUNNER_TEMP/gumroad-backup/profile-before.html" <<'PY'
+          import re,sys,os
+          from pathlib import Path
+          pattern=r'<main\b[^>]*\bdata-sl-mirror-sha="([a-f0-9]{20})"'
+          expected=re.findall(pattern,Path(sys.argv[1]).read_text(encoding="utf-8"))
+          old=re.findall(pattern,Path(sys.argv[2]).read_text(encoding="utf-8"))
+          if len(expected)==1 and old==expected:
+              with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as out:
+                  out.write("already_current=true\n")
+              print("GUMROAD HOMEPAGE ALREADY CURRENT",expected[0])
+          PY
       - name: Store backup for rollback
         if: steps.readiness.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
@@ -80,7 +92,7 @@ jobs:
           path: ${{ runner.temp }}/gumroad-backup/profile-before.html
           if-no-files-found: error
       - name: Preview and validate new complete website
-        if: steps.readiness.outputs.ready == 'true'
+        if: steps.readiness.outputs.ready == 'true' && steps.old-profile.outputs.already_current != 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -89,17 +101,37 @@ jobs:
             if gumroad pages preview "$RUNNER_TEMP/simon-gumroad-profile.html" --json --no-input > "$RUNNER_TEMP/gumroad-preview.json"; then
               break
             fi
-            if [[ "$attempt" -eq 3 ]] || ! grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/gumroad-preview.json"; then
-              echo "::error::Gumroad refused the homepage preview; no publication"
+            if ! grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/gumroad-preview.json"; then
+              echo "::error::Gumroad refused the homepage preview for a reason other than rate limiting"
               exit 1
+            fi
+            if [[ "$attempt" -eq 3 ]]; then
+              echo "::warning::Gumroad preview quota exhausted; validate the generated official homepage and verify after publishing"
+              break
             fi
             sleep 67
           done
           python - "$RUNNER_TEMP/gumroad-preview.json" <<'PY'
-          import json,sys
+          import json,sys,re
+          from pathlib import Path
           data=json.load(open(sys.argv[1],encoding='utf-8'))
           if data.get('success') is False:
-              raise SystemExit('Gumroad profile preview failed: no live changes made')
+              reason=str(data.get('error') or data.get('code') or data.get('message') or '')
+              if not re.search('rate.limit|too many requests',reason,re.I):
+                  raise SystemExit('Gumroad profile preview failed: '+reason[:140])
+              local=Path(sys.argv[1]).parent/'simon-gumroad-profile.html'
+              page=local.read_text(encoding='utf-8')
+              essentials=['SIMON LIBON','data-sl-mirror-css="style.css"',
+                          'class="header"','class="footer"',
+                          'href="https://simonlibon.github.io/?newsletter=1"',
+                          'https://simonlibonstore.gumroad.com/']
+              if any(e not in page for e in essentials) or not re.search(
+                  r'<main\b[^>]*\bdata-sl-mirror-sha="[0-9a-f]{20}"',page):
+                  raise SystemExit("Local homepage safety validation failed; do not publish")
+              if 'id="newsletter-dialog"' in page:
+                  raise SystemExit("Local Gumroad homepage has an unusable popup")
+              print("Verified the locally generated homepage after preview quota; live verification required")
+              sys.exit(0)
           html=data.get('custom_html') or ''
           if not html:
               raise SystemExit('Empty sanitized Gumroad profile: refusing to publish')
@@ -113,7 +145,7 @@ jobs:
           print('Sanitization report:',json.dumps(data.get('sanitization_report') or {})[:1000])
           PY
       - name: Publish complete branded Gumroad homepage
-        if: steps.readiness.outputs.ready == 'true'
+        if: steps.readiness.outputs.ready == 'true' && steps.old-profile.outputs.already_current != 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
