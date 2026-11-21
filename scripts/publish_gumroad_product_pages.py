@@ -96,12 +96,12 @@ def product_type(p):
 
 
 def tab_format(name):
-    """A tab and the corresponding tab+track share one canonical song title."""
+    """Match both native Gumroad SKU labels, including optional (PDF)/(WAV) suffixes."""
     if not isinstance(name, str) or re.search(r"\b(ep|album|bundle)\b", name, flags=re.I):
         return None
     suffix = re.search(
-        r"\s*[-—–:]\s*(?:guitar\s+)?tabs?"
-        r"(?:\s*(?:\+|&|and)\s*backing\s+tracks?)?\s*$",
+        r"\s*[-—–:]\s*(?:guitar\s+)?tabs?(?:\s*\(pdf\))?"
+        r"(?:\s*(?:\+|&|and)\s*backing\s+tracks?(?:\s*\((?:wav|mp3)\))?)?\s*$",
         name, flags=re.I,
     )
     if not suffix:
