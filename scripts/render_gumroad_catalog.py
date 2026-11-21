@@ -99,33 +99,46 @@ def group_products(products):
     return [g for g in all_groups if g["kind"] == "bundle"], [g for g in all_groups if g["kind"] == "track"]
 
 
+def detail_slug(group, option=None):
+    """One Gumroad-hosted official-style detail page per published SKU."""
+    if option is None:
+        option = next((p for p in group["options"] if p["kind"] == "pack"), group["options"][0])
+    path = urlparse(option["checkout"]).path
+    match = re.fullmatch(r"/l/([a-zA-Z0-9_-]+)", path)
+    if not match:
+        raise ValueError("Cannot generate a detail page for an untrusted product")
+    return "product-" + match.group(1)
+
+
+def detail_url(group, option=None):
+    return "https://" + DOMAIN + "/" + detail_slug(group, option)
+
+
 def product_card(g):
     esc = lambda s: html.escape(str(s), quote=True)
     options = g["options"]
-    choice = next((p for p in options if p["kind"] == "pack"), options[0])
+    detail = detail_url(g)
     cover = ('<img src="' + esc(g["image"]) + '" alt="Cover artwork for ' +
              esc(g["title"]) + '" loading="lazy">') if g["image"] else (
              '<span class="placeholder-text">SIMON LIBON</span>')
     price = min(p["price"] for p in options)
-    links = []
-    labels = {"tabs": "GUITAR TAB", "pack": "TAB + TRACK", "bundle": "BUY BUNDLE"}
-    for option in options:
-        links.append('<a class="buy-quick" href="' + esc(option["checkout"]) +
-                     '">' + labels.get(option["kind"], "BUY NOW") + '</a>')
+    # Match official site: product cards open the detail page, not checkout.
+    button_label = "VIEW BUNDLE" if g["kind"] == "bundle" else "VIEW OPTIONS"
     type_text = "Complete collection" if g["kind"] == "bundle" else "Guitar tabs & tracks"
     return ('<article class="shop-item" style="width:100%;max-width:250px" data-shop-release="' + esc(g["title"].casefold()) +
             '" data-shop-search="' + esc((g["title"] + " " + g["search"]).casefold()) +
             '" data-shop-date="' + esc(g["date"]) + '">'
-            '<a class="shop-card-link" href="' + esc(choice["checkout"]) +
-            '" aria-label="Checkout: ' + esc(g["title"]) +
+            '<a class="shop-card-link" href="' + esc(detail) +
+            '" aria-label="View ' + esc(g["title"]) +
             '"><div class="shop-item-image" style="width:100%;aspect-ratio:1/1;overflow:hidden">' + cover + '</div></a>'
             '<div class="shop-item-meta"><div><h3 class="shop-item-title"><a href="' +
-            esc(choice["checkout"]) + '">' + esc(g["title"]) + '</a></h3>'
+            esc(detail) + '">' + esc(g["title"]) + '</a></h3>'
             '<div class="shop-item-type">' + type_text + '</div></div>'
             '<span class="shop-item-price">' +
             ("FROM " if g["kind"] == "track" and len(options) > 1 else "") +
             "€{:.2f}".format(price) + '</span></div>'
-            '<div class="shop-item-actions">' + ''.join(links) + '</div></article>')
+            '<div class="shop-item-actions"><a class="buy-quick" href="' + esc(detail) + '">' +
+            button_label + '</a></div></article>')
 
 
 # Progressive enhancement only. The markup works without JavaScript.
