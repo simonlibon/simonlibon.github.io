@@ -12,6 +12,7 @@ window.SIMON_SHOP_CATALOG = {
       "price": 0.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ksiweq",
       "image": "https://public-files.gumroad.com/6ohw1nhf7mldd1igmf3o09lidr6u",
+      "thumbnail": "https://public-files.gumroad.com/6ohw1nhf7mldd1igmf3o09lidr6u",
       "published": true,
       "releaseDate": "2026-11-21"
     },
@@ -27,6 +28,7 @@ window.SIMON_SHOP_CATALOG = {
       "price": 0.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/mmxjjd",
       "image": "https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
+      "thumbnail": "https://public-files.gumroad.com/463u26tobg7hzzc4czodqg7a0osl",
       "published": true,
       "releaseDate": "2026-11-21"
     }
