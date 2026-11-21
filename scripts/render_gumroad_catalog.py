@@ -113,12 +113,12 @@ def product_card(g):
         links.append('<a class="buy-quick" href="' + esc(option["checkout"]) +
                      '">' + labels.get(option["kind"], "BUY NOW") + '</a>')
     type_text = "Complete collection" if g["kind"] == "bundle" else "Guitar tabs & tracks"
-    return ('<article class="shop-item" data-shop-release="' + esc(g["title"].casefold()) +
+    return ('<article class="shop-item" style="width:100%;max-width:250px" data-shop-release="' + esc(g["title"].casefold()) +
             '" data-shop-search="' + esc((g["title"] + " " + g["search"]).casefold()) +
             '" data-shop-date="' + esc(g["date"]) + '">'
             '<a class="shop-card-link" href="' + esc(choice["checkout"]) +
             '" aria-label="Checkout: ' + esc(g["title"]) +
-            '"><div class="shop-item-image">' + cover + '</div></a>'
+            '"><div class="shop-item-image" style="width:100%;aspect-ratio:1/1;overflow:hidden">' + cover + '</div></a>'
             '<div class="shop-item-meta"><div><h3 class="shop-item-title"><a href="' +
             esc(choice["checkout"]) + '">' + esc(g["title"]) + '</a></h3>'
             '<div class="shop-item-type">' + type_text + '</div></div>'
@@ -142,7 +142,7 @@ FILTER_SCRIPT = r"""
     var bundleSection=document.getElementById('shop-ep-section');
     var trackHeading=document.getElementById('shop-track-heading');
     var empty=document.getElementById('shop-empty');
-    if(!search||!select||!bundle||!tracks||!empty)return;
+    if(!search||!select||!bundle||!tracks)return;
     var coll=new Intl.Collator('en',{sensitivity:'base',numeric:true});
     var total=bundle.children.length+tracks.children.length;
     function sortGrid(grid){
@@ -170,8 +170,7 @@ FILTER_SCRIPT = r"""
       });
       bundleSection.hidden=!Array.from(bundle.children).some(function(c){return !c.hidden});
       trackHeading.hidden=!Array.from(tracks.children).some(function(c){return !c.hidden});
-      empty.hidden=visible>0;
-      empty.querySelector('h3').textContent=total?'NO MATCHES.':'COMING SOON.';
+      if(empty){empty.hidden=visible>0;empty.querySelector('h3').textContent=total?'NO MATCHES.':'COMING SOON.';}
     }
     search.addEventListener('input',render);
     select.addEventListener('change',render);
@@ -212,9 +211,46 @@ def render_shop(document, products):
     if tracks:
         document = document.replace('id="shop-track-heading" class="shop-list-heading" hidden',
                                     'id="shop-track-heading" class="shop-list-heading"', 1)
-    if not count:
+    if count:
+        # Gumroad may strip "hidden" from source HTML. Don't ship a false
+        # "COMING SOON" / "SHOP TEMPORARILY UNAVAILABLE" panel at all.
+        document, removed = re.subn(
+            r'<div id="shop-empty" class="shop-empty" hidden>.*?</div>',
+            '', document, count=1, flags=re.S
+        )
+        if removed != 1:
+            raise ValueError("Published shop must not include an empty panel")
+    else:
         document = document.replace('id="shop-empty" class="shop-empty" hidden',
                                     'id="shop-empty" class="shop-empty"', 1)
+    # Obvious on Gumroad itself: omit the redundant 'handled by Gumroad' line.
+    document = re.sub(r'<div class="shop-payment-note">.*?</div>', '',
+                      document, count=1, flags=re.S)
+    compact_css = """
+<style data-sl-compact-cards="v2">
+body[data-page="tabs"] .shop-product-grid{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(180px,250px))!important;
+ justify-content:start!important;column-gap:22px!important;row-gap:30px!important;
+}
+body[data-page="tabs"] .shop-product-grid > .shop-item{
+ width:100%!important;max-width:250px!important;min-width:0!important;
+}
+body[data-page="tabs"] .shop-product-grid .shop-item-image{
+ width:100%!important;aspect-ratio:1/1!important;overflow:hidden!important;
+}
+body[data-page="tabs"] .shop-product-grid .shop-item-image img{
+ display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;
+}
+body[data-page="tabs"] .shop-item-actions{display:flex!important;flex-wrap:wrap!important;gap:10px 15px!important}
+@media(max-width:650px){
+ body[data-page="tabs"] .shop-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:26px 12px!important}
+ body[data-page="tabs"] .shop-product-grid > .shop-item{max-width:100%!important}
+}
+</style>
+"""
+    if document.count("</head>") != 1:
+        raise ValueError("Official shop head closing tag missing")
+    document = document.replace("</head>", compact_css + "</head>", 1)
     if 'data-sl-mirror="official-page-tabs"' in document:
         document = document.replace(
             '<body data-sl-mirror="official-page-tabs"',
