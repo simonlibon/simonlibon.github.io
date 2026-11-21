@@ -3,12 +3,12 @@ window.SIMON_SHOP_CATALOG = {
   "products": [
     {
       "id": "mmxjjd",
-      "title": "FREE TEST — Demo Guitar Tab (PDF)",
-      "type": "tabs",
-      "description": "Free technical demo. One synthetic guitar tab PDF for testing digital delivery.",
+      "title": "FREE TEST — Demo Guitar Tab + Backing Track",
+      "type": "pack",
+      "description": "Free technical demo: synthetic guitar tab PDF and synthetic backing track WAV for testing digital delivery. Not an official music release.",
       "includes": [
         "Guitar tab (PDF)",
-        "Digital download"
+        "Backing track (WAV)"
       ],
       "price": 0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/mmxjjd",
