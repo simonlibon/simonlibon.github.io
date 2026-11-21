@@ -135,13 +135,27 @@ def mirror_product(p, cover_html, type_label, price_fallback, includes):
     once('<div id="product-price" class="sl-product-price"></div>',
          '<div id="product-price" class="sl-product-price" data-gumroad-field="price">' +
          html.escape(str(price_fallback)) + '</div>')
-    # A native Gumroad action is required on its own product landing page.
+    # Keep Gumroad's required native action, but do not use it as the visible
+    # Buy Now link. Gumroad's own click handler can open the product page again
+    # instead of checkout (especially for pay-what-you-want products).
     old_buy = '<a id="product-buy" class="sl-buy-button" href="#" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>'
-    # Gumroad pay-what-you-want products priced at zero need the amount
-    # preselected; otherwise checkout can fall back to its product landing.
-    zero_price = (p.get("price") == 0 and not isinstance(p.get("price"), bool))
+    amount = p.get("price")
+    if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+        amount = p.get("price_cents")
+    zero_price = amount == 0 and not isinstance(amount, bool)
     buy_options = ' data-gumroad-price="0"' if zero_price else ""
-    once(old_buy, '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"' + buy_options + '>BUY NOW · SECURE CHECKOUT</a>')
+    slug = p.get("permalink") or p.get("custom_permalink")
+    native = '<a class="sl-gumroad-native-fallback" data-gumroad-action="buy"' + buy_options + ' style="display:none!important" aria-hidden="true" tabindex="-1">NATIVE CHECKOUT</a>'
+    if isinstance(slug, str) and re.fullmatch(r"[A-Za-z0-9_-]+", slug):
+        direct = "https://simonlibonstore.gumroad.com/l/" + slug
+        direct += "?price=0&amp;wanted=true" if zero_price else "?wanted=true"
+        visible = ('<a id="product-buy" class="sl-buy-button" href="' + direct +
+                   '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
+        once(old_buy, visible + native)
+    else:
+        # Legacy/test templates without a verified product permalink retain
+        # the native Gumroad action instead of inventing a checkout URL.
+        once(old_buy, '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"' + buy_options + '>BUY NOW · SECURE CHECKOUT</a>')
     once('<p id="product-description"></p>',
          '<div id="product-description" data-gumroad-field="description"><p>Official digital download by Simon Libon.</p></div>')
     once('id="product-included-section" class="sl-product-details" hidden',
