@@ -38,7 +38,9 @@ def check(slug, document, generated=True):
                 raise ValueError("Missing Gumroad product cards")
             if any(detail_url(g) not in document for g in groups):
                 raise ValueError("Wrong Gumroad product details route")
-            if 'data-sl-static-catalog="1"' not in document:
+            # Gumroad strips custom <body> attributes; product cards and
+            # canonical revision on <main> are the published-page checks.
+            if generated and 'data-sl-static-catalog="1"' not in document:
                 raise ValueError("Gumroad static catalogue removed")
             if 'class="shop-cart-link"' not in document:
                 raise ValueError("Gumroad shop cart shortcut removed")
