@@ -86,6 +86,15 @@ jobs:
                   raise SystemExit("Gumroad stripped essential product detail markup: "+slug+" missing="+repr(missing))
               if "simonlibonstore.gumroad.com/l/" not in page:
                   raise SystemExit("Gumroad detail missing real checkout: "+slug)
+              if slug in ("product-mmxjjd","product-ntapzm") or ('data-sl-inline-formats="v3"' in page):
+                  if page.count('name="sl-download-format"') < 2 or 'data-sl-inline-formats="v3"' not in page:
+                      raise SystemExit("Gumroad removed the in-page Tab/Track radio selector: "+slug)
+                  for code in ('#sl-format-tabs:checked ~', '#sl-format-pack:checked ~'):
+                      if code not in page:
+                          raise SystemExit("Gumroad removed the selection CSS: "+slug+" / "+code)
+                  for code in ('/l/mmxjjd','/l/ntapzm'):
+                      if code not in page:
+                          raise SystemExit("Gumroad lost one of the two checkout links on "+slug)
           if slug=="tabs":
               from scripts.render_gumroad_catalog import load_catalog, group_products
               bundles,tracks=group_products(load_catalog())
@@ -195,6 +204,11 @@ jobs:
                     'class="sl-product-layout"', 'simonlibonstore.gumroad.com/l/']
           if any(x not in source for x in required):
               raise SystemExit("Gumroad lost a published branded product detail page: "+slug)
+          if slug in ("product-mmxjjd","product-ntapzm"):
+              if source.count('name="sl-download-format"') != 2 or 'data-sl-inline-formats="v3"' not in source:
+                  raise SystemExit("Published Gumroad product has no working same-page format selector: "+slug)
+              if '/l/mmxjjd' not in source or '/l/ntapzm' not in source:
+                  raise SystemExit("Published Gumroad product lost a format-specific checkout: "+slug)
           print("PRODUCT DETAIL VERIFIED", slug)
           PY
           done
