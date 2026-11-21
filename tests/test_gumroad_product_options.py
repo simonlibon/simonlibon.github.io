@@ -1,6 +1,9 @@
 """Check tab/track choice links on native Gumroad pages. No network access."""
 import unittest
 from scripts.publish_gumroad_product_pages import options_html, build, contains_cart_shortcut
+from scripts.render_gumroad_catalog import load_catalog, group_products, product_card
+from scripts.render_gumroad_products import detail_page
+from pathlib import Path
 
 def row(name, slug, kindprice, published=True):
     return {"name":name,"permalink":slug,"url":"https://simonlibonstore.gumroad.com/l/"+slug,
@@ -51,6 +54,58 @@ class ProductOptionTests(unittest.TestCase):
             self.assertNotIn("ADD TO CART",page)
         self.assertIn('id="sl-native-tabs" name="sl-native-download-format" value="tabs" checked="checked"',options_html(tab,[tab,pack]))
         self.assertIn('id="sl-native-pack" name="sl-native-download-format" value="pack" checked="checked"',options_html(pack,[tab,pack]))
+
+    def test_all_shop_product_native_checkout_roundtrips_repeatably(self):
+        # Simulates every actual link type: catalogue card, branded detail,
+        # the native /l/ page linked from checkout, buy and return to shop.
+        # Repeat the whole graph to catch stale route-specific differences.
+        official = load_catalog()
+        bundles, tracks = group_products(official)
+        self.assertEqual(len(tracks), 1)
+        group = tracks[0]
+        self.assertEqual(group["title"], "FREE TEST — Demo")
+        self.assertEqual({o["kind"] for o in group["options"]}, {"tabs", "pack"})
+        card = product_card(group)
+        self.assertIn("https://simonlibonstore.gumroad.com/product-mmxjjd", card)
+        shared_css = Path("shop.css").read_text(encoding="utf-8")
+        self.assertIn(".sl-product-page .sl-native-metadata", shared_css)
+        tab = row("FREE TEST — Demo Guitar Tab (PDF)", "ksiweq", 0)
+        pack = row("FREE TEST — Demo Guitar Tab + Backing Track", "mmxjjd", 0)
+        for repeat in range(3):
+            for current in (tab, pack):
+                selected = next(o for o in group["options"]
+                                if o["checkout"].split("?", 1)[0].endswith(current["permalink"]))
+                custom = detail_page(group, selected)
+                native = build(current, [tab, pack])
+                for page in (custom, native):
+                    self.assertIn('data-sl-canonical-product="v1"', page)
+                    self.assertIn("<h1 id=\"product-title\">FREE TEST — Demo</h1>", page)
+                    self.assertIn('href="https://simonlibonstore.gumroad.com/tabs"', page)
+                    self.assertIn('data-sl-mirror-css="shop.css"', page)
+                    self.assertIn('data-sl-inline-formats="v3"', page)
+                    self.assertIn('class="sl-buy-button sl-variant-buy"', page)
+                    self.assertEqual(page.count('name="sl-download-format"'), 2)
+                    self.assertEqual(page.count(' checked="checked"'), 1)
+                    self.assertIn('#sl-format-tabs:checked ~', page)
+                    self.assertIn('#sl-format-pack:checked ~', page)
+                    self.assertIn("Free technical demo with synthetic sample files", page)
+                    self.assertIn("Backing track (WAV)", page)
+                    self.assertNotIn("RETURN TO THE OFFICIAL SIMON LIBON SHOP", page)
+                    self.assertNotIn("Digital download</li>", page)
+                    self.assertNotIn("ADD TO CART", page)
+                    self.assertFalse(contains_cart_shortcut(page))
+                    for code in ("ksiweq", "mmxjjd"):
+                        url = 'href="https://simonlibonstore.gumroad.com/l/' + code + '?price=0&amp;wanted=true"'
+                        self.assertIn(url, page)
+                    kind = "tabs" if current["permalink"] == "ksiweq" else "pack"
+                    self.assertIn('id="sl-format-' + kind +
+                                  '" name="sl-download-format" value="' + kind +
+                                  '" checked="checked"', page)
+                self.assertIn('data-sl-product-template="v2"', native)
+                self.assertIn('class="sl-gumroad-native-fallback" data-gumroad-action="buy"', native)
+                self.assertIn('class="sl-native-metadata"', native)
+                self.assertEqual(native.count('id="product-buy"'), 1)
+                self.assertEqual(custom.count('id="product-buy"'), 1)
 
     def test_cart_detection_covers_all_product_entry_routes(self):
         self.assertFalse(contains_cart_shortcut('<style>.shop-cart-link{display:block}</style>'))

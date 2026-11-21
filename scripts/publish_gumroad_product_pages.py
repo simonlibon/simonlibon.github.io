@@ -462,6 +462,16 @@ def main():
             raise RuntimeError("Live Gumroad product still has a cart shortcut: " + permalink)
         if MARKER not in live_html or 'data-gumroad-action="buy"' not in live_html:
             raise RuntimeError("Product custom page could not be verified after update")
+        # The native product URL can be reopened from any checkout item. Verify
+        # both selected formats survive Gumroad's live HTML sanitizer.
+        if 'name="sl-download-format"' in new_page:
+            if live_html.count('name="sl-download-format"') != new_page.count('name="sl-download-format"'):
+                raise RuntimeError("Published product lost an available download format: " + permalink)
+            for direct in set(re.findall(r'/l/[A-Za-z0-9_-]+', new_page)):
+                if direct not in live_html:
+                    raise RuntimeError("Published product lost a checkout destination: " + permalink)
+            if 'data-sl-inline-formats="v3"' not in live_html:
+                raise RuntimeError("Published product lost its shared style selector: " + permalink)
         print(f"PUBLISHED {permalink} | {live.get('landing_url','')}")
 
 if __name__ == "__main__":
