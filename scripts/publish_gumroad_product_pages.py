@@ -422,6 +422,10 @@ def main():
             product["permalink"] = permalink
         product = {**entry, **{k: v for k, v in product.items() if v is not None}}
         new_page = build(product, pages)
+        revision = re.search(r'<main\b[^>]*\bdata-sl-mirror-sha="([0-9a-f]{20})"', new_page)
+        if not revision:
+            raise RuntimeError("Native product missing official source fingerprint: " + permalink)
+        expected_revision = revision.group(1)
         if permalink in FALLBACK_COVERS and "<img " not in new_page:
             raise RuntimeError("Expected an image cover for the known test product")
         print(f"COVER CHECK {permalink}: image={'<img ' in new_page}")
@@ -431,6 +435,8 @@ def main():
             raise RuntimeError("Product page still has a cart shortcut: " + permalink)
         preview = request(token, "products/" + key + "/preview_custom_html", "POST", {"custom_html": new_page})
         sanitized = preview.get("custom_html") or ""
+        if f'data-sl-mirror-sha="{expected_revision}"' not in sanitized:
+            raise RuntimeError("Gumroad preview stripped the current official product revision: " + permalink)
         if contains_cart_shortcut(sanitized):
             raise RuntimeError("Gumroad product preview still has a cart shortcut: " + permalink)
         needed = [MARKER, 'data-gumroad-action="buy"', 'data-gumroad-field="name"',
@@ -458,6 +464,8 @@ def main():
             raise RuntimeError("Gumroad did not confirm product update")
         live = request(token, "products/" + key + "/custom_html")
         live_html = live.get("custom_html") or ""
+        if f'data-sl-mirror-sha="{expected_revision}"' not in live_html:
+            raise RuntimeError("Published Gumroad native product is stale: " + permalink)
         if contains_cart_shortcut(live_html):
             raise RuntimeError("Live Gumroad product still has a cart shortcut: " + permalink)
         if MARKER not in live_html or 'data-gumroad-action="buy"' not in live_html:

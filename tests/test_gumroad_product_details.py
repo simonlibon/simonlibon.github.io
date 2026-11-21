@@ -114,6 +114,7 @@ class GumroadProductDetailTests(unittest.TestCase):
                 self.assertIn(common,native)
                 for doc in (standalone,native):
                     self.assertIn('data-sl-canonical-product="v1"',doc)
+                    self.assertRegex(doc, r'<main data-sl-mirror-sha="[0-9a-f]{20}"')
                     self.assertIn('class="sl-product-layout"',doc)
                     self.assertIn('class="shop-purchase-options"',doc)
                     self.assertIn('CHOOSE YOUR DOWNLOAD',doc)
