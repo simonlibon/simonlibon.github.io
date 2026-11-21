@@ -265,7 +265,59 @@ body[data-page="tabs"] .shop-item-actions{display:flex!important;flex-wrap:wrap!
 """
     if document.count("</head>") != 1:
         raise ValueError("Official shop head closing tag missing")
-    document = document.replace("</head>", compact_css + "</head>", 1)
+    # Gumroad can discard or rewrite the canonical body attributes. The official
+    # title size is normally scoped under body[data-page="tabs"], so without a
+    # selector based on permanent elements it collapses to Gumroad's default h1.
+    # Keep the native Gumroad mirror visually identical even after sanitization.
+    mirror_heading_css = """
+<style data-sl-gumroad-shop-heading="v1">
+#shop-catalog.shop-catalog-section{
+  border-top:0!important;
+  padding:55px 0 30px!important;
+}
+#shop-catalog .shop-catalog-head{
+  display:block!important;
+  text-align:center!important;
+  margin:0 0 24px!important;
+}
+#shop-catalog .shop-catalog-head #collection-title{
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  font-family:"Space Grotesk",Arial,sans-serif!important;
+  font-size:clamp(43px,5.65vw,74px)!important;
+  font-weight:700!important;
+  line-height:1.08!important;
+  letter-spacing:-.064em!important;
+  color:#1b1b1e!important;
+  text-align:center!important;
+  text-transform:none!important;
+}
+#shop-catalog .shop-catalog-actions{
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:18px!important;
+  min-height:44px!important;
+  margin-top:19px!important;
+  padding:0!important;
+  text-align:right!important;
+}
+@media(max-width:650px){
+  #shop-catalog.shop-catalog-section{padding:48px 0 28px!important}
+  #shop-catalog .shop-catalog-head #collection-title{
+    max-width:330px!important;
+    margin:0 auto!important;
+    font-size:clamp(31px,7.8vw,37px)!important;
+    line-height:1.14!important;
+    letter-spacing:-.055em!important;
+  }
+  #shop-catalog .shop-catalog-actions{gap:10px!important}
+}
+</style>
+"""
+    document = document.replace("</head>", compact_css + mirror_heading_css + "</head>", 1)
     if 'data-sl-mirror="official-page-tabs"' in document:
         document = document.replace(
             '<body data-sl-mirror="official-page-tabs"',
