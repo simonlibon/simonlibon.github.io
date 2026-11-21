@@ -7,13 +7,17 @@ class GumroadMirrorTests(unittest.TestCase):
         original = (ROOT / "index.html").read_text(encoding="utf-8")
         mirrored = mirror_profile()
         for token in ('data-page="home"', 'class="header"', 'class="footer"',
-                      'data-newsletter-open', 'data-sl-mirror-css="style.css"'):
+                      'href="https://simonlibon.github.io/?newsletter=1"',
+                      'data-sl-mirror-css="style.css"'):
             self.assertIn(token, mirrored)
         self.assertIn('<main></main>', mirrored)
         self.assertIn('SIMON LIBON', mirrored)
         self.assertEqual(mirrored.count('data-sl-mirror="official-home-v2"'), 1)
         self.assertIn('https://simonlibonstore.gumroad.com/music', mirrored)
         self.assertIn('class="newsletter-dialog"', original)
+        self.assertNotIn('id="newsletter-dialog"', mirrored)
+        self.assertNotIn('data-newsletter-open', mirrored.split('<body')[1].split('</footer>')[0])
+
 
     def test_product_has_canonical_markup_and_real_gumroad_buy(self):
         result = mirror_product(
@@ -47,7 +51,13 @@ class GumroadMirrorTests(unittest.TestCase):
         mirrored = mirror_standalone("tabs")
         self.assertIn("https://simonlibonstore.gumroad.com/music", mirrored)
         self.assertIn("https://simonlibonstore.gumroad.com/tabs", mirrored)
-        self.assertIn("https://simonlibon.github.io/catalog.js", mirrored)
+        self.assertNotIn("SHOP TEMPORARILY UNAVAILABLE", mirrored)
+        self.assertNotIn("const catalog = document.createElement('script')", mirrored)
+        self.assertIn('data-sl-compact-cards="v2"', mirrored)
+        self.assertIn('href="https://simonlibon.github.io/?newsletter=1"', mirrored)
+        self.assertNotIn('id="newsletter-dialog"', mirrored)
+        self.assertNotIn('class="shop-payment-note"', mirrored)
+        self.assertIn('data-sl-static-catalog="1"', mirrored)
 
 if __name__ == "__main__":
     unittest.main()
