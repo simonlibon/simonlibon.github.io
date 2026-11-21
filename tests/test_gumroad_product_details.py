@@ -40,18 +40,33 @@ class GumroadProductDetailTests(unittest.TestCase):
             self.assertNotIn('id="product-error"',rendered)
             self.assertNotIn('id="newsletter-dialog"',rendered)
 
-    def test_switch_between_tab_and_pack_without_javascript(self):
+    def test_switch_between_tab_and_pack_in_place_without_javascript(self):
         tabs=next(detail_page(g,o) for slug,g,o in self.pages if slug=="product-mmxjjd")
         pack=next(detail_page(g,o) for slug,g,o in self.pages if slug=="product-ntapzm")
         for doc in (tabs,pack):
             self.assertIn('CHOOSE YOUR DOWNLOAD',doc)
-            self.assertIn('href="https://simonlibonstore.gumroad.com/product-',doc)
-            self.assertIn('class="shop-option selected"',doc)
-            self.assertIn('class="shop-option"',doc)
-        self.assertIn('product-ntapzm',tabs)
-        self.assertIn('product-mmxjjd',pack)
-        self.assertIn("TEST TRACK",tabs)
-        self.assertIn("TEST TRACK",pack)
+            self.assertIn('data-sl-inline-formats="v3"',doc)
+            self.assertIn('type="radio" id="sl-format-tabs"',doc)
+            self.assertIn('type="radio" id="sl-format-pack"',doc)
+            self.assertIn('for="sl-format-tabs"',doc)
+            self.assertIn('for="sl-format-pack"',doc)
+            self.assertIn('#sl-format-tabs:checked ~ ',doc)
+            self.assertIn('#sl-format-pack:checked ~ ',doc)
+            self.assertNotIn('href="https://simonlibonstore.gumroad.com/product-',doc)
+            self.assertIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd?price=0&amp;wanted=true"',doc)
+            self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?price=0&amp;wanted=true"',doc)
+            self.assertEqual(doc.count('name="sl-download-format"'),2)
+            self.assertEqual(doc.count(' checked="checked"'),1)
+            self.assertEqual(doc.count('class="sl-buy-button sl-variant-buy"'),2)
+            self.assertEqual(doc.count('id="product-buy"'),1)
+        self.assertIn('id="sl-format-tabs" name="sl-download-format" value="tabs" checked="checked"',tabs)
+        self.assertIn('id="sl-format-pack" name="sl-download-format" value="pack" checked="checked"',pack)
+
+    def test_mobile_navigation_matches_all_site_sections(self):
+        source=(ROOT/"product.html").read_text(encoding="utf-8")
+        self.assertIn('body[data-page="product"] .header-inner{height:67px!important',source)
+        self.assertIn('body[data-page="product"] .nav,body[data-page="product"] .nav.open{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;height:45px!important',source)
+        self.assertIn('html{overflow-y:scroll;scrollbar-gutter:stable}', (ROOT/"style.css").read_text(encoding="utf-8"))
 
     def test_real_catalog_has_matching_live_details(self):
         entries=load_catalog()
