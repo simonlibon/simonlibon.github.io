@@ -70,6 +70,10 @@ jobs:
           required=["SIMON LIBON",'class="header"','class="footer"','data-sl-mirror-css="style.css"']
           if payload.get("success") is False or not page or any(x.lower() not in page.lower() for x in required):
               raise SystemExit("Sanitizer stripped essential page elements: "+slug)
+          if 'id="newsletter-dialog"' in page:
+              raise SystemExit("Gumroad still has an empty newsletter popup: "+slug)
+          if 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
+              raise SystemExit("Working newsletter destination missing from "+slug)
           if slug=="tabs":
               from scripts.render_gumroad_catalog import load_catalog, group_products
               bundles,tracks=group_products(load_catalog())
@@ -77,6 +81,14 @@ jobs:
               found=page.count('class="shop-item"')
               if found!=expected:
                   raise SystemExit(f"Gumroad dropped shop cards: expected {expected}, sanitized {found}")
+              if 'SHOP TEMPORARILY UNAVAILABLE' in page:
+                  raise SystemExit("Old Gumroad shop failure UI is still present")
+              if 'id="shop-empty"' in page and expected:
+                  raise SystemExit("False empty-state panel still on the live shop")
+              if 'data-sl-compact-cards="v2"' not in page:
+                  raise SystemExit("Gumroad stripped the official compact-card sizes")
+              if 'class="shop-payment-note"' in page:
+                  raise SystemExit("Redundant checkout note still present")
               for group in bundles+tracks:
                   for option in group["options"]:
                       slug_id=option["checkout"].split("/l/")[-1].split("?")[0]
@@ -141,6 +153,12 @@ jobs:
           actual=cards.count('class="shop-item"')
           if expected!=actual:
               raise SystemExit(f"Published Gumroad shop incomplete: {actual} cards vs {expected} on official site")
+          if 'SHOP TEMPORARILY UNAVAILABLE' in cards or (expected and 'id="shop-empty"' in cards):
+              raise SystemExit("Gumroad published an incorrect unavailable or empty-state panel")
+          if 'id="newsletter-dialog"' in cards or 'href="https://simonlibon.github.io/?newsletter=1"' not in cards:
+              raise SystemExit("Gumroad newsletter destination is not functional")
+          if 'data-sl-compact-cards="v2"' not in cards:
+              raise SystemExit("Gumroad published wrong cover/card dimensions")
           for group in bundles+tracks:
               for item in group["options"]:
                   slug=item["checkout"].split("/l/")[-1].split("?")[0]
