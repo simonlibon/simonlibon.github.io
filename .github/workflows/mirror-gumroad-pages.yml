@@ -49,7 +49,7 @@ jobs:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          for slug in music concerts tabs merch press privacy; do
+          for slug in music concerts tabs merch press privacy $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
             if ! gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
               python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
           import json,sys
@@ -74,6 +74,14 @@ jobs:
               raise SystemExit("Gumroad still has an empty newsletter popup: "+slug)
           if 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
               raise SystemExit("Working newsletter destination missing from "+slug)
+          if slug.startswith("product-"):
+              essentials=['data-sl-mirror="official-page-'+slug+'"',
+                          'data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
+                          'id="product-buy"', 'id="product-price"', 'id="product-cover"']
+              if any(x not in page for x in essentials):
+                  raise SystemExit("Gumroad stripped essential product detail markup: "+slug)
+              if "simonlibonstore.gumroad.com/l/" not in page:
+                  raise SystemExit("Gumroad detail missing real checkout: "+slug)
           if slug=="tabs":
               from scripts.render_gumroad_catalog import load_catalog, group_products
               bundles,tracks=group_products(load_catalog())
@@ -103,7 +111,7 @@ jobs:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          for slug in music concerts tabs merch press privacy; do
+          for slug in music concerts tabs merch press privacy $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
             file="$RUNNER_TEMP/gumroad-pages/$slug.html"
             if jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug)' "$RUNNER_TEMP/existing.json" >/dev/null; then
               # The pages list endpoint does not expose the full custom_html.
@@ -128,6 +136,8 @@ jobs:
                 merch) title="Merch";;
                 press) title="Press / EPK";;
                 privacy) title="Privacy Policy";;
+                product-*) title="Product — ${slug#product-}";;
+                *) echo "::error::Unexpected Gumroad page slug"; exit 1;;
               esac
               gumroad pages create --title "$title" --slug "$slug" "$file" --json --no-input > "$RUNNER_TEMP/out-$slug.json"
               echo "CREATED $slug"
@@ -166,6 +176,25 @@ jobs:
                       raise SystemExit("Missing published Gumroad checkout link: "+slug)
           print(f"Published Gumroad shop verified: {actual} release cards, same as official catalogue")
           PY
+      - name: Verify published product detail pages
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
+            gumroad pages pull "$slug" -o "$RUNNER_TEMP/verified-$slug.html" --json --no-input > "$RUNNER_TEMP/verified-$slug.json"
+            python - "$slug" "$RUNNER_TEMP/verified-$slug.html" <<'PY'
+          from pathlib import Path
+          import sys
+          slug=sys.argv[1]
+          source=Path(sys.argv[2]).read_text(encoding="utf-8")
+          required=['data-sl-mirror="official-page-'+slug+'"', 'id="product-buy"',
+                    'class="sl-product-layout"', 'simonlibonstore.gumroad.com/l/']
+          if any(x not in source for x in required):
+              raise SystemExit("Gumroad lost a published branded product detail page: "+slug)
+          print("PRODUCT DETAIL VERIFIED", slug)
+          PY
+          done
       - name: Save previous pages for rollback
         if: always()
         uses: actions/upload-artifact@v4
