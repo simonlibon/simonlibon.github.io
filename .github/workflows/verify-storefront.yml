@@ -16,6 +16,12 @@ on:
       - 'tests/test_gumroad_mirror.py'
       - 'tests/test_gumroad_catalog_html.py'
       - 'tests/test_gumroad_product_details.py'
+      - 'tests/test_newsletter_integrity.py'
+      - 'music.html'
+      - 'concerts.html'
+      - 'merch.html'
+      - 'press.html'
+      - 'privacy.html'
       - 'scripts/render_gumroad_products.py'
       - 'scripts/render_gumroad_catalog.py'
       - 'scripts/build_gumroad_mirror_pages.py'
@@ -63,6 +69,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_gumroad_catalog_html.py' -v
       - name: Check official-style Gumroad product detail pages and variant selection
         run: python -m unittest discover -s tests -p 'test_gumroad_product_details.py' -v
+      - name: Check EmailOctopus form integration and popup navigation
+        run: python -m unittest discover -s tests -p 'test_newsletter_integrity.py' -v
       - name: Generate actual Gumroad homepage from current public data
         run: |
           python scripts/build_gumroad_site.py --output "$RUNNER_TEMP/simon-gumroad-profile.html"
