@@ -1,0 +1,61 @@
+name: Check newsletter welcome configuration
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test-welcome-e2e.yml'
+permissions: {}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify EmailOctopus account without sending mail
+        env:
+          EMAILOCTOPUS_API_KEY: ${{ secrets.EMAILOCTOPUS_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${EMAILOCTOPUS_API_KEY:-}" ]]; then
+            echo "::error::EMAILOCTOPUS_API_KEY is missing"
+            exit 1
+          fi
+          output=$(mktemp)
+          trap 'rm -f "$output"' EXIT
+          status=$(curl -sS --max-time 20 -o "$output" -w '%{http_code}' \
+            -H "Authorization: Bearer ${EMAILOCTOPUS_API_KEY}" \
+            'https://api.emailoctopus.com/lists')
+          echo "GET lists: HTTP $status"
+          if [[ "$status" != 200 ]]; then
+            echo "::error::Unable to inspect account lists"
+            exit 1
+          fi
+          python3 - "$output" <<'PY'
+          import json,sys
+          payload=json.load(open(sys.argv[1]))
+          lists=payload.get('data',payload.get('lists',payload)) if isinstance(payload,dict) else payload
+          if not isinstance(lists,list):
+              print("Unrecognised list response shape")
+              sys.exit(1)
+          print("Number of newsletter lists:",len(lists))
+          for item in lists:
+              print("List:",item.get('name','(unnamed)'),"double opt-in:",item.get('double_opt_in','unknown'))
+          PY
+          status=$(curl -sS --max-time 20 -o "$output" -w '%{http_code}' \
+            -H "Authorization: Bearer ${EMAILOCTOPUS_API_KEY}" \
+            'https://api.emailoctopus.com/automations')
+          echo "GET automations: HTTP $status"
+          if [[ "$status" == 200 ]]; then
+            python3 - "$output" <<'PY'
+          import json,sys
+          p=json.load(open(sys.argv[1]))
+          automations=p.get('data',p.get('automations',p)) if isinstance(p,dict) else p
+          if isinstance(automations,list):
+              print("Number of automations:",len(automations))
+              for a in automations:
+                  print("Automation:",a.get('name','(unnamed)'),"status:",a.get('status','unknown'),"trigger:",a.get('trigger_type','unknown'))
+          else:print("Automation response format differs from expected")
+          PY
+          else
+            echo "Automation listing is not accessible through this API route"
+          fi
