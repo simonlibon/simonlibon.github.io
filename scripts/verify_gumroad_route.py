@@ -17,14 +17,17 @@ def revision(document):
         raise ValueError("Missing or duplicated Gumroad route revision on main")
     return found[0]
 
-def check(slug, document):
+def check(slug, document, generated=True):
     revision(document)
     for required in ("SIMON LIBON", 'class="header"', 'class="footer"',
                      'data-sl-mirror-css="style.css"'):
         if required not in document:
             raise ValueError("Gumroad "+slug+" missing "+required)
     if slug in SECTIONS:
-        if f'data-sl-mirror="official-page-{slug}"' not in document:
+        # Gumroad strips data attributes on <body> but preserves the
+        # current fingerprint on <main>. Only the generated HTML must
+        # carry the unsanitized body identity.
+        if generated and f'data-sl-mirror="official-page-{slug}"' not in document:
             raise ValueError("Incorrect official page identity: "+slug)
         if 'href="https://simonlibon.github.io/?newsletter=1"' not in document:
             raise ValueError("Missing newsletter signup on "+slug)
@@ -41,7 +44,7 @@ def check(slug, document):
                 raise ValueError("Gumroad shop cart shortcut removed")
         return
     if re.fullmatch(r"product-[A-Za-z0-9_-]+", slug):
-        if f'data-sl-mirror="official-page-{slug}"' not in document:
+        if generated and f'data-sl-mirror="official-page-{slug}"' not in document:
             raise ValueError("Incorrect product page identity: "+slug)
         for required in ('data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
                          'id="product-buy"', 'id="product-price"', 'id="product-cover"',
@@ -64,7 +67,7 @@ def main():
     check(opts.slug,source)
     if opts.published:
         published=Path(opts.published).read_text(encoding="utf-8")
-        check(opts.slug,published)
+        check(opts.slug,published,generated=False)
         if revision(published)!=revision(source):
             raise SystemExit("GUMROAD STALE: "+opts.slug+"; version does not match official website")
         print("MATCHING PUBLISHED GUMROAD ROUTE",opts.slug,revision(published))
