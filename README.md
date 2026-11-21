@@ -10,7 +10,11 @@ The **Tabs & Backing Tracks** section at `tabs.html` uses the original custom Gu
 - `.github/workflows/sync-gumroad.yml` schedules this sync and supports manual runs.
 - The Gumroad token is kept in the GitHub Actions secret `GUMROAD_ACCESS_TOKEN`, never on the public site.
 
-Draft, archived and unpublished products are not shown. The workflow may run later than its nominal schedule. Product checkout and delivery are handled by Gumroad.
+**Gumroad is the source of truth for saleable products.** Publish a real product with its final cover, delivered files and correct price on Gumroad first; the workflow then mirrors only published products to `catalog.js`. Do not replace that generated file with the export from the legacy `EDITEUR-BOUTIQUE.html` preview editor.
+
+Draft, archived and unpublished products are not shown. The workflow may run later than its nominal five-minute schedule. Product checkout and delivery are handled by Gumroad. Placeholder and demo products must remain unpublished.
+
+Custom Gumroad promotional pages may be rejected while the seller has no published product or sale. The Gumroad page workflows now skip that publication stage when the synced catalogue contains no genuine non-test product. Recheck and test the complete purchase-to-download flow after the first real product is published.
 
 ## Public pages
 
