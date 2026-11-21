@@ -238,19 +238,21 @@ def build(p, catalog=None):
     result = mirror_product(p, cover, label, fallback, includes)
     options = options_html(p, catalog or [])
     if options:
-        anchor = '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"'
+        anchor = '<a id="product-buy" class="sl-buy-button"'
         if result.count(anchor) != 1:
-            raise ValueError("Missing Gumroad buy button for format selector")
-        # Replace the native CTA with one visible checkout for the selected
-        # format. The hidden original keeps Gumroad's native action marker.
+            raise ValueError("Missing Buy Now button for format selector")
+        # The format radio list owns the visible checkout action; keep the
+        # original as a hidden fallback while preserving Gumroad's separate
+        # native-action marker required for its custom product page.
         native = result[result.index(anchor):]
         native = native[:native.index('</a>') + len('</a>')]
         result = result.replace('class="sl-shop sl-product-page"',
                                 'class="sl-shop sl-product-page sl-has-formats"', 1)
         hidden = native.replace('class="sl-buy-button"',
-                                'class="sl-buy-button sl-native-fallback"', 1)
-        hidden = hidden.replace('data-gumroad-action="buy"',
-                                'data-gumroad-action="buy" style="display:none!important" aria-hidden="true" tabindex="-1"', 1)
+                                'class="sl-buy-button sl-native-fallback" style="display:none!important" aria-hidden="true" tabindex="-1"', 1)
+        if 'data-gumroad-action="buy"' in hidden:
+            hidden = hidden.replace('data-gumroad-action="buy"',
+                                    'data-gumroad-action="buy"', 1)
         result = result.replace(native, options + hidden, 1)
         result = result.replace('</head>', NATIVE_FORMAT_CSS + '</head>', 1)
     return result
