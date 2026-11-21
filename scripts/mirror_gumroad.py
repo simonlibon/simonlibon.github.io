@@ -146,19 +146,14 @@ def mirror_product(p, cover_html, type_label, price_fallback, includes):
     buy_options = ' data-gumroad-price="0"' if zero_price else ""
     slug = p.get("permalink") or p.get("custom_permalink")
     native = '<a class="sl-gumroad-native-fallback" data-gumroad-action="buy"' + buy_options + ' style="display:none!important" aria-hidden="true" tabindex="-1">NATIVE CHECKOUT</a>'
-    cart = '<a id="product-add-to-cart" class="sl-cart-button gumroad-button" href="#" target="_blank" rel="noopener noreferrer">ADD TO CART</a>'
     if isinstance(slug, str) and re.fullmatch(r"[A-Za-z0-9_-]+", slug):
         direct = "https://simonlibonstore.gumroad.com/l/" + slug
-        once(cart, '<a id="product-add-to-cart" class="sl-cart-button" data-gumroad-action="buy"' +
-             buy_options + ' href="' + direct + '">ADD TO CART</a>')
         direct += "?price=0&amp;wanted=true" if zero_price else "?wanted=true"
         visible = ('<a id="product-buy" class="sl-buy-button" href="' + direct +
                    '" target="_blank" rel="noopener noreferrer">BUY NOW · SECURE CHECKOUT</a>')
         once(old_buy, visible + native)
     else:
-        once(cart, "")
-        # Legacy/test templates without a verified product permalink retain
-        # the native Gumroad action instead of inventing a checkout URL.
+        # Native checkout fallback only when there is no validated permalink.
         once(old_buy, '<a id="product-buy" class="sl-buy-button" data-gumroad-action="buy"' + buy_options + '>BUY NOW · SECURE CHECKOUT</a>')
     once('<p id="product-description"></p>',
          '<div id="product-description" data-gumroad-field="description"><p>Official digital download by Simon Libon.</p></div>')
