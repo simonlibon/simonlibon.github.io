@@ -255,6 +255,14 @@ def build(p, catalog=None):
     return result
 
 
+def contains_cart_shortcut(document):
+    """Detect a real cart <a> tag, ignoring shared CSS that styles the shop cart."""
+    return any(
+        re.search(r"(?:\bshop-cart-link\b|\bsl-product-cart-link\b|https://gumroad\.com/checkout\b)", tag, re.I)
+        for tag in re.findall(r"<a\b[^>]*>", document, flags=re.I)
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true", help="Publish validated pages; otherwise preview only")
@@ -312,8 +320,12 @@ def main():
         print(f"COVER CHECK {permalink}: image={'<img ' in new_page}")
         if len(new_page) > 150000:
             raise RuntimeError("Product HTML unexpectedly large")
+        if contains_cart_shortcut(new_page):
+            raise RuntimeError("Product page still has a cart shortcut: " + permalink)
         preview = request(token, "products/" + key + "/preview_custom_html", "POST", {"custom_html": new_page})
         sanitized = preview.get("custom_html") or ""
+        if contains_cart_shortcut(sanitized):
+            raise RuntimeError("Gumroad product preview still has a cart shortcut: " + permalink)
         needed = [MARKER, 'data-gumroad-action="buy"', 'data-gumroad-field="name"',
                   'data-gumroad-field="price"', 'data-gumroad-field="description"', "site-head"]
         missing = [x for x in needed if x not in sanitized]
@@ -337,6 +349,8 @@ def main():
             raise RuntimeError("Gumroad did not confirm product update")
         live = request(token, "products/" + key + "/custom_html")
         live_html = live.get("custom_html") or ""
+        if contains_cart_shortcut(live_html):
+            raise RuntimeError("Live Gumroad product still has a cart shortcut: " + permalink)
         if MARKER not in live_html or 'data-gumroad-action="buy"' not in live_html:
             raise RuntimeError("Product custom page could not be verified after update")
         print(f"PUBLISHED {permalink} | {live.get('landing_url','')}")
