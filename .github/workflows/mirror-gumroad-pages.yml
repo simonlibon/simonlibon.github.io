@@ -62,7 +62,7 @@ jobs:
           PY
               exit 1
             fi
-            python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
+            python - "$slug" "$RUNNER_TEMP/preview-$slug.json" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
           import json,sys
           slug=sys.argv[1]
           payload=json.load(open(sys.argv[2],encoding="utf-8"))
