@@ -29,7 +29,11 @@ jobs:
           )
           print("has_published_product=" + ("true" if published else "false"))
           PY
-          if ! grep -q '^has_published_product=true
+          echo "Readiness checked; custom-page deployment runs only with real published products."
+  deploy:
+    needs: readiness
+    if: needs.readiness.outputs.has_published_product == 'true'
+    runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
