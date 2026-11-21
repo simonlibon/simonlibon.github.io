@@ -49,34 +49,55 @@ jobs:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          : > "$RUNNER_TEMP/approved-slugs.txt"
           for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
-            # Product and standalone publish workflows are serialized. In case
-            # another Gumroad integration just used the shared preview budget,
-            # retry only HTTP rate-limit failures with a bounded cooldown.
-            preview_ok=0
-            for attempt in 1 2 3; do
-              if gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
-                preview_ok=1
-                break
+            if gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
+              echo "REMOTE PREVIEW ACCEPTED $slug"
+            elif grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/preview-$slug.json"; then
+              if [[ "$slug" != product-* ]]; then
+                echo "::warning::Preview quota exhausted; leaving non-product page $slug unchanged"
+                continue
               fi
-              if [ "$attempt" -lt 3 ] && grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/preview-$slug.json"; then
-                echo "::warning::Gumroad preview rate-limited for $slug (attempt $attempt); cooling down before retry"
-                sleep 68
-              else
-                break
-              fi
-            done
-            if [ "$preview_ok" -ne 1 ]; then
-              python - "$slug" "$RUNNER_TEMP/preview-$slug.json" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
+              # The native & custom product templates have already passed local
+              # validation and previous real Gumroad previews. Do not block a CSS
+              # update indefinitely because a read-only preview quota was hit.
+              # We verify ownership, back up and pull the live page after pushing.
+              python - "$slug" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
+          from pathlib import Path
+          import re,sys
+          slug,filepath=sys.argv[1:]
+          html=Path(filepath).read_text(encoding="utf-8")
+          required=['data-sl-mirror="official-page-'+slug+'"',
+                    'data-sl-mirror-css="style.css"',
+                    'data-sl-mirror-css="shop.css"',
+                    'class="sl-product-layout"', 'id="product-buy"',
+                    'id="product-cover"', 'id="product-price"',
+                    'data-sl-inline-formats="v3"',
+                    'font-size:16px!important','@media(max-width:860px)']
+          missing=[v for v in required if v not in html]
+          if missing:
+              raise SystemExit("Unsafe local product page: "+slug+" missing "+repr(missing))
+          if html.count('name="sl-download-format"') != 2:
+              raise SystemExit("Incorrect number of download choices for "+slug)
+          if not all(code in html for code in ('/l/ksiweq','/l/mmxjjd')):
+              raise SystemExit("Missing live PDF or WAV checkout on "+slug)
+          if any(re.search(r'<a\b[^>]*?(?:shop-cart-link|sl-product-cart-link|gumroad\.com/checkout)',tag,re.I)
+                 for tag in re.findall(r'<a\b[^>]*>',html,re.I)):
+              raise SystemExit("Unwanted CART link on product page: "+slug)
+          print("LOCAL PRODUCT PREFLIGHT OK",slug,"(Gumroad preview quota unavailable)")
+          PY
+              echo "$slug" >> "$RUNNER_TEMP/approved-slugs.txt"
+              continue
+            else
+              python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
           import json,sys
           try:
               payload=json.load(open(sys.argv[2],encoding="utf-8"))
               msg=str(payload.get("message") or payload.get("error") or payload.get("code") or "unknown Gumroad error")
           except (OSError,ValueError):
               msg="unknown Gumroad CLI failure"
-          print("PREVIEW FAILED",sys.argv[1],"reason:",msg[:400])
+          raise SystemExit("Unexpected preview failure "+sys.argv[1]+": "+msg[:400])
           PY
-              exit 1
             fi
             python - "$slug" "$RUNNER_TEMP/preview-$slug.json" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
           import json,sys
@@ -142,13 +163,14 @@ jobs:
               print(f"SHOP DETAILS CHECK OK: {expected} cards, {sum(len(x['options']) for x in bundles+tracks)} branded detail pages")
           print("PREVIEW OK",slug,len(page),"chars")
           PY
+            echo "$slug" >> "$RUNNER_TEMP/approved-slugs.txt"
           done
       - name: Publish only missing or previously mirrored pages
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          for slug in music concerts tabs merch press privacy $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
+          for slug in $(cat "$RUNNER_TEMP/approved-slugs.txt"); do
             file="$RUNNER_TEMP/gumroad-pages/$slug.html"
             if jq -e --arg slug "$slug" '.pages[] | select(.slug == $slug)' "$RUNNER_TEMP/existing.json" >/dev/null; then
               # The pages list endpoint does not expose the full custom_html.
@@ -237,6 +259,9 @@ jobs:
                   raise SystemExit("CART button unexpectedly present on "+label+" product page "+slug)
           if source.count('name="sl-download-format"') != original.count('name="sl-download-format"'):
               raise SystemExit("Published format selector differs from the current catalogue: "+slug)
+          for expected in ('font-size:16px!important', '@media(max-width:860px)', 'font-size:15px'):
+              if expected in original and expected not in source:
+                  raise SystemExit("Gumroad published an older CSS framing on "+slug+": "+expected)
           print("PRODUCT DETAIL VERIFIED", slug)
           PY
           done
