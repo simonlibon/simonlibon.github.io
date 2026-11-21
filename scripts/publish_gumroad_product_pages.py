@@ -60,7 +60,10 @@ def published_products(token):
         params = {"page_key": page} if page else {}
         data = request(token, "products", values=params)
         entries = data.get("products") or []
-        all_products += [p for p in entries if p.get("published") is True or p.get("id") in SAFE_TEST_DRAFT_IDS]
+        # Gumroad rejects promotional custom HTML for unpublished drafts when
+        # the account has no published product or sale. Never attempt to push
+        # those test pages automatically: preserve their existing appearance.
+        all_products += [p for p in entries if p.get("published") is True]
         page = data.get("next_page_key") or data.get("page_key")
         if not page or page in seen or not entries:
             break
@@ -261,7 +264,9 @@ def main():
     if not token:
         raise SystemExit("Missing GUMROAD_ACCESS_TOKEN; no pages touched")
     pages = published_products(token)
-    print("Public products and explicitly allowed unpublished test drafts:", len(pages))
+    print("Published Gumroad products eligible for branded page updates:", len(pages))
+    if not pages:
+        print("NO PUBLIC PRODUCTS: skipping Gumroad page previews and writes; all drafts remain unchanged.")
     # Read real product details for every variant. Listing summaries can have
     # outdated/zero prices; never display those as €0.00 options.
     detailed = []
