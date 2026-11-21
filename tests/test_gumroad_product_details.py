@@ -64,8 +64,8 @@ class GumroadProductDetailTests(unittest.TestCase):
 
     def test_mobile_navigation_matches_all_site_sections(self):
         source=(ROOT/"product.html").read_text(encoding="utf-8")
-        self.assertIn('body[data-page="product"] .header-inner{height:67px!important',source)
-        self.assertIn('body[data-page="product"] .nav,body[data-page="product"] .nav.open{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;height:45px!important',source)
+        self.assertIn('body[data-page="product"] .header-inner{height:58px!important',source)
+        self.assertIn('body[data-page="product"] .nav,body[data-page="product"] .nav.open{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;height:47px!important',source)
         self.assertIn('html{overflow-y:scroll;scrollbar-gutter:stable}', (ROOT/"style.css").read_text(encoding="utf-8"))
 
     def test_real_catalog_has_matching_live_details(self):
