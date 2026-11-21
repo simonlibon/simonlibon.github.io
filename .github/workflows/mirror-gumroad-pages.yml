@@ -49,7 +49,7 @@ jobs:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          for slug in music concerts tabs merch press privacy $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
+          for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
             if ! gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
               python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
           import json,sys
@@ -81,7 +81,8 @@ jobs:
                           'data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
                           'id="product-buy"', 'id="product-price"', 'id="product-cover"']
               if any(x not in page for x in essentials):
-                  raise SystemExit("Gumroad stripped essential product detail markup: "+slug)
+                  missing=[x for x in essentials if x not in page]
+                raise SystemExit("Gumroad stripped essential product detail markup: "+slug+" missing="+repr(missing))
               if "simonlibonstore.gumroad.com/l/" not in page:
                   raise SystemExit("Gumroad detail missing real checkout: "+slug)
           if slug=="tabs":
