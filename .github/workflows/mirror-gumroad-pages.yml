@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: gumroad-standalone-pages
+  group: gumroad-website-product-pages
   cancel-in-progress: false
 jobs:
   deploy:
@@ -50,7 +50,23 @@ jobs:
         run: |
           set -euo pipefail
           for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
-            if ! gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
+            # Product and standalone publish workflows are serialized. In case
+            # another Gumroad integration just used the shared preview budget,
+            # retry only HTTP rate-limit failures with a bounded cooldown.
+            preview_ok=0
+            for attempt in 1 2 3; do
+              if gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
+                preview_ok=1
+                break
+              fi
+              if [ "$attempt" -lt 3 ] && grep -Eiq 'rate_limited|rate.limit|too many requests' "$RUNNER_TEMP/preview-$slug.json"; then
+                echo "::warning::Gumroad preview rate-limited for $slug (attempt $attempt); cooling down before retry"
+                sleep 68
+              else
+                break
+              fi
+            done
+            if [ "$preview_ok" -ne 1 ]; then
               python - "$slug" "$RUNNER_TEMP/preview-$slug.json" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
           import json,sys
           try:
