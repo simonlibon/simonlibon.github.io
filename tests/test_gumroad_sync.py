@@ -65,6 +65,29 @@ class GumroadSyncTests(unittest.TestCase):
         self.assertTrue(all(p["published"] for p in products))
         self.assertTrue(all(p["gumroadUrl"].startswith("https://simonlibonstore.gumroad.com/l/") for p in products))
 
+    def test_demo_downloads_remain_clear_after_automatic_sync(self):
+        inventory = [
+            row("tab-test","FREE TEST — Demo Guitar Tab (PDF)","ksiweq",0),
+            row("pack-test","FREE TEST — Demo Guitar Tab + Backing Track","mmxjjd",0),
+        ]
+        for item in inventory:
+            item["description"] = "<p>Free technical demo with synthetic sample files to test checkout and digital delivery. Not an official music release.</p>"
+        def detail(endpoint, token, params=None):
+            product_id=endpoint.rsplit("/",1)[-1]
+            return {"product":next(x for x in inventory if x["id"] == product_id)}
+        with patch.dict(os.environ,{"GUMROAD_ACCESS_TOKEN":"offline-test"}), \\
+             patch.object(sync,"fetch_products",return_value=inventory), \\
+             patch.object(sync,"api_get",side_effect=detail):
+            sync.main()
+        items=self.read()
+        self.assertEqual([p["type"] for p in items],["tabs","pack"])
+        self.assertEqual(items[0]["includes"],["Guitar tab (PDF)"])
+        self.assertEqual(items[1]["includes"],["Guitar tab (PDF)","Backing track (WAV)"])
+        for product in items:
+            self.assertIn("Not an official music release.",product["description"])
+            self.assertNotIn("RETURN TO THE OFFICIAL",product["description"])
+            self.assertNotIn("Digital download",str(product["includes"]))
+
     def test_invalid_catalog_is_not_overwritten(self):
         unsafe = "/* unexpected script */\nalert('x');\n"
         self.catalog.write_text(unsafe, encoding="utf-8")
