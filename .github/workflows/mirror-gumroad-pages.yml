@@ -79,6 +79,12 @@ jobs:
           if not slug.startswith("product-") and 'href="https://simonlibon.github.io/?newsletter=1"' not in page:
               raise SystemExit("Working newsletter destination missing from "+slug)
           if slug.startswith("product-"):
+              # A product page may use shared CSS for the shop cart, but it must
+              # contain no clickable CART link on any branded product route.
+              import re
+              anchors=re.findall(r'<a\\b[^>]*>',page,flags=re.I)
+              if any(re.search(r'(?:\\bshop-cart-link\\b|\\bsl-product-cart-link\\b|https://gumroad\\.com/checkout\\b)',a,re.I) for a in anchors):
+                  raise SystemExit("Product preview unexpectedly has a CART button: "+slug)
               # Gumroad strips custom <body> data attributes on standalone
               # product pages; verify the actual visual DOM and buy link.
               essentials=['data-sl-mirror-css="shop.css"', 'class="sl-product-layout"',
@@ -208,6 +214,11 @@ jobs:
           if any(x not in source for x in required):
               raise SystemExit("Gumroad lost a published branded product detail page: "+slug)
           original=Path(sys.argv[3]).read_text(encoding="utf-8")
+          import re
+          for label,doc in (("published",source),("generated",original)):
+              anchors=re.findall(r'<a\\b[^>]*>',doc,flags=re.I)
+              if any(re.search(r'(?:\\bshop-cart-link\\b|\\bsl-product-cart-link\\b|https://gumroad\\.com/checkout\\b)',a,re.I) for a in anchors):
+                  raise SystemExit("CART button unexpectedly present on "+label+" product page "+slug)
           if source.count('name="sl-download-format"') != original.count('name="sl-download-format"'):
               raise SystemExit("Published format selector differs from the current catalogue: "+slug)
           print("PRODUCT DETAIL VERIFIED", slug)
