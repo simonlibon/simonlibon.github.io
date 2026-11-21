@@ -27,6 +27,7 @@ class GumroadProductDetailTests(unittest.TestCase):
         for slug,group,option in self.pages:
             rendered=detail_page(group,option)
             self.assertIn('data-sl-mirror="official-page-'+slug+'"',rendered)
+            self.assertRegex(rendered, r'<main data-sl-mirror-sha="[0-9a-f]{20}"')
             self.assertIn('Canonical product sheet: balanced framing and readable type v3.',rendered)
             self.assertIn('Unified final product details across official, native and custom Gumroad routes v4.',rendered)
             self.assertIn('font-weight:700!important',rendered)

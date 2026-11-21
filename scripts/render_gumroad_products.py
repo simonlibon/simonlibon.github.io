@@ -10,10 +10,10 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse
 if __package__:
-    from .mirror_gumroad import ROOT, _inline_assets, _store_navigation, _functional_newsletter
+    from .mirror_gumroad import ROOT, _inline_assets, _store_navigation, _functional_newsletter, stamp_mirror_revision
     from .render_gumroad_catalog import detail_slug, detail_url, group_products
 else:
-    from mirror_gumroad import ROOT, _inline_assets, _store_navigation, _functional_newsletter
+    from mirror_gumroad import ROOT, _inline_assets, _store_navigation, _functional_newsletter, stamp_mirror_revision
     from render_gumroad_catalog import detail_slug, detail_url, group_products
 
 LABELS = {"tabs": "Guitar Tab (PDF)", "pack": "Tab + Backing Track", "bundle": "Complete EP Bundle"}
@@ -181,7 +181,7 @@ def detail_page(group, current):
                 'class="sl-product-layout"', current["checkout"].split("?")[0])
     if any(token not in page for token in required) or len(page) > 150000:
         raise ValueError("Product detail is incomplete or too large for Gumroad")
-    return page
+    return stamp_mirror_revision(page)
 
 
 if __name__ == "__main__":

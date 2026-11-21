@@ -17,6 +17,20 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = "https://simonlibon.github.io/"
 STORE = "https://simonlibonstore.gumroad.com/"
 
+
+
+def stamp_mirror_revision(document):
+    """Stamp the generated route with an invisible hash of its canonical HTML/CSS."""
+    import hashlib
+    source_sha = hashlib.sha256(document.encode("utf-8")).hexdigest()[:20]
+    document, count = re.subn(
+        r"<main\b", '<main data-sl-mirror-sha="' + source_sha + '"',
+        document, count=1, flags=re.I
+    )
+    if count != 1:
+        raise ValueError("Cannot find a single main region for Gumroad revision")
+    return document
+
 def _inline_assets(document, product=False):
     """Inlining shared CSS is important: Gumroad may strip external stylesheets."""
     for filename in ("style.css", "shop.css"):
@@ -111,7 +125,7 @@ def mirror_profile():
                       '<body data-page="home" data-sl-mirror="official-home-v2">', 1)
     if 'data-sl-mirror="official-home-v2"' not in out or 'data-sl-mirror-css="style.css"' not in out:
         raise ValueError("Cannot mirror canonical homepage")
-    return out
+    return stamp_mirror_revision(out)
 
 def mirror_product(p, cover_html, type_label, price_fallback, includes):
     out = (ROOT / "product.html").read_text(encoding="utf-8")
@@ -261,4 +275,4 @@ def mirror_standalone(slug):
         raise ValueError("Cannot mirror the " + slug + " page")
     if 'data-sl-mirror-css="style.css"' not in out:
         raise ValueError("No canonical stylesheet for " + slug)
-    return out
+    return stamp_mirror_revision(out)

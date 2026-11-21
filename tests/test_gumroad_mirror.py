@@ -10,7 +10,7 @@ class GumroadMirrorTests(unittest.TestCase):
                       'href="https://simonlibon.github.io/?newsletter=1"',
                       'data-sl-mirror-css="style.css"'):
             self.assertIn(token, mirrored)
-        self.assertIn('<main></main>', mirrored)
+        self.assertRegex(mirrored, r'<main data-sl-mirror-sha="[0-9a-f]{20}"></main>')
         self.assertIn('SIMON LIBON', mirrored)
         self.assertEqual(mirrored.count('data-sl-mirror="official-home-v2"'), 1)
         self.assertIn('https://simonlibonstore.gumroad.com/music', mirrored)
