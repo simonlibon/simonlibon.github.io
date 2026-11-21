@@ -5,7 +5,7 @@ window.SIMON_SHOP_CATALOG = {
       "id": "ksiweq",
       "title": "FREE TEST — Demo Guitar Tab (PDF)",
       "type": "tabs",
-      "description": "FREE TECHNICAL DEMO — NOT AN OFFICIAL MUSIC RELEASE.\nTest the Guitar Tab (PDF) option separately from the Guitar Tab + Backing Track pack on the Simon Libon website.\nIncluded: One synthetic demonstration guitar tab (PDF). No backing track is included with this option.\n€0, no payment expected. For testing digital delivery only.\nRETURN TO THE OFFICIAL SIMON LIBON SHOP",
+      "description": "Free technical demo with synthetic sample files to test checkout and digital delivery. Not an official music release.",
       "includes": [
         "Guitar tab (PDF)"
       ],
@@ -19,7 +19,7 @@ window.SIMON_SHOP_CATALOG = {
       "id": "mmxjjd",
       "title": "FREE TEST — Demo Guitar Tab + Backing Track",
       "type": "pack",
-      "description": "FREE TECHNICAL DEMO — NOT AN OFFICIAL MUSIC RELEASE.\nThis free product is only for testing the Simon Libon shop, checkout, and digital delivery.\nIncluded files:\n1. Synthetic demo guitar tab (PDF)\n2. Synthetic demo backing track (WAV)\nThese are technical sample files, not an official song or transcription. Price: €0. No payment is expected.\nRETURN TO THE OFFICIAL SIMON LIBON SHOP",
+      "description": "Free technical demo with synthetic sample files to test checkout and digital delivery. Not an official music release.",
       "includes": [
         "Guitar tab (PDF)",
         "Backing track (WAV)"
