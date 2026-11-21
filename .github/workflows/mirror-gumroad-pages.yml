@@ -82,8 +82,8 @@ jobs:
               # A product page may use shared CSS for the shop cart, but it must
               # contain no clickable CART link on any branded product route.
               import re
-              anchors=re.findall(r'<a\\b[^>]*>',page,flags=re.I)
-              if any(re.search(r'(?:\\bshop-cart-link\\b|\\bsl-product-cart-link\\b|https://gumroad\\.com/checkout\\b)',a,re.I) for a in anchors):
+              anchors=re.findall(r'<a\b[^>]*>',page,flags=re.I)
+              if any(re.search(r'(?:\bshop-cart-link\b|\bsl-product-cart-link\b|https://gumroad\.com/checkout\b)',a,re.I) for a in anchors):
                   raise SystemExit("Product preview unexpectedly has a CART button: "+slug)
               # Gumroad strips custom <body> data attributes on standalone
               # product pages; verify the actual visual DOM and buy link.
@@ -216,8 +216,8 @@ jobs:
           original=Path(sys.argv[3]).read_text(encoding="utf-8")
           import re
           for label,doc in (("published",source),("generated",original)):
-              anchors=re.findall(r'<a\\b[^>]*>',doc,flags=re.I)
-              if any(re.search(r'(?:\\bshop-cart-link\\b|\\bsl-product-cart-link\\b|https://gumroad\\.com/checkout\\b)',a,re.I) for a in anchors):
+              anchors=re.findall(r'<a\b[^>]*>',doc,flags=re.I)
+              if any(re.search(r'(?:\bshop-cart-link\b|\bsl-product-cart-link\b|https://gumroad\.com/checkout\b)',a,re.I) for a in anchors):
                   raise SystemExit("CART button unexpectedly present on "+label+" product page "+slug)
           if source.count('name="sl-download-format"') != original.count('name="sl-download-format"'):
               raise SystemExit("Published format selector differs from the current catalogue: "+slug)
