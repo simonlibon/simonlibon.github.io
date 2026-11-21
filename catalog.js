@@ -18,7 +18,7 @@ window.SIMON_SHOP_CATALOG = {
     {
       "id": "mmxjjd",
       "title": "FREE TEST — Demo Guitar Tab + Backing Track",
-      "type": "pack",
+      "type": "bundle",
       "description": "Free technical demo with synthetic sample files to test checkout and digital delivery. Not an official music release.",
       "includes": [
         "Guitar tab (PDF)",
