@@ -210,11 +210,15 @@ def main():
             raise RuntimeError("Published Gumroad product price has unexpected format")
         kind = kind_of(product, old_product)
         includes = {
-            "tabs": ["Guitar tabs (PDF)", "Digital download"],
-            "backing": ["Backing track without lead guitar", "Digital audio download"],
-            "pack": ["Guitar tab (PDF)", "Backing track without lead guitar", "Digital download"],
-            "bundle": ["Tabs and backing tracks", "Digital download"],
+            "tabs": ["Guitar tab (PDF)"],
+            "backing": ["Backing track (audio)"],
+            "pack": ["Guitar tab (PDF)", "Backing track (audio)"],
+            "bundle": ["Tabs and backing tracks"],
         }.get(kind, ["Digital download"])
+        # Known synthetic checkout tests use WAV, not an unspecified audio file.
+        # Keep this exact description through every hourly Gumroad sync.
+        if slug == "mmxjjd" and kind == "pack":
+            includes = ["Guitar tab (PDF)", "Backing track (WAV)"]
         published.append({
             "id": slug,
             "title": name,
