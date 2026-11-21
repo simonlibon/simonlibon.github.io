@@ -28,6 +28,10 @@ class GumroadProductDetailTests(unittest.TestCase):
             rendered=detail_page(group,option)
             self.assertIn('data-sl-mirror="official-page-'+slug+'"',rendered)
             self.assertIn('Canonical product sheet: balanced framing and readable type v3.',rendered)
+            self.assertIn('Unified final product details across official, native and custom Gumroad routes v4.',rendered)
+            self.assertIn('font-weight:700!important',rendered)
+            self.assertIn('list-style-type:disc!important',rendered)
+            self.assertIn('display:list-item!important',rendered)
             self.assertIn('font-size:16px!important',rendered)
             self.assertIn('@media(max-width:860px)',rendered)
             for field in ('class="sl-product-layout"','class="sl-product-cover"',

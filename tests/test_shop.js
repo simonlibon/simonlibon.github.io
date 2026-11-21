@@ -65,6 +65,13 @@ assert(shopStyles.includes(".product-topline{display:flex;align-items:center;jus
 assert(shopStyles.includes(".sl-product-copy > #product-description"), "Descriptions must have explicit readable spacing");
 assert(shopStyles.includes(".sl-product-page .sl-product-details"), "Included files use shared spacing");
 assert(shopStyles.includes("Canonical product sheet: balanced framing and readable type v3."), "All routes must use the canonical framing");
+assert(shopStyles.includes("Unified final product details across official, native and custom Gumroad routes v4."), "Visual matching rules exist");
+assert(shopStyles.includes("#main-content.sl-product-page .sl-product-copy #product-title"), "Title typography is scoped to shared root");
+assert(shopStyles.includes("font-weight:700!important"), "Gumroad title weight matches official page");
+assert(shopStyles.includes("#main-content.sl-product-page #product-included li"), "Gumroad list markers are normalized");
+assert(shopStyles.includes("list-style-type:disc!important"), "Included files retain bullet markers on Gumroad");
+assert(shopStyles.includes("display:list-item!important"), "Included items cannot be flattened by Gumroad");
+assert(detailPage.includes("shop.css?v=canonical-product-typography-v4"), "Browser refreshes corrected product typography");
 assert(shopStyles.includes("font-size:16px!important"), "Desktop product description stays legible");
 assert(shopStyles.includes("font-size:15px!important"), "Mobile product description stays legible");
 assert(shopStyles.includes("@media(max-width:860px)"), "Narrow layouts must stack the cover and text");

@@ -597,3 +597,36 @@ body[data-page="tabs"] .shop-item-price {font-variant-numeric:tabular-nums}
   .sl-product-page .sl-product-details h2{font-size:12px}
   .sl-product-page .sl-product-details li{font-size:15px}
 }
+
+
+/* Unified final product details across official, native and custom Gumroad routes v4. */
+/* Gumroad applies a different default weight to h1, even with the exact
+   same HTML. Explicit font declarations restore the official hierarchy. */
+#main-content.sl-product-page .sl-product-copy #product-title {
+  font-family:'Space Grotesk',Arial,sans-serif!important;
+  font-weight:700!important;
+  font-style:normal!important;
+  text-transform:none!important;
+}
+/* Gumroad also resets list markers. The multi-format page holds a div with
+   one ul per format; keep its CSS-driven display switching untouched. */
+#main-content.sl-product-page #product-included ul,
+#main-content.sl-product-page #product-included ul.sl-variant-includes {
+  list-style-type:disc!important;
+  list-style-position:outside!important;
+  padding-left:20px!important;
+  margin:0!important;
+}
+#main-content.sl-product-page #product-included li {
+  display:list-item!important;
+  list-style-type:disc!important;
+  list-style-position:outside!important;
+  margin:0!important;
+  padding:4px 0!important;
+  font-family:'DM Sans',Arial,sans-serif;
+  font-weight:400;
+}
+#main-content.sl-product-page #product-included li::marker {
+  color:#39363e;
+  font-size:.85em;
+}
