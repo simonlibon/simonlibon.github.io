@@ -320,7 +320,7 @@ def main():
         if 'data-sl-native-formats="v4"' in new_page:
             selectors = ['data-sl-native-formats="v4"', 'id="sl-native-tabs"',
                          'id="sl-native-pack"', 'data-sl-native-format-css="v4"',
-                         'sl-native-buy', '/l/mmxjjd', '/l/ntapzm']
+                         'sl-native-buy', *set(re.findall(r'/l/[A-Za-z0-9_-]+', new_page))]
             missing += [token for token in selectors if token not in sanitized]
         if missing or preview.get("warning"):
             raise RuntimeError(f"Preview rejected {permalink}, missing={missing}, warning={preview.get('warning')}")

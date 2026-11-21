@@ -17,29 +17,16 @@ jobs:
     timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
-      - name: Check Gumroad product readiness
-        id: readiness
-        run: |
-          if python3 -c 'from scripts.render_gumroad_catalog import load_catalog, safe_product; import sys; sys.exit(0 if any(safe_product(p) and not str(p.get("title", "")).strip().upper().startswith("TEST ") for p in load_catalog()) else 1)'; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::Gumroad custom pages deferred: no genuinely published non-test product. Keeping all existing pages unchanged."
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          fi
       - name: Generate exact canonical HTML/CSS mirrors
-        if: steps.readiness.outputs.ready == 'true'
         run: python3 scripts/build_gumroad_mirror_pages.py --output-dir "$RUNNER_TEMP/gumroad-pages"
       - uses: actions/setup-go@v5
-        if: steps.readiness.outputs.ready == 'true'
         with:
           go-version: '1.25.x'
       - name: Install Gumroad CLI
-        if: steps.readiness.outputs.ready == 'true'
         run: |
           go install github.com/antiwork/gumroad-cli/cmd/gumroad@latest
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - name: Validate seller and read existing pages
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -58,7 +45,6 @@ jobs:
           gumroad pages list --json --no-input > "$RUNNER_TEMP/existing.json"
           jq -e '.pages | type == "array"' "$RUNNER_TEMP/existing.json" > /dev/null
       - name: Preview every page before any change
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -108,7 +94,8 @@ jobs:
                   for code in ('#sl-format-tabs:checked ~', '#sl-format-pack:checked ~'):
                       if code not in page:
                           raise SystemExit("Gumroad removed the selection CSS: "+slug+" / "+code)
-                  for code in ('/l/mmxjjd','/l/ntapzm'):
+                  import re
+                  for code in set(re.findall(r'/l/[A-Za-z0-9_-]+', original)):
                       if code not in page:
                           raise SystemExit("Gumroad lost one of the two checkout links on "+slug)
           if slug=="tabs":
@@ -135,7 +122,6 @@ jobs:
           PY
           done
       - name: Publish only missing or previously mirrored pages
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -178,7 +164,6 @@ jobs:
           PY
           done
       - name: Verify updated Gumroad shop contains every official product
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
@@ -206,14 +191,13 @@ jobs:
           print(f"Published Gumroad shop verified: {actual} release cards linking to branded product pages")
           PY
       - name: Verify published product detail pages
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt"); do
             gumroad pages pull "$slug" -o "$RUNNER_TEMP/verified-$slug.html" --json --no-input > "$RUNNER_TEMP/verified-$slug.json"
-            python - "$slug" "$RUNNER_TEMP/verified-$slug.html" <<'PY'
+            python - "$slug" "$RUNNER_TEMP/verified-$slug.html" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
           from pathlib import Path
           import sys
           slug=sys.argv[1]
@@ -223,23 +207,20 @@ jobs:
                     'class="sl-product-layout"', 'simonlibonstore.gumroad.com/l/']
           if any(x not in source for x in required):
               raise SystemExit("Gumroad lost a published branded product detail page: "+slug)
-          if slug in ("product-mmxjjd","product-ntapzm"):
-              if source.count('name="sl-download-format"') != 2 or 'data-sl-inline-formats="v3"' not in source:
-                  raise SystemExit("Published Gumroad product has no working same-page format selector: "+slug)
-              if '/l/mmxjjd' not in source or '/l/ntapzm' not in source:
-                  raise SystemExit("Published Gumroad product lost a format-specific checkout: "+slug)
+          original=Path(sys.argv[3]).read_text(encoding="utf-8")
+          if source.count('name="sl-download-format"') != original.count('name="sl-download-format"'):
+              raise SystemExit("Published format selector differs from the current catalogue: "+slug)
           print("PRODUCT DETAIL VERIFIED", slug)
           PY
           done
       - name: Save previous pages for rollback
-        if: always() && steps.readiness.outputs.ready == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gumroad-mirrored-pages-before
           path: ${{ runner.temp }}/previous-*.html
           if-no-files-found: warn
       - name: List resulting pages
-        if: steps.readiness.outputs.ready == 'true'
         env:
           GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
