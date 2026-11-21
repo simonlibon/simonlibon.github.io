@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 from scripts.render_gumroad_catalog import (
-    load_catalog, group_products, render_shop, product_card, safe_product, ROOT
+    load_catalog, group_products, render_shop, product_card, safe_product, detail_url, ROOT
 )
 from scripts.mirror_gumroad import mirror_standalone
 
@@ -36,12 +36,16 @@ class GumroadCatalogHTMLTests(unittest.TestCase):
         self.assertEqual(tracks[0]["title"], "TEST TRACK")
         self.assertEqual(bundles[0]["title"], "DEMO EP — Complete EP Bundle")
 
-    def test_both_track_options_and_bundle_checkout_without_js(self):
+    def test_shop_cards_open_branded_product_details_without_js(self):
         original = (ROOT / "tabs.html").read_text(encoding="utf-8")
         result = render_shop(original, self.products)
         self.assertEqual(result.count('class="shop-item"'), 2)
-        for slug in ("ntapzm", "mmxjjd", "jghmyd"):
-            self.assertIn("/l/" + slug + "?price=0&amp;wanted=true", result)
+        bundles,tracks=group_products(self.products)
+        self.assertIn(detail_url(bundles[0]), result)
+        self.assertIn(detail_url(tracks[0]), result)
+        self.assertNotIn("?price=0&amp;wanted=true", result, "product cover must not send visitors to checkout")
+        self.assertIn("VIEW OPTIONS", result)
+        self.assertIn("VIEW BUNDLE", result)
         self.assertIn('data-sl-static-catalog="1"', result)
         self.assertIn('id="shop-count" class="shop-count">2 RELEASES', result)
         self.assertNotIn("notready", result)
