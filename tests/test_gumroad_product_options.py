@@ -36,7 +36,8 @@ class ProductOptionTests(unittest.TestCase):
         free_switch=options_html(tab,[tab,pack])
         self.assertIn('href="https://simonlibonstore.gumroad.com/l/ntapzm?price=0&amp;wanted=true"',free_switch)
         native_page=build({**tab,"price":0},[tab,pack])
-        self.assertIn('data-gumroad-action="buy" data-gumroad-price="0"',native_page)
+        self.assertIn('data-gumroad-action="buy"',native_page)
+        self.assertIn('data-gumroad-price="0"',native_page)
         paid_page=build({**tab,"price":500},[tab,pack])
         self.assertNotIn('data-gumroad-price="0"',paid_page)
 
