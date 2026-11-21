@@ -87,21 +87,31 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 
-/* Shared newsletter dialog on every page. */
-(function(){
-  const d=document.getElementById('newsletter-dialog');
-  if(!d)return;
-  document.querySelectorAll('[data-newsletter-open]').forEach(a=>a.addEventListener('click',e=>{
-    e.preventDefault();if(!d.open)d.showModal();
-  }));
-  d.addEventListener('click',e=>{if(e.target===d)d.close();});
-  // The Gumroad mirror forwards newsletter subscribers to the official form.
-  // This parameter opens the real EmailOctopus form on the official domain.
-  if(location.hostname==='simonlibon.github.io' &&
-     new URLSearchParams(location.search).get('newsletter')==='1' &&
-     !d.open && typeof d.showModal==='function'){
-    d.showModal();
+/* One shared newsletter handler across every official site page.
+   Avoid multiple showModal calls from duplicated page-specific listeners. */
+(function initNewsletterDialog(){
+  const dialog = document.getElementById('newsletter-dialog');
+  if (!dialog) return;
+  function open(){
+    if (dialog.open || typeof dialog.showModal !== 'function') return;
+    dialog.showModal();
   }
+  document.addEventListener('click', function(event){
+    const trigger = event.target.closest('[data-newsletter-open]');
+    if (trigger) {
+      event.preventDefault();
+      open();
+    } else if (event.target === dialog && dialog.open) {
+      dialog.close();
+    }
+  });
+  function openFromLink(){
+    if (location.hostname !== 'simonlibon.github.io') return;
+    if (new URLSearchParams(location.search).get('newsletter') === '1' ||
+        location.hash === '#newsletter') open();
+  }
+  window.addEventListener('hashchange', openFromLink);
+  openFromLink();
 })();
 
 (function initConcertCountryPicker() {
