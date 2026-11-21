@@ -51,7 +51,7 @@ jobs:
           set -euo pipefail
           for slug in $(cat "$RUNNER_TEMP/gumroad-pages/product-slugs.txt") music concerts tabs merch press privacy; do
             if ! gumroad pages preview "$RUNNER_TEMP/gumroad-pages/$slug.html" --json --no-input > "$RUNNER_TEMP/preview-$slug.json"; then
-              python - "$slug" "$RUNNER_TEMP/preview-$slug.json" <<'PY'
+              python - "$slug" "$RUNNER_TEMP/preview-$slug.json" "$RUNNER_TEMP/gumroad-pages/$slug.html" <<'PY'
           import json,sys
           try:
               payload=json.load(open(sys.argv[2],encoding="utf-8"))
@@ -67,6 +67,8 @@ jobs:
           slug=sys.argv[1]
           payload=json.load(open(sys.argv[2],encoding="utf-8"))
           page=payload.get("custom_html") or ""
+          from pathlib import Path
+          original=Path(sys.argv[3]).read_text(encoding="utf-8")
           required=["SIMON LIBON",'class="header"','class="footer"','data-sl-mirror-css="style.css"']
           if payload.get("success") is False or not page or any(x.lower() not in page.lower() for x in required):
               raise SystemExit("Sanitizer stripped essential page elements: "+slug)
@@ -86,7 +88,7 @@ jobs:
                   raise SystemExit("Gumroad stripped essential product detail markup: "+slug+" missing="+repr(missing))
               if "simonlibonstore.gumroad.com/l/" not in page:
                   raise SystemExit("Gumroad detail missing real checkout: "+slug)
-              if slug in ("product-mmxjjd","product-ntapzm") or ('data-sl-inline-formats="v3"' in page):
+              if 'name="sl-download-format"' in original:
                   if page.count('name="sl-download-format"') < 2 or 'data-sl-inline-formats="v3"' not in page:
                       raise SystemExit("Gumroad removed the in-page Tab/Track radio selector: "+slug)
                   for code in ('#sl-format-tabs:checked ~', '#sl-format-pack:checked ~'):
