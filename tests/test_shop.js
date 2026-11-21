@@ -75,7 +75,7 @@ assert(detailPage.includes("shop.css?v=canonical-product-typography-v4"), "Brows
 assert(shopStyles.includes("font-size:16px!important"), "Desktop product description stays legible");
 assert(shopStyles.includes("font-size:15px!important"), "Mobile product description stays legible");
 assert(shopStyles.includes("@media(max-width:860px)"), "Narrow layouts must stack the cover and text");
-assert(detailPage.includes("shop.css?v=canonical-product-framing-v3"), "Official product page busts the previous stylesheet cache");
+assert(detailPage.includes("shop.css?v=canonical-product-typography-v4"), "Official product page busts the previous stylesheet cache");
 assert(!shopStyles.includes(".product-topline>.sl-product-cart-link{margin-left:auto"), "No product-specific cart styling");
 assert(storePage.includes('class="shop-cart-link"'), "Cart shortcut remains available in the shop header");
 assert(storePage.includes("https://gumroad.com/checkout"), "Cart opens Gumroad checkout");
