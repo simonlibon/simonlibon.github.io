@@ -54,6 +54,8 @@ class GumroadMirrorTests(unittest.TestCase):
         self.assertNotIn("SHOP TEMPORARILY UNAVAILABLE", mirrored)
         self.assertNotIn("const catalog = document.createElement('script')", mirrored)
         self.assertIn('data-sl-compact-cards="v2"', mirrored)
+        self.assertIn('data-sl-gumroad-shop-heading="v1"', mirrored)
+        self.assertIn('#shop-catalog .shop-catalog-head #collection-title', mirrored)
         self.assertIn('href="https://simonlibon.github.io/?newsletter=1"', mirrored)
         self.assertNotIn('id="newsletter-dialog"', mirrored)
         self.assertNotIn('class="shop-payment-note"', mirrored)
