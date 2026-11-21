@@ -39,9 +39,8 @@ class NewsletterIntegrityTests(unittest.TestCase):
         home = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn("width:min(420px,calc(100vw - 32px))", home)
         self.assertIn("max-height:calc(100dvh - 36px)", home)
-        self.assertIn("https://simonlibon.github.io/?newsletter=1", 
-                      (ROOT / "scripts/mirror_gumroad.py").read_text(encoding="utf-8").replace(
-                          "url = SITE + \"?newsletter=1\"", "https://simonlibon.github.io/?newsletter=1"))
+        self.assertIn('url = SITE + "?newsletter=1"',
+                      (ROOT / "scripts/mirror_gumroad.py").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
