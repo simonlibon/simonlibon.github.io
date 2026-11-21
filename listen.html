@@ -25,7 +25,7 @@ h1{margin:0;text-align:center;font:700 clamp(29px,7vw,42px)/1.1 "Space Grotesk",
 .release-type{color:#77757a;letter-spacing:.17em;text-transform:uppercase;font-weight:700;font-size:10px;text-align:center;margin:11px 0 36px}
 .platform-list{display:grid;gap:9px}
 .platform-link{min-height:54px;display:flex;justify-content:space-between;align-items:center;border:1px solid #d7d4d2;text-decoration:none;background:transparent;padding:15px 17px;font-size:12px;letter-spacing:.035em;font-weight:700}
-.preview-link{color:#85838b;cursor:default;background:#f4f2ef}.preview-note{text-align:center;font-size:10px;line-height:1.6;color:#77757a;letter-spacing:.06em;margin:0 auto 18px;max-width:400px}.platform-link:not(.preview-link):hover,.platform-link:not(.preview-link):focus-visible{background:#18181a;color:#faf9f7;border-color:#18181a}
+.preview-link{color:#55515b;cursor:pointer;background:#f4f2ef}.preview-note{text-align:center;font-size:10px;line-height:1.6;color:#77757a;letter-spacing:.06em;margin:0 auto 18px;max-width:400px}.platform-link:hover,.platform-link:focus-visible{background:#18181a;color:#faf9f7;border-color:#18181a}
 .platform-link span:last-child{font-size:16px;font-weight:400}
 .more-platforms summary{width:fit-content;margin:0 auto;padding:14px 8px;cursor:pointer;color:#55515b;font-size:12px}
 .more-platforms summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}
@@ -81,23 +81,19 @@ function renderPlatforms(items){
   const secondary=document.createElement("div");
   secondary.className="platform-list";
   ordered.forEach((item,index)=>{
-    const link=document.createElement(preview?"div":"a");
-    link.className="platform-link";
+    const link=document.createElement("a");
+    link.className=preview?"platform-link preview-link":"platform-link";
     const name=document.createElement("span");
     name.textContent=item.name;
     link.append(name);
-    if(preview){
-      link.classList.add("preview-link");
-      link.setAttribute("aria-disabled","true");
-    }else{
-      link.href=item.url;
-      link.target="_blank";
-      link.rel="noopener noreferrer";
-      const arrow=document.createElement("span");
-      arrow.textContent="↗";
-      arrow.setAttribute("aria-hidden","true");
-      link.append(arrow);
-    }
+    link.href=item.url;
+    link.target="_blank";
+    link.rel="noopener noreferrer";
+    if(preview) link.title="Search Simon Libon on "+item.name;
+    const arrow=document.createElement("span");
+    arrow.textContent="↗";
+    arrow.setAttribute("aria-hidden","true");
+    link.append(arrow);
     (index<mainPlatforms.length?nav:secondary).append(link);
   });
   if(secondary.childElementCount){
@@ -120,10 +116,20 @@ if(preview){
   cover.append(placeholder);
   const note=document.createElement("p");
   note.className="preview-note";
-  note.textContent="PREVIEW ONLY — Streaming links will become active when this release is published.";
+  note.textContent="PREVIEW ONLY — Choose a platform to search Simon Libon. Direct release links appear when a release is published.";
   const nav=document.getElementById("platforms");
   nav.parentElement.insertBefore(note,nav);
-  renderPlatforms([...mainPlatforms,"TIDAL","Qobuz"].map(name=>({name})));
+  const query=encodeURIComponent("Simon Libon");
+  const previewLinks={
+    "Spotify":"https://open.spotify.com/search/"+query,
+    "Apple Music":"https://music.apple.com/search?term="+query,
+    "YouTube Music":"https://music.youtube.com/search?q="+query,
+    "Deezer":"https://www.deezer.com/search/"+query,
+    "Amazon Music":"https://music.amazon.com/search/"+query,
+    "TIDAL":"https://listen.tidal.com/search?q="+query,
+    "Qobuz":"https://www.qobuz.com/us-en/search?q="+query
+  };
+  renderPlatforms([...mainPlatforms,"TIDAL","Qobuz"].map(name=>({name,url:previewLinks[name]})));
   releaseBox.hidden=false;
   return;
 }
