@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: gumroad-website-product-pages
+  group: gumroad-profile-page
   cancel-in-progress: false
 
 jobs:

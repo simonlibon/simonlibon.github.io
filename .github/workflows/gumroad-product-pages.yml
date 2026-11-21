@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: '43 * * * *'
 concurrency:
-  group: gumroad-website-product-pages
+  group: gumroad-native-product-pages
   cancel-in-progress: false
 permissions:
   contents: read

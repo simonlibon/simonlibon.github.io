@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: gumroad-website-product-pages
+  group: gumroad-custom-page-mirror
   cancel-in-progress: false
 jobs:
   deploy:
