@@ -52,7 +52,8 @@ class ProductOptionTests(unittest.TestCase):
         self.assertIn('<a id="product-buy" class="sl-buy-button" href="https://simonlibonstore.gumroad.com/l/mmxjjd?price=0&amp;wanted=true"',page)
         self.assertIn('class="sl-gumroad-native-fallback" data-gumroad-action="buy"',page)
         self.assertNotIn('id="product-buy" class="sl-buy-button" data-gumroad-action',page)
-        self.assertIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd"',page)
+        self.assertNotIn('href="https://simonlibonstore.gumroad.com/l/mmxjjd"',page)
+        self.assertNotIn("ADD TO CART",page)
 
     def test_hide_options_if_only_draft_other_format(self):
         tab=row("Kinetic — Guitar Tab","kinetic-tab",500)
