@@ -76,12 +76,129 @@ function initMenu(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false)});
 }
 
+
+/* Compact artist-profile dropdown for the MUSIC navigation item.
+   Only direct profile URLs are clickable; track links are not artist profiles. */
+function initStreamingMenu(){
+  const nav=document.getElementById('site-nav');
+  if(!nav||nav.querySelector('.music-nav-wrap'))return;
+  const trigger=Array.from(nav.children).find(node=>
+    node.tagName==='A' && /^music\.html(?:[?#]|$)/.test(node.getAttribute('href')||'')
+  );
+  if(!trigger)return;
+  const wrap=document.createElement('div');
+  wrap.className='music-nav-wrap';
+  trigger.before(wrap);
+  wrap.append(trigger);
+  trigger.classList.add('music-dropdown-trigger');
+  trigger.setAttribute('aria-haspopup','true');
+  trigger.setAttribute('aria-expanded','false');
+  trigger.setAttribute('aria-controls','music-nav-options');
+
+  const menu=document.createElement('div');
+  menu.id='music-nav-options';
+  menu.className='music-nav-options';
+  menu.setAttribute('role','group');
+  menu.setAttribute('aria-label','Streaming and video platforms');
+  menu.hidden=true;
+  wrap.append(menu);
+
+  if(!document.getElementById('music-dropdown-style')){
+    const style=document.createElement('style');
+    style.id='music-dropdown-style';
+    style.textContent=[
+      '.music-nav-wrap{position:relative;justify-self:start;align-self:center;z-index:5}',
+      '.music-nav-wrap:after{content:"";position:absolute;pointer-events:none;right:-12px;top:calc(50% - 3px);height:5px;width:5px;border-right:1px solid #77757a;border-bottom:1px solid #77757a;transform:rotate(45deg)}',
+      '.music-nav-options{position:absolute;z-index:100;left:-16px;top:calc(100% + 11px);width:240px;max-width:calc(100vw - 20px);padding:7px;background:#faf9f7;border:1px solid #dedbd8;box-shadow:0 10px 32px #00000013}',
+      '.music-nav-options[hidden]{display:none!important}',
+      '.nav .music-nav-options a.music-nav-link{position:static!important;display:flex!important;justify-content:space-between!important;align-items:center!important;min-height:42px!important;width:100%!important;padding:10px 12px!important;color:#18181a!important;text-decoration:none!important;text-transform:none!important;font-size:11px!important;font-weight:600!important;letter-spacing:.01em!important;white-space:normal!important}',
+      '.nav .music-nav-options a.music-nav-link:hover,.nav .music-nav-options a.music-nav-link:focus-visible{background:#efede9!important;outline-color:#888}',
+      '.music-nav-options .music-nav-note{margin:6px 10px 8px;font:500 10px/1.6 "DM Sans",Arial,sans-serif;color:#77757a;letter-spacing:0;white-space:normal;text-transform:none}',
+      '@media(max-width:650px){.nav .music-nav-wrap{justify-self:stretch;align-self:stretch;display:flex;min-width:0;width:100%;min-height:44px;align-items:center}.nav .music-nav-wrap>.music-dropdown-trigger{width:100%!important;min-height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important}.music-nav-wrap:after{right:4px}.music-nav-options{left:0;top:calc(100% + 4px);width:min(245px,90vw)}}'
+    ].join('');
+    document.head.append(style);
+  }
+
+  const entries=[
+    ['Spotify','open.spotify.com',/^\/artist\/[^/]+/],
+    ['Apple Music','music.apple.com',/\/artist\/[^/]+\/\d+/],
+    ['YouTube Music','music.youtube.com',/^\/(?:channel|browse)\/[^/]+/],
+    ['Deezer','www.deezer.com',/^\/(?:[a-z]{2}\/)?artist\/\d+/],
+    ['Amazon Music','music.amazon.com',/^\/artists\/[^/]+/],
+    ['YouTube','www.youtube.com',/^\/@[^/]+\/?$/]
+  ];
+  const validProfile=(name,host,path,url)=>{
+    if(typeof url!=='string'||!url)return false;
+    try{
+      const parsed=new URL(url);
+      return parsed.protocol==='https:' && !parsed.username && !parsed.password &&
+        (parsed.hostname===host || (name==='Deezer'&&parsed.hostname==='deezer.com') ||
+         (name==='YouTube'&&parsed.hostname==='youtube.com')) &&
+        path.test(parsed.pathname);
+    }catch{return false;}
+  };
+  const setOpen=open=>{menu.hidden=!open;trigger.setAttribute('aria-expanded',String(open));};
+  trigger.addEventListener('click',event=>{
+    event.preventDefault();
+    setOpen(menu.hidden);
+  });
+  trigger.addEventListener('keydown',event=>{
+    if(event.key===' '){event.preventDefault();setOpen(menu.hidden);}
+    if(event.key==='ArrowDown'){
+      event.preventDefault();setOpen(true);
+      const first=menu.querySelector('a');if(first)first.focus();
+    }
+  });
+  document.addEventListener('click',event=>{if(!wrap.contains(event.target))setOpen(false);});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&!menu.hidden){setOpen(false);trigger.focus();}
+  });
+  function render(profiles){
+    menu.replaceChildren();
+    const missing=[];
+    entries.forEach(([name,host,path])=>{
+      const url=profiles&&profiles[name];
+      if(validProfile(name,host,path,url)){
+        const link=document.createElement('a');
+        link.className='music-nav-link';
+        link.href=url;
+        link.textContent=name+' ↗';
+        link.rel='noopener noreferrer';
+        menu.append(link);
+      }else if(name!=='YouTube'){
+        missing.push(name);
+      }
+    });
+    if(missing.length){
+      const note=document.createElement('p');
+      note.className='music-nav-note';
+      note.textContent=missing.length===5
+        ? 'Spotify, Apple Music and other streaming profiles coming soon.'
+        : 'More streaming profiles coming soon.';
+      menu.append(note);
+    }
+    if(!menu.children.length){
+      const note=document.createElement('p');
+      note.className='music-nav-note';
+      note.textContent='Artist profiles coming soon.';
+      menu.append(note);
+    }
+  }
+  // The verified YouTube video channel is available before the first music release.
+  render({'YouTube':SITE.links.youtube});
+  fetch('streaming-profiles.json',{cache:'no-store'}).then(response=>{
+    if(!response.ok)throw Error('Profile configuration unavailable');
+    return response.json();
+  }).then(data=>render(data&&data.profiles)).catch(()=>{});
+}
+
 function initHomePhoto(){const n=document.querySelector('.home-stage-photo');if(n && goodUrl(SITE.homePhoto)){n.style.backgroundImage=`url("${SITE.homePhoto.replace(/[\"\\()]/g,'')}")`}}
 
 function init(){
   initHomePhoto();
   initLinks();
   initMenu();
+  initStreamingMenu();
   initContact();
   document.querySelectorAll('[data-year]').forEach(n=>n.textContent=new Date().getFullYear());
 }
