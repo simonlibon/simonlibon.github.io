@@ -16,11 +16,11 @@ else:
     from mirror_gumroad import ROOT, _inline_assets, _store_navigation, _functional_newsletter, stamp_mirror_revision
     from render_gumroad_catalog import detail_slug, detail_url, group_products
 
-LABELS = {"tabs": "Guitar Tab (PDF)", "pack": "Tab + Backing Track", "bundle": "Complete EP Bundle"}
+LABELS = {"tabs": "Guitar Tab (ZIP)", "pack": "Tab & Track (ZIP)", "bundle": "Complete EP Bundle (ZIP)"}
 INCLUDES = {
-    "tabs": ["Guitar tab (PDF)"],
-    "pack": ["Guitar tab (PDF)", "Backing track (audio)"],
-    "bundle": ["Tabs and backing tracks"],
+    "tabs": ["ZIP: PDF tablature + Guitar Pro (.gp)"],
+    "pack": ["ZIP: PDF + Guitar Pro (.gp) + backing track WAV + MP3"],
+    "bundle": ["ZIP: full EP, one folder per track (PDF, GP, WAV, MP3)"],
 }
 
 

@@ -22,7 +22,7 @@
     const tab = /\b(tabs?|tablatures?)\b/.test(title);
     const backing = /\bbacking[\s-]*tracks?\b/.test(title);
     if (ep || (p.type === "bundle" && !(tab && backing && !ep))) return "bundle";
-    if (tab && backing) return "pack";
+    if (tab && (backing || /\btabs?\s*(?:\+|&|and)\s*tracks?\b/.test(title))) return "pack";
     if (p.type === "pack" || p.type === "tabs" || p.type === "backing") return p.type;
     if (backing) return "backing";
     if (tab) return "tabs";
@@ -32,6 +32,8 @@
     if (typeof p.songTitle === "string" && p.songTitle.trim()) return p.songTitle.trim();
     const name = String(p.title || "").trim();
     const suffix = "(?:(?:official\\s+)?(?:guitar\\s+)?tabs?(?:\\s*\\(pdf\\))?|(?:guitar\\s+)?tablatures?|backing\\s*tracks?|(?:guitar\\s+)?tabs?\\s*(?:\\+|&|and)\\s*backing\\s*tracks?|tabs?\\s*(?:\\+|&|and)\\s*tracks?)";
+    const modern = name.replace(/(?:\s*[-–—|:]\s*|\s+)tabs?\s*(?:\+|&|and)\s*tracks?\s*$/i, "").trim();
+    if (modern !== name) return modern;
     const without = name.replace(new RegExp("(?:\\s*[-–—|:]\\s*|\\s+)" + suffix + "\\s*$", "i"), "").trim();
     return without || name;
   };

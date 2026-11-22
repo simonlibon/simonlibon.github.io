@@ -11,11 +11,11 @@
     return Number(n || 0).toLocaleString("en-IE", { style: "currency", currency: "EUR" });
   };
   const labels = {
-    tabs: "Guitar Tab (PDF)",
-    pack: "Tab + Backing Track",
+    tabs: "Guitar Tab (ZIP)",
+    pack: "Tab & Track (ZIP)",
     backing: "Backing Track",
     digital: "Digital Download",
-    bundle: "Complete EP Bundle"
+    bundle: "Complete EP Bundle (ZIP)"
   };
   function showError() {
     document.getElementById("product-error").hidden = false;

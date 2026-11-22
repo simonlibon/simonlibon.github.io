@@ -82,12 +82,16 @@ def group_products(products):
             display = p["title"]
         else:
             # Same strip rule as the official shop: variants of a song share a card.
+            modern_title = re.sub(
+                r"(?:\s*[-–—|:]\s*|\s+)tabs?\s*(?:\+|&|and)\s*tracks?\s*$",
+                "", p["title"], flags=re.I
+            ).strip() or p["title"]
             display = re.sub(
                 r"(?:\s*[-–—|:]\s*|\s+)(?:(?:official\s+)?(?:guitar\s+)?"
                 r"tabs?(?:\s*\(pdf\))?|(?:guitar\s+)?tablatures?|"
                 r"backing\s+tracks?|(?:guitar\s+)?tabs?\s*(?:\+|&|and)\s*"
-                r"backing\s+tracks?)\s*$", "", p["title"], flags=re.I
-            ).strip() or p["title"]
+                r"backing\s+tracks?)\s*$", "", modern_title, flags=re.I
+            ).strip() or modern_title
             key = "track:" + re.sub(r"[^a-z0-9]+", "-", display.casefold()).strip("-")
         if key not in groups:
             groups[key] = {"kind": "bundle" if p["kind"] == "bundle" else "track",

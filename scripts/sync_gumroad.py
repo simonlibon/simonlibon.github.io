@@ -94,7 +94,7 @@ def kind_of(item, old=None):
     # An EP/album is one bundle. A single song sold with both files is a pack.
     if re.search(r"\b(ep|album)\b", name):
         return "bundle"
-    if has_tabs and has_backing:
+    if has_tabs and (has_backing or re.search(r"\btabs?\s*(?:\+|&|and)\s*tracks?\b", name)):
         return "pack"
     if "bundle" in name:
         return "bundle"
@@ -210,11 +210,18 @@ def main():
             raise RuntimeError("Published Gumroad product price has unexpected format")
         kind = kind_of(product, old_product)
         includes = {
-            "tabs": ["Guitar tab (PDF)"],
+            "tabs": ["ZIP: PDF tablature + Guitar Pro (.gp)"],
             "backing": ["Backing track (audio)"],
-            "pack": ["Guitar tab (PDF)", "Backing track (audio)"],
-            "bundle": ["Tabs and backing tracks"],
+            "pack": ["ZIP: PDF + Guitar Pro (.gp) + backing track WAV + MP3"],
+            "bundle": ["ZIP: full EP, one folder per track (PDF, GP, WAV, MP3)"],
         }.get(kind, ["Digital download"])
+        # Preserve the actual files of older synthetic tests, not the future ZIP policy.
+        if name.upper().startswith(("FREE TEST", "TEST ONLY", "DEMO")):
+            includes = {
+                "tabs": ["Guitar tab (PDF)"],
+                "pack": ["Guitar tab (PDF)", "Backing track (audio)"],
+                "bundle": ["Tabs and backing tracks"],
+            }.get(kind, ["Digital download"])
         # Known synthetic checkout tests use WAV, not an unspecified audio file.
         # Keep this exact description through every hourly Gumroad sync.
         if slug == "mmxjjd" and kind == "pack":

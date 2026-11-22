@@ -65,6 +65,23 @@ class GumroadSyncTests(unittest.TestCase):
         self.assertTrue(all(p["published"] for p in products))
         self.assertTrue(all(p["gumroadUrl"].startswith("https://simonlibonstore.gumroad.com/l/") for p in products))
 
+    def test_tab_and_track_modern_naming_and_zip_metadata(self):
+        inventory = [
+            row("modern-tab", "Reverie — Guitar Tab", "reverie-tab", 500),
+            row("modern-pack", "Reverie — Tab & Track", "reverie-pack", 900),
+            row("modern-bundle", "Reverie EP — Complete Bundle", "reverie-ep", 2500),
+        ]
+        def detail(endpoint, token, params=None):
+            return {"product": next(x for x in inventory if x["id"] == endpoint.rsplit("/", 1)[-1])}
+        with (patch.dict(os.environ, {"GUMROAD_ACCESS_TOKEN": "offline-test"}),
+              patch.object(sync, "fetch_products", return_value=inventory),
+              patch.object(sync, "api_get", side_effect=detail)):
+            sync.main()
+        items = self.read()
+        self.assertEqual([p["type"] for p in items], ["tabs", "pack", "bundle"])
+        self.assertTrue(all("ZIP" in p["includes"][0] for p in items))
+        self.assertIn("WAV + MP3", items[1]["includes"][0])
+
     def test_demo_downloads_remain_clear_after_automatic_sync(self):
         inventory = [
             row("tab-test","FREE TEST — Demo Guitar Tab (PDF)","ksiweq",0),

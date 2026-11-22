@@ -104,4 +104,11 @@ assert(gumroadProfile.includes('2026-11-21T01:49:00+01:00'), "Gumroad demo must 
 assert(productScript.includes('const testPermalinks = new Set(["mmxjjd", "ntapzm", "jghmyd"])'), "Only three approved products can checkout");
 assert(productScript.includes('if (preview && !approvedDemo)'), "Expired or unapproved demo must disable checkout");
 assert(productScript.includes('2026-11-21T01:49:00+01:00'), "Product demo must expire");
+const modernFormats = model.build([
+  product("rev-tab", "Reverie — Guitar Tab", "tabs", 5),
+  product("rev-pack", "Reverie — Tab & Track", "pack", 9)
+]);
+assert.equal(modernFormats.tracks.length, 1, "Tab & Track groups with its Tab");
+assert.equal(modernFormats.tracks[0].title, "Reverie");
+assert.equal(modernFormats.tracks[0].options[1].kind, "pack");
 console.log("Storefront tests passed: grouping, drafts, checkout links, limited free demo checkout, expiry, page references.");
