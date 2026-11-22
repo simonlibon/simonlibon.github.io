@@ -72,7 +72,7 @@ function initMenu(){
   if(!b||!n)return;
   const setOpen=open=>{n.classList.toggle('open',open);b.setAttribute('aria-expanded',String(open));b.textContent=open?'CLOSE':'MENU'};
   b.addEventListener('click',()=>setOpen(!n.classList.contains('open')));
-  n.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setOpen(false)));
+  n.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{if(!a.classList.contains('music-dropdown-trigger'))setOpen(false)}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false)});
 }
 
