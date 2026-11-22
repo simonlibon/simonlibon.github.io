@@ -116,16 +116,22 @@ class GumroadProductDetailTests(unittest.TestCase):
                     self.assertIn('data-sl-canonical-product="v1"',doc)
                     self.assertRegex(doc, r'<main data-sl-mirror-sha="[0-9a-f]{20}"')
                     self.assertIn('class="sl-product-layout"',doc)
-                    self.assertIn('class="shop-purchase-options"',doc)
-                    self.assertIn('CHOOSE YOUR DOWNLOAD',doc)
+                    if len(group["options"]) > 1:
+                        self.assertIn('class="shop-purchase-options"',doc)
+                        self.assertIn('CHOOSE YOUR DOWNLOAD',doc)
+                        self.assertIn('data-sl-inline-formats="v3"',doc)
+                        self.assertEqual(doc.count('name="sl-download-format"'),len(group["options"]))
+                        self.assertEqual(doc.count(' checked="checked"'),1)
+                    else:
+                        # A single published format has no selector to show.
+                        self.assertNotIn('class="shop-purchase-options"',doc)
+                        self.assertNotIn('name="sl-download-format"',doc)
+                        self.assertIn('id="product-buy"',doc)
                     self.assertIn('WHAT\'S INCLUDED',doc)
                     self.assertIn('class="sl-payment-copy"',doc)
-                    self.assertIn('data-sl-inline-formats="v3"',doc)
                     self.assertNotIn('shop-cart-link sl-product-cart-link',doc)
                     self.assertNotIn('ADD TO CART',doc)
                     self.assertNotIn('RETURN TO THE OFFICIAL SIMON LIBON SHOP',doc)
-                    self.assertEqual(doc.count('name="sl-download-format"'),len(group["options"]))
-                    self.assertEqual(doc.count(' checked="checked"'),1)
                     for option in group["options"]:
                         self.assertIn(option["checkout"].replace("&","&amp;"),doc)
                         for file in option.get("includes",[]):
