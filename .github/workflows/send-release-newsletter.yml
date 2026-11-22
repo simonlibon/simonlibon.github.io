@@ -1,10 +1,9 @@
 name: Send newsletter for newly published music
 
+# Manual emergency fallback only. The dedicated release monitor owns automatic announcements.
+# Do not run manually for a release already announced in EmailOctopus.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'releases.json'
+  workflow_dispatch:
 
 permissions:
   contents: write
