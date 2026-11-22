@@ -4,6 +4,7 @@ import html
 import json
 import os
 import re
+from datetime import date
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
@@ -25,6 +26,10 @@ def release_info(item):
         raise ValueError(f"Release {slug}: missing title")
     if kind not in KINDS:
         raise ValueError(f"Release {slug}: type must be single, ep or album")
+    try:
+        date.fromisoformat(item.get("release_date", ""))
+    except (TypeError, ValueError):
+        raise ValueError(f"Release {slug}: release_date must use YYYY-MM-DD format")
     if not https_url(item.get("cover")):
         raise ValueError(f"Release {slug}: public HTTPS cover required")
     platforms = item.get("platforms")
