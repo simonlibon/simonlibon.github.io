@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Spotify": null,
+    "Apple Music": null,
+    "YouTube Music": null,
+    "Deezer": null,
+    "Amazon Music": null,
+    "YouTube": "https://www.youtube.com/@simonlibon"
+  }
+}
