@@ -88,9 +88,16 @@ function renderPlatforms(items){
     name.textContent=item.name;
     link.append(name);
     link.href=item.url;
-    link.target="_blank";
-    link.rel="noopener noreferrer";
-    if(preview) link.title="Open "+item.name;
+    // Keep official HTTPS release links intact: iOS/Android can hand them to
+    // the installed streaming app, with the website as a natural fallback.
+    // Do not force a new browser tab for real releases.
+    if(preview){
+      link.target="_blank";
+      link.rel="noopener noreferrer";
+      link.title="Open "+item.name;
+    }else{
+      link.title="Listen on "+item.name;
+    }
     (index<mainPlatforms.length?nav:secondary).append(link);
   });
   if(secondary.childElementCount){
