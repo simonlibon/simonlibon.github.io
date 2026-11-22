@@ -1,5 +1,6 @@
 """Check tab/track choice links on native Gumroad pages. No network access."""
 import unittest
+from unittest.mock import patch
 from scripts.publish_gumroad_product_pages import options_html, build, contains_cart_shortcut
 from scripts.render_gumroad_catalog import load_catalog, group_products, product_card
 from scripts.render_gumroad_products import detail_page
@@ -59,10 +60,21 @@ class ProductOptionTests(unittest.TestCase):
         # Simulates every actual link type: catalogue card, branded detail,
         # the native /l/ page linked from checkout, buy and return to shop.
         # Repeat the whole graph to catch stale route-specific differences.
-        official = load_catalog()
+        # Stable two-format fixture: checkout parity must not depend on which
+        # products happen to be published in the live Gumroad inventory.
+        official = [
+            {"id": "ksiweq", "title": "FREE TEST — Demo Guitar Tab (PDF)",
+             "type": "tabs", "published": True, "price": 0,
+             "gumroadUrl": "https://simonlibonstore.gumroad.com/l/ksiweq",
+             "description": "Free technical demo with synthetic sample files",
+             "includes": ["Guitar tab (PDF)"]},
+            {"id": "mmxjjd", "title": "FREE TEST — Demo Guitar Tab + Backing Track",
+             "type": "pack", "published": True, "price": 0,
+             "gumroadUrl": "https://simonlibonstore.gumroad.com/l/mmxjjd",
+             "description": "Free technical demo with synthetic sample files",
+             "includes": ["Guitar tab (PDF)", "Backing track (WAV)"]},
+        ]
         bundles, tracks = group_products(official)
-        if not tracks:
-            self.skipTest("No published tracks: live checkout round-trip is not applicable yet")
         self.assertEqual(len(tracks), 1)
         group = tracks[0]
         self.assertEqual(group["title"], "FREE TEST — Demo")
@@ -78,7 +90,8 @@ class ProductOptionTests(unittest.TestCase):
                 selected = next(o for o in group["options"]
                                 if o["checkout"].split("?", 1)[0].endswith(current["permalink"]))
                 custom = detail_page(group, selected)
-                native = build(current, [tab, pack])
+                with patch("scripts.publish_gumroad_product_pages.load_catalog", return_value=official):
+                    native = build(current, [tab, pack])
                 for page in (custom, native):
                     self.assertIn('data-sl-canonical-product="v1"', page)
                     self.assertIn("<h1 id=\"product-title\">FREE TEST — Demo</h1>", page)
@@ -117,6 +130,20 @@ class ProductOptionTests(unittest.TestCase):
                 self.assertIn('class="sl-native-metadata"', native)
                 self.assertEqual(native.count('id="product-buy"'), 1)
                 self.assertEqual(custom.count('id="product-buy"'), 1)
+
+    def test_current_published_catalogue_product_pages_render(self):
+        # Test the real, changing catalogue separately from the stable
+        # two-option fixture above. A single published SKU is valid.
+        bundles, tracks = group_products(load_catalog())
+        for group in bundles + tracks:
+            with self.subTest(title=group["title"]):
+                card = product_card(group)
+                self.assertIn(group["title"], card)
+                for option in group["options"]:
+                    detail = detail_page(group, option)
+                    self.assertIn('data-sl-canonical-product="v1"', detail)
+                    self.assertIn('id="product-title"', detail)
+                    self.assertIn(option["checkout"].replace("&", "&amp;"), detail)
 
     def test_cart_detection_covers_all_product_entry_routes(self):
         self.assertFalse(contains_cart_shortcut('<style>.shop-cart-link{display:block}</style>'))
