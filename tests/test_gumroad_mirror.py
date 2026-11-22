@@ -44,9 +44,16 @@ class GumroadMirrorTests(unittest.TestCase):
         rendered = mirror_standalone("music")
         self.assertNotIn("data:image/svg+xml", rendered)
         self.assertNotIn("data:image/png;base64", rendered)
-        self.assertIn("assets/music-logos/qobuz.png", rendered)
-        self.assertIn("assets/music-logos/yandex-music.png", rendered)
+        # The new streamlined page has five primary streaming logos;
+        # additional platforms are hidden behind native HTML details.
         self.assertIn('class="sl-logo-inline"', rendered)
+        self.assertIn('<summary>MORE PLATFORMS</summary>', rendered)
+        self.assertIn('class="music-card-grid music-extra-grid"', rendered)
+        self.assertIn('data-platform="TIDAL"', rendered)
+        self.assertIn('data-platform="LINE MUSIC"', rendered)
+        self.assertIn('href="https://www.youtube.com/@simonlibon"', rendered)
+        # Gumroad should not depend on remote JS to activate profile cards.
+        self.assertNotIn('<script id="music-profile-links">', rendered)
         self.assertIn('data-sl-mirror-css="style.css"', rendered)
 
     def test_shop_navigation_stays_on_gumroad_and_loads_public_catalogue(self):
