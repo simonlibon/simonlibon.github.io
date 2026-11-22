@@ -26,6 +26,48 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Find releases newly marked published
+        id: releases
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, re, subprocess
+          from datetime import date
+          before = os.environ["BEFORE_SHA"]
+          try:
+              previous = json.loads(subprocess.check_output(
+                  ["git", "show", f"{before}:releases.json"], text=True
+              )).get("releases", [])
+          except (subprocess.CalledProcessError, json.JSONDecodeError):
+              previous = []
+          current = json.loads(open("releases.json", encoding="utf-8").read()).get("releases", [])
+          old = {item.get("id"): item for item in previous if isinstance(item, dict)}
+          ids = []
+          seen = set()
+          for item in current:
+              if not isinstance(item, dict) or item.get("published") is not True:
+                  continue
+              release_id = item.get("id")
+              if not isinstance(release_id, str) or not release_id or release_id in seen:
+                  raise SystemExit("Invalid or duplicate release id in releases.json")
+              seen.add(release_id)
+              if old.get(release_id, {}).get("published") is not True:
+                  if not re.fullmatch(r"[a-z0-9-]{1,80}", release_id):
+                      raise SystemExit("New release id must use lowercase letters, numbers and hyphens")
+                  try:
+                      date.fromisoformat(item.get("release_date", ""))
+                  except (TypeError, ValueError):
+                      raise SystemExit(f"Newly published release {release_id} needs release_date in YYYY-MM-DD format")
+                  ids.append(release_id)
+          print("release_ids=" + json.dumps(ids, separators=(",", ":")))
+          print("release_count=" + str(len(ids)))
+          PY
+          cat "$GITHUB_OUTPUT"
+
+
       - name: Publish the latest release cover
         if: steps.releases.outputs.release_count != '0'
         env:
@@ -83,47 +125,6 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
-
-      - name: Find releases newly marked published
-        id: releases
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os, re, subprocess
-          from datetime import date
-          before = os.environ["BEFORE_SHA"]
-          try:
-              previous = json.loads(subprocess.check_output(
-                  ["git", "show", f"{before}:releases.json"], text=True
-              )).get("releases", [])
-          except (subprocess.CalledProcessError, json.JSONDecodeError):
-              previous = []
-          current = json.loads(open("releases.json", encoding="utf-8").read()).get("releases", [])
-          old = {item.get("id"): item for item in previous if isinstance(item, dict)}
-          ids = []
-          seen = set()
-          for item in current:
-              if not isinstance(item, dict) or item.get("published") is not True:
-                  continue
-              release_id = item.get("id")
-              if not isinstance(release_id, str) or not release_id or release_id in seen:
-                  raise SystemExit("Invalid or duplicate release id in releases.json")
-              seen.add(release_id)
-              if old.get(release_id, {}).get("published") is not True:
-                  if not re.fullmatch(r"[a-z0-9-]{1,80}", release_id):
-                      raise SystemExit("New release id must use lowercase letters, numbers and hyphens")
-                  try:
-                      date.fromisoformat(item.get("release_date", ""))
-                  except (TypeError, ValueError):
-                      raise SystemExit(f"Newly published release {release_id} needs release_date in YYYY-MM-DD format")
-                  ids.append(release_id)
-          print("release_ids=" + json.dumps(ids, separators=(",", ":")))
-          print("release_count=" + str(len(ids)))
-          PY
-          cat "$GITHUB_OUTPUT"
 
       - name: Queue the release email for subscribed contacts
         if: steps.releases.outputs.release_count != '0'
