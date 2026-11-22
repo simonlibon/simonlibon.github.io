@@ -59,17 +59,33 @@ jobs:
 
       - name: Publish catalogue only when changed
         id: publish-catalog
+        env:
+          GUMROAD_ACCESS_TOKEN: ${{ secrets.GUMROAD_ACCESS_TOKEN }}
         run: |
-          if git diff --quiet -- catalog.js; then
-            echo "No catalogue changes"
-            exit 0
-          fi
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- catalog.js
-          git commit -m "Sync published Gumroad catalogue"
-          git push
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          # Other website edits can land between our checkout and push.
+          # On conflict, regenerate from the new main and the current Gumroad
+          # inventory instead of force-pushing an outdated catalogue.
+          for attempt in 1 2 3 4; do
+            if git diff --quiet -- catalog.js; then
+              echo "No catalogue changes"
+              exit 0
+            fi
+            git add -- catalog.js
+            git commit -m "Sync published Gumroad catalogue"
+            if git push origin HEAD:main; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::notice::Concurrent main update (attempt $attempt); regenerating catalogue."
+            git fetch origin +refs/heads/main:refs/remotes/origin/main
+            git reset --hard refs/remotes/origin/main
+            python scripts/sync_gumroad.py
+          done
+          echo "::error::Catalogue sync could not publish after four attempts."
+          exit 1
 
       - name: Immediately refresh Gumroad shop and product pages
         if: steps.publish-catalog.outputs.changed == 'true'
