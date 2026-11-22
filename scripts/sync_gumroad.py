@@ -219,6 +219,10 @@ def main():
         # Keep this exact description through every hourly Gumroad sync.
         if slug == "mmxjjd" and kind == "pack":
             includes = ["Guitar tab (PDF)", "Backing track (WAV)"]
+        # This single published checkout-verification item delivers two TXT
+        # files, as its Gumroad description states. Never advertise a PDF.
+        if slug == "pnmqyo" and kind == "tabs":
+            includes = ["Test instructions (TXT)", "Demo guitar tab (TXT)"]
         thumbnail_path = ROOT / "release-artwork" / slug / "thumbnail-square.jpg"
         thumbnail_url = (
             f"https://raw.githubusercontent.com/simonlibon/simonlibon.github.io/main/release-artwork/{slug}/thumbnail-square.jpg"
