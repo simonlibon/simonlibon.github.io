@@ -723,3 +723,47 @@ body[data-page="home"] .footer-quicklinks{display:flex;justify-content:center;al
 @media (max-height: 540px) {
   #newsletter-dialog { max-height: calc(100dvh - 16px); overflow-y: auto; }
 }
+
+
+/* MUSIC cards: official site + Gumroad shared layout */
+.music-clean-page{min-height:clamp(430px,67svh,660px);display:flex;flex-direction:column;justify-content:flex-start}
+.music-clean-page .page-title{border:0;text-align:center;padding:clamp(44px,8vh,90px) 0 16px}
+.music-clean-page .page-title h1{font-size:clamp(52px,9vw,90px);letter-spacing:-.075em;line-height:1}
+.music-clean-page .music-cards-wrap{padding:5px 0 clamp(62px,10vh,110px);max-width:780px}
+.music-clean-page .music-cards-title{margin:0 0 22px;text-align:center;color:#77757a;font-size:11px;font-weight:700;letter-spacing:.16em}
+.music-clean-page .music-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.music-clean-page .music-card{min-width:0;min-height:155px;padding:22px 12px 17px;border:1px solid #e4e1de;border-radius:5px;background:#fffefc;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:#18181a}
+.music-clean-page .music-card-icon{display:flex;align-items:center;justify-content:center;width:50px;height:50px}
+.music-clean-page .music-card-icon img{display:block;max-width:48px;max-height:48px;width:auto;height:auto;object-fit:contain}
+.music-clean-page .music-card[data-platform="Amazon Music"] .music-card-icon img{max-width:88px}
+.music-clean-page .music-card-name{font-weight:700;font-size:13px;line-height:1.3;letter-spacing:-.015em}
+.music-clean-page .music-card-state{font-size:9px;font-weight:700;letter-spacing:.1em;color:#8f8b8d}
+.music-clean-page a.music-card.is-ready{border-color:#bbb7b4;cursor:pointer}
+.music-clean-page a.music-card.is-ready .music-card-state{color:#18181a}
+.music-clean-page a.music-card.is-ready:hover,.music-clean-page a.music-card.is-ready:focus-visible{border-color:#18181a;background:#f1efed;outline-offset:3px}
+.music-clean-page .music-more{margin:24px auto 0;width:100%;max-width:780px}
+.music-clean-page .music-more summary{display:flex;align-items:center;justify-content:center;width:fit-content;min-height:44px;padding:11px 16px;margin:0 auto;cursor:pointer;list-style:none;font-size:11px;font-weight:700;letter-spacing:.15em;color:#555057}
+.music-clean-page .music-more summary::-webkit-details-marker{display:none}
+.music-clean-page .music-more summary::after{content:"+";font-size:17px;font-weight:400;margin-left:11px;line-height:1}
+.music-clean-page .music-more[open] summary::after{content:"−"}
+.music-clean-page .music-more summary:hover,.music-clean-page .music-more summary:focus-visible{color:#18181a;text-decoration:underline;text-underline-offset:4px}
+.music-clean-page .music-extra-grid{margin-top:14px}
+.music-clean-page .music-extra-card{min-height:92px;padding:16px 12px;gap:7px}
+.music-clean-page .music-extra-card .music-card-name{font-size:12px}
+.music-clean-page .music-cards-note{max-width:480px;margin:23px auto 0;text-align:center;color:#8a8588;font-size:11px;line-height:1.6}
+@media(max-width:650px){
+ .music-clean-page .page-title{padding:38px 0 18px}
+ .music-clean-page .page-title h1{font-size:clamp(48px,12vw,64px)}
+ .music-clean-page .music-cards-wrap{padding:6px 0 60px}
+ .music-clean-page .music-cards-title{font-size:10px;margin-bottom:17px}
+ .music-clean-page .music-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .music-clean-page .music-card{min-height:136px;padding:18px 10px 15px;gap:8px}
+ .music-clean-page .music-card-icon{width:43px;height:43px}
+ .music-clean-page .music-card-icon img{max-width:41px;max-height:41px}
+ .music-clean-page .music-card-name{font-size:12px}
+}
+/* Gumroad converts the original Music logo data-URIs into inline SVG. */
+.music-clean-page .music-card-icon svg.sl-logo-inline{display:block;width:48px;height:48px;max-width:100%;max-height:100%;object-fit:contain}
+.music-clean-page .music-card[data-platform="Amazon Music"] .music-card-icon svg.sl-logo-inline{width:62px;max-width:88px}
+@media(max-width:650px){.music-clean-page .music-card-icon svg.sl-logo-inline{width:41px;height:41px}}
+
