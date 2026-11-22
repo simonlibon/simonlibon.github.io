@@ -206,8 +206,8 @@ def _compatible_music_images(document):
                       'src="' + src + '"', match.group(0), count=1)
     document, count = re.subn(r'<img\b[^>]*\bsrc="data:image/png;base64,[^"]+"[^>]*>',
                              replace_png, document)
-    if count != 2:
-        raise ValueError("Expected exactly two PNG logos from the official music page")
+    if count not in (0, 2):
+        raise ValueError("Unexpected embedded PNG logos in canonical music page")
     def decode_svg(encoded):
         decoded = unquote(encoded).strip()
         if not decoded.startswith("<svg ") or not decoded.endswith("</svg>"):
@@ -230,9 +230,68 @@ def _compatible_music_images(document):
         raise ValueError("Embedded image URL remains in mirrored music page")
     document = document.replace(
         "</head>",
-        '<style>.music-service-mark svg.sl-logo-inline{width:42px;height:42px;position:absolute;inset:3px;'
-        'background:#fdfcfb;object-fit:contain}</style></head>', 1)
+        '<style>.music-card-icon svg.sl-logo-inline{display:block;width:48px;height:48px;max-width:100%;max-height:100%;object-fit:contain}'
+        '.music-card[data-platform="Amazon Music"] .music-card-icon svg.sl-logo-inline{width:62px;max-width:88px}'
+        '@media(max-width:650px){.music-card-icon svg.sl-logo-inline{width:41px;height:41px}}</style></head>', 1)
     return document
+
+
+def _static_music_profiles(document):
+    """Make verified artist links work on Gumroad without relying on JavaScript.
+
+    Gumroad may strip inline scripts, so the music cards must be functional
+    in the delivered HTML. The canonical site uses the same configuration.
+    """
+    import json
+    from urllib.parse import urlparse
+    profiles = json.loads((ROOT / "streaming-profiles.json").read_text(encoding="utf-8")).get("profiles", {})
+    allowed = {
+        "Spotify": ("open.spotify.com",),
+        "Apple Music": ("music.apple.com",),
+        "YouTube Music": ("music.youtube.com",),
+        "Deezer": ("www.deezer.com", "deezer.com"),
+        "Amazon Music": ("music.amazon.com",),
+        "YouTube": ("www.youtube.com", "youtube.com"),
+        "TIDAL": ("tidal.com", "listen.tidal.com"),
+        "Qobuz": ("qobuz.com", "www.qobuz.com"),
+        "SoundCloud": ("soundcloud.com", "www.soundcloud.com"),
+        "Bandcamp": ("bandcamp.com", "www.bandcamp.com"),
+        "Audiomack": ("audiomack.com", "www.audiomack.com"),
+        "Napster": ("napster.com", "www.napster.com"),
+        "Anghami": ("anghami.com", "www.anghami.com"),
+        "Pandora": ("pandora.com", "www.pandora.com"),
+        "iHeartRadio": ("iheart.com", "www.iheart.com"),
+        "JioSaavn": ("jiosaavn.com", "www.jiosaavn.com"),
+        "KKBOX": ("kkbox.com", "www.kkbox.com"),
+        "Gaana": ("gaana.com", "www.gaana.com"),
+        "Mixcloud": ("mixcloud.com", "www.mixcloud.com"),
+        "Audius": ("audius.co",),
+        "NetEase Cloud Music": ("music.163.com",),
+        "Yandex Music": ("music.yandex.com",),
+        "LINE MUSIC": ("music.line.me",),
+    }
+    for name, candidate in profiles.items():
+        if name not in allowed or not isinstance(candidate, str):
+            continue
+        url = urlparse(candidate)
+        if url.scheme != "https" or url.hostname not in allowed[name] or not url.path.strip("/") or url.username or url.password:
+            continue
+        # Only rewrite exact disabled cards. Do not replace other navigation links.
+        pattern = (r'<div class="music-card(?P<extra> music-extra-card)?" data-platform="' +
+                   re.escape(html.escape(name, quote=True)) +
+                   r'" aria-disabled="true">(?P<body>.*?)</div>')
+        def activate(match):
+            body = match.group("body").replace("COMING SOON", "OPEN PROFILE")
+            classes = "music-card" + (match.group("extra") or "") + " is-ready"
+            return ('<a class="' + classes + '" data-platform="' + html.escape(name, quote=True) +
+                    '" href="' + html.escape(candidate, quote=True) +
+                    '" rel="noopener noreferrer">' + body + '</a>')
+        document = re.sub(pattern, activate, document, count=1, flags=re.S)
+    # On Gumroad, do not depend on scripts or remote JSON for these links.
+    document = re.sub(r'<script id="music-profile-links">.*?</script>', '',
+                      document, flags=re.S)
+    return document
+
 
 # Standalone pages use exactly the official DOM and the same shared styles.
 PAGE_SOURCES = {
@@ -258,6 +317,7 @@ def mirror_standalone(slug):
                           'pointer-events:none;opacity:.55}</style></head>', 1)
     if slug == "music":
         out = _compatible_music_images(out)
+        out = _static_music_profiles(out)
     # The catalogue and schedule scripts fetch public data from the official
     # host, never from Gumroad's unrelated /catalog.js path.
     for filename in ("catalog.js", "shop-model.js", "shop.js",
