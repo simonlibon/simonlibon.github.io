@@ -88,6 +88,22 @@ class GumroadSyncTests(unittest.TestCase):
             self.assertNotIn("RETURN TO THE OFFICIAL",product["description"])
             self.assertNotIn("Digital download",str(product["includes"]))
 
+    def test_current_free_txt_item_does_not_claim_pdf(self):
+        inventory = [row("free-txt", "TEST ONLY — Mini Guitar Tab (gratuit)", "pnmqyo", 0)]
+        inventory[0]["description"] = (
+            "Contains two TXT files: test instructions and a demo guitar tab. No PDF."
+        )
+        def detail(endpoint, token, params=None):
+            return {"product": inventory[0]}
+        with (patch.dict(os.environ, {"GUMROAD_ACCESS_TOKEN": "offline-test"}),
+              patch.object(sync, "fetch_products", return_value=inventory),
+              patch.object(sync, "api_get", side_effect=detail)):
+            sync.main()
+        item = self.read()[0]
+        self.assertEqual(item["includes"], ["Test instructions (TXT)", "Demo guitar tab (TXT)"])
+        self.assertEqual(item["price"], 0)
+        self.assertEqual(item["gumroadUrl"], "https://simonlibonstore.gumroad.com/l/pnmqyo")
+
     def test_invalid_catalog_is_not_overwritten(self):
         unsafe = "/* unexpected script */\nalert('x');\n"
         self.catalog.write_text(unsafe, encoding="utf-8")
