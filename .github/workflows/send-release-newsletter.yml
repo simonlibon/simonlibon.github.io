@@ -30,7 +30,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os, subprocess
+          import json, os, re, subprocess
+          from datetime import date
           before = os.environ["BEFORE_SHA"]
           try:
               previous = json.loads(subprocess.check_output(
@@ -50,6 +51,12 @@ jobs:
                   raise SystemExit("Invalid or duplicate release id in releases.json")
               seen.add(release_id)
               if old.get(release_id, {}).get("published") is not True:
+                  if not re.fullmatch(r"[a-z0-9-]{1,80}", release_id):
+                      raise SystemExit("New release id must use lowercase letters, numbers and hyphens")
+                  try:
+                      date.fromisoformat(item.get("release_date", ""))
+                  except (TypeError, ValueError):
+                      raise SystemExit(f"Newly published release {release_id} needs release_date in YYYY-MM-DD format")
                   ids.append(release_id)
           print("release_ids=" + json.dumps(ids, separators=(",", ":")))
           print("release_count=" + str(len(ids)))
