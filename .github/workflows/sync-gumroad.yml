@@ -27,6 +27,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Re-runs may start from an old workflow commit. Always sync against the
+      # current main branch so the catalog commit does not overwrite or reject
+      # unrelated website changes made after the original run.
+      - name: Refresh checkout to latest main
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main
+          git checkout -B main refs/remotes/origin/main
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
