@@ -3,11 +3,11 @@ window.SIMON_SHOP_CATALOG = {
   "products": [
     {
       "id": "pnmqyo",
-      "title": "TEST — Simon Libon · Boutique (gratuit)",
-      "type": "digital",
-      "description": "PRODUIT TEST — GRATUIT \n Cette fiche est uniquement utilisée pour vérifier le fonctionnement du site Simon Libon, la boutique Gumroad, les liens et le téléchargement.\n Ce produit ne contient aucune musique, tablature ou backing track. Il ne fait pas partie des sorties officielles.",
+      "title": "TEST ONLY — Mini Guitar Tab (gratuit)",
+      "type": "tabs",
+      "description": "TEST GRATUIT — NE CONSTITUE PAS UNE SORTIE MUSICALE. \n Mini-tablature fictive et originale de 4 mesures, fournie uniquement pour vérifier le fonctionnement du site Simon Libon, des pages Gumroad, des liens et du téléchargement.\n Contient deux fichiers TXT : les instructions de test et la tablature de démonstration. Aucun morceau officiel, aucune backing track.\n Prix minimum : 0 €. N'ajoutez pas de contribution payante pour ce test.",
       "includes": [
-        "Digital download"
+        "Guitar tab (PDF)"
       ],
       "price": 0.0,
       "gumroadUrl": "https://simonlibonstore.gumroad.com/l/pnmqyo",
