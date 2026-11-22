@@ -17,7 +17,7 @@ class MirrorRevisionTest(unittest.TestCase):
         # An empty catalogue before the first music release is valid:
         # no fabricated product or branded checkout route should be created.
         if count == 0:
-            self.assertEqual(load_catalog().get("products", []), [])
+            self.assertEqual(load_catalog(), [])
         else:
             self.assertGreater(count, 0)
     def test_homepage_stamp(self):
