@@ -7,10 +7,10 @@ on:
       - 'releases.json'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: send-release-newsletter
+  group: release-announcement-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -21,6 +21,68 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Publish the latest release cover
+        if: steps.releases.outputs.release_count != '0'
+        env:
+          RELEASE_IDS: ${{ steps.releases.outputs.release_ids }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet Pillow
+          python3 - <<'PY'
+          import io, json, os, re, urllib.request
+          from datetime import date
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          ids = set(json.loads(os.environ["RELEASE_IDS"]))
+          releases = json.loads(Path("releases.json").read_text(encoding="utf-8"))["releases"]
+          candidates = [item for item in releases if isinstance(item, dict)
+                        and item.get("published") is True and item.get("id") in ids]
+          if not candidates:
+              raise SystemExit("No newly published release cover found")
+          release = max(candidates, key=lambda item: date.fromisoformat(item["release_date"]))
+          url = release.get("cover")
+          if not isinstance(url, str) or not url.startswith("https://"):
+              raise SystemExit("Published release needs a public HTTPS cover URL")
+          request = urllib.request.Request(url, headers={"User-Agent": "SimonLibon-ReleaseNewsletter"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              content_type = response.headers.get_content_type()
+              if not content_type.startswith("image/"):
+                  raise SystemExit("Release cover URL did not return an image")
+              raw = response.read(20 * 1024 * 1024 + 1)
+          if len(raw) > 20 * 1024 * 1024:
+              raise SystemExit("Release cover exceeds the 20 MB limit")
+          with Image.open(io.BytesIO(raw)) as image:
+              image.verify()
+          with Image.open(io.BytesIO(raw)) as image:
+              image = ImageOps.exif_transpose(image).convert("RGB")
+              image = ImageOps.fit(image, (1080, 1080), method=Image.Resampling.LANCZOS)
+              output = Path("assets/newsletter/latest-release-cover.jpg")
+              output.parent.mkdir(parents=True, exist_ok=True)
+              image.save(output, format="JPEG", quality=90, optimize=True)
+          print("Prepared the latest release cover for the newsletter.")
+          PY
+
+      - name: Publish the cover image to the site
+        if: steps.releases.outputs.release_count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- assets/newsletter/latest-release-cover.jpg
+          if git diff --cached --quiet; then
+            echo "The current newsletter cover is unchanged."
+          else
+            git commit -m "Update latest release newsletter cover"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
 
       - name: Find releases newly marked published
         id: releases
