@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: prepare-release-newsletters
+  group: release-announcement-pipeline
   cancel-in-progress: false
 
 jobs:
