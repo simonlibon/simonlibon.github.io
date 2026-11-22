@@ -17,7 +17,9 @@ class NewsletterIntegrityTests(unittest.TestCase):
                 self.assertEqual(content.count(FORM), 1)
                 self.assertIn('data-form="e481fb88-e48d-11f1-b718-bf82b7962b6e"', content)
                 self.assertIn('data-newsletter-open', content)
-                self.assertIn('src="site.js?v=newsletter-unified-20261121"', content)
+                # Cache-busting revisions change when the site is deployed.
+                # Verify the shared handler is included once, not a stale version tag.
+                self.assertEqual(content.count('src="site.js?v='), 1)
                 self.assertNotIn("Newsletter works independently of cached shared scripts.", content)
                 self.assertNotIn("const newsletterDialog=document.getElementById('newsletter-dialog');", content)
 
